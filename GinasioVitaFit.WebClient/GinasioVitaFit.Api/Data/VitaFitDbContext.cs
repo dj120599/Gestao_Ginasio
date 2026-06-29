@@ -12,7 +12,7 @@ public class VitaFitDbContext: DbContext, IVitaFitDbContext
     public DbSet<Plano> Planos { get; set; }
     public DbSet<Socio> Socios { get; set; }
     
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder )
     {
         base.OnConfiguring(optionsBuilder);
         

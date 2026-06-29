@@ -189,7 +189,7 @@ namespace GinasioVitaFit.Api.Migrations
                 name: "Planos");
 
             migrationBuilder.DropTable(
-                name: "Dificuldades");
+                name: "Dificuldades" );
         }
     }
 }

@@ -283,7 +283,7 @@ namespace GinasioVitaFit.Api.Migrations
                     b.HasOne("GinasioVitaFit.Api.Entities.Plano", "Plano")
                         .WithMany()
                         .HasForeignKey("PlanoId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Cascade )
                         .IsRequired();
 
                     b.Navigation("Plano");
