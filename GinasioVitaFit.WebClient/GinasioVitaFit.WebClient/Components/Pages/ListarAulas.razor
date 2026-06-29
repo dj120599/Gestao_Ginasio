@@ -1,5 +1,6 @@
 @page "/ListarAulas"
 @using GinasioVitaFit.WebClient.Models
+@using MudBlazor
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
@@ -14,45 +15,44 @@
         Nova Aula
     </MudButton>
 
+    <MudDataGrid Items="@listaAulas" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Horário de Aulas</MudText>
+            <MudSpacer />
+            <!-- Campo de Pesquisa Rápida -->
+            <MudTextField @bind-Value="pesquisa" Placeholder="Pesquisar por modalidade, instrutor ou sala..." 
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0"
+                          Clearable="true" />
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="x => x.Modalidade" Title="Modalidade" />
+            <PropertyColumn Property="x => x.Instrutor" Title="Instrutor" />
+            <PropertyColumn Property="x => x.Sala" Title="Sala / Espaço" />
+            <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Máx." />
 
-<MudDataGrid Items="@listaAulas" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal">
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Horário de Aulas</MudText>
-        <MudSpacer />
-        <!-- Campo de Pesquisa Rápida -->
-        <MudTextField @bind-Value="pesquisa" Placeholder="Pesquisar por modalidade, instrutor ou sala..." 
-                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0"
-                      Clearable="true" />
-    </ToolBarContent>
-    <Columns>
-        <PropertyColumn Property="x => x.Modalidade" Title="Modalidade" />
-        <PropertyColumn Property="x => x.Instrutor" Title="Instrutor" />
-        <PropertyColumn Property="x => x.Sala" Title="Sala / Espaço" />
-        <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Máz." />
+            <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
+            <TemplateColumn Title="Início">
+                <CellTemplate>
+                    @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Fim">
+                <CellTemplate>
+                    @context.Item.Fim.ToString("HH:mm")
+                </CellTemplate>
+            </TemplateColumn>
 
-        <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
-        <TemplateColumn Title="Início">
-            <CellTemplate>
-                @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
-            </CellTemplate>
-        </TemplateColumn>
-        <TemplateColumn Title="Fim">
-            <CellTemplate>
-                @context.Item.Fim.ToString("HH:mm")
-            </CellTemplate>
-        </TemplateColumn>
-
-        <!-- Coluna de Ações (Eliminar de forma lógica com o campo Delete) -->
-        <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
-            <CellTemplate>
-                <MudIconButton Size="Size.Small"
-                               Icon="@Icons.Material.Filled.Delete"
-                               Color="Color.Error"
-                               OnClick="@(() => ConfirmarEliminacao(context.Item))" />
-            </CellTemplate>
-        </TemplateColumn>
-    </Columns>
-</MudDataGrid>
+            <!-- Coluna de Ações (Eliminar de forma lógica com o campo Delete) -->
+            <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudIconButton Size="Size.Small"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   OnClick="@(() => ConfirmarEliminacao(context.Item))" />
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
 </MudContainer>
 
 @code {
@@ -66,15 +66,14 @@
 
     private async Task CarregarAulas()
     {
-        // Dados fictícios para demonstração
+        // Dados fictícios para demonstração alinhados com o modelo Aula.cs
         listaAulas = new List<Aula>
         {
-            new Aula { AulaId = 1, Modalidade = "Pilates", Instrutor = "Maria Silva", Sala = "Estúdio A", Capacidade = 15, Inicio = DateTime.Today.AddHours(9), Fim = DateTime.Today.AddHours(10), Delete = false },
-            new Aula { AulaId = 2, Modalidade = "Crossfit", Instrutor = "João Santos", Sala = "Box Principal", Capacidade = 20, Inicio = DateTime.Today.AddHours(11), Fim = DateTime.Today.AddHours(12), Delete = false },
-            new Aula { AulaId = 3, Modalidade = "Zumba", Instrutor = "Ana Costa", Sala = "Estúdio B", Capacidade = 30, Inicio = DateTime.Today.AddHours(18), Fim = DateTime.Today.AddHours(19), Delete = false }
+            new Aula { AulaID = 1, Modalidade = "Pilates", Instrutor = "Maria Silva", Sala = "Estúdio A", Capacidade = 15, Inicio = DateTime.Today.AddHours(9), Fim = DateTime.Today.AddHours(10), Delete = false },
+            new Aula { AulaID = 2, Modalidade = "Crossfit", Instrutor = "João Santos", Sala = "Box Principal", Capacidade = 20, Inicio = DateTime.Today.AddHours(11), Fim = DateTime.Today.AddHours(12), Delete = false },
+            new Aula { AulaID = 3, Modalidade = "Zumba", Instrutor = "Ana Costa", Sala = "Estúdio B", Capacidade = 30, Inicio = DateTime.Today.AddHours(18), Fim = DateTime.Today.AddHours(19), Delete = false }
         };
 
-        
         listaAulas = listaAulas.Where(a => !a.Delete).ToList();
     }
 
@@ -89,29 +88,19 @@
 
     private async Task ConfirmarEliminacao(Aula aula)
     {
-        var parameters = new DialogParameters<MudMessageBox>();
+        // Abordagem nativa e correta da MudBlazor para caixas de confirmação rápidos
+        bool? result = await DialogService.ShowMessageBoxAsync(
+            "Eliminar Aula",
+            $"Tem a certeza que deseja eliminar a aula de {aula.Modalidade}?",
+            yesText: "Eliminar",
+            cancelText: "Cancelar"
+        );
         
-        var mbox = new MudBlazor.MessageBoxOptions
-        {
-            Title = "Eliminar Aula",
-            Message = $"Tem a certeza que deseja eliminar a aula de {aula.Modalidade}?",
-            YesText = "Eliminar",
-            CancelText = "Cancelar"
-        };
-    
-        parameters.Add(x => x.MarkupMessage, new Microsoft.AspNetCore.Components.MarkupString(mbox.Message));
-        parameters.Add(x => x.YesText, mbox.YesText);
-        parameters.Add(x => x.CancelText, mbox.CancelText);
-        
-        var dialog = await DialogService.ShowAsync<MudMessageBox>(mbox.Title, parameters);
-        var result = await dialog.Result;
-        
-        if (!result.Canceled && result.Data is bool confirmar && confirmar)
+        if (result == true)
         {
             aula.Delete = true;
             Snackbar.Add("Aula eliminada com sucesso!", Severity.Success);
             await CarregarAulas();
         }
     }
-
 }
