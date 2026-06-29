@@ -16,8 +16,8 @@ public class VitaFitDbContext: DbContext, IVitaFitDbContext
     {
         base.OnConfiguring(optionsBuilder);
         
-        //Kawany, Seque o video do prof para prencheres o que falta abaixo.
-        optionsBuilder.UseSqlServer();
+       
+        optionsBuilder.UseSqlServer("Data Source=SQL8005.site4now.net;Initial Catalog=db_acb35f_gestaoginasio;User Id=db_acb35f_gestaoginasio_admin;Password=2026Brazil;Encrypt=True;TrustServerCertificate=True");
     }
     
     
