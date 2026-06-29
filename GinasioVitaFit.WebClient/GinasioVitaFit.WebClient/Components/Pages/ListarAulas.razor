@@ -15,18 +15,20 @@
     </MudButton>
 
 
-    <MudDataGrid Items="@listaAulas" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal"/>
+<MudDataGrid Items="@listaAulas" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Horário de Aulas</MudText>
-        <MudSpacer/>
+        <MudSpacer />
         <!-- Campo de Pesquisa Rápida -->
-        <MudTextField @bind-Value="pesquisa" Placeholder="Pesquisar por modalidade, instrutor ou sala..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0" Clearable="true"/>
+        <MudTextField @bind-Value="pesquisa" Placeholder="Pesquisar por modalidade, instrutor ou sala..." 
+                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0"
+                      Clearable="true" />
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x.Modalidade" Title="Modalidade"/>
-        <PropertyColumn Property="x => x.Instrutor" Title="Instrutor"/>
-        <PropertyColumn Property="x => x.Sala" Title="Sala / Espaço"/>
-        <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Máx."/>
+        <PropertyColumn Property="x => x.Modalidade" Title="Modalidade" />
+        <PropertyColumn Property="x => x.Instrutor" Title="Instrutor" />
+        <PropertyColumn Property="x => x.Sala" Title="Sala / Espaço" />
+        <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Máz." />
 
         <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
         <TemplateColumn Title="Início">
@@ -43,13 +45,14 @@
         <!-- Coluna de Ações (Eliminar de forma lógica com o campo Delete) -->
         <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
             <CellTemplate>
-                <MudIconButton Size="@Size.Small"
+                <MudIconButton Size="Size.Small"
                                Icon="@Icons.Material.Filled.Delete"
                                Color="Color.Error"
-                               OnClick="@(() => ConfirmarEliminacao(context.Item))"/>
+                               OnClick="@(() => ConfirmarEliminacao(context.Item))" />
             </CellTemplate>
         </TemplateColumn>
     </Columns>
+</MudDataGrid>
 </MudContainer>
 
 @code {
