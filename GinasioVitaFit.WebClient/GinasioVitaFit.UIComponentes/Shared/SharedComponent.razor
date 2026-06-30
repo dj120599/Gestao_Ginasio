@@ -1,0 +1,13 @@
+<MudPaper class="p-3">
+    <MudText Style="Color: @Color">
+        @Title
+    </MudText>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter] public string Color { get; set; } = "red";
+
+}

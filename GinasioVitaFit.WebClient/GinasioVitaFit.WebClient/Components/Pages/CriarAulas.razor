@@ -1,0 +1,164 @@
+@page "/CriarAulas"
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using MudBlazor
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IGinasioVitaFitService GinasioService
+
+<h3>CriarAulas</h3>
+
+<MudThemeProvider />
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudCard Elevation="3" Class="pa-4">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h5" Color="Color.Primary" Align="Align.Center">
+                    <b>Registar Nova Aula</b>
+                </MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+            <MudForm @ref="form">
+                <MudGrid>
+                    
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" 
+                                      Label="Modalidade Associada" 
+                                      Required="true" 
+                                      RequiredError="A modalidade é obrigatória!" 
+                                      @bind-Value="novaAula.Modalidade" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.FitnessCenter" />
+                    </MudItem>
+                    
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" 
+                                      Label="Instrutor Responsável" 
+                                      Required="true" 
+                                      RequiredError="O instrutor é obrigatório!" 
+                                      @bind-Value="novaAula.Instrutor" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Person" />
+                    </MudItem>
+                    
+                    <MudItem xs="12" sm="4">
+                        <MudDatePicker Label="Data da Aula" 
+                                       Required="true" 
+                                       Editable="true"
+                                       @bind-Date="dataSelecionada" 
+                                       AdornmentIcon="@Icons.Material.Filled.CalendarMonth" />
+                    </MudItem>
+
+                    <!-- Hora de Início -->
+                    <MudItem xs="6" sm="4">
+                        <MudTimePicker Label="Hora de Início" 
+                                       Required="true" 
+                                       Editable="true"
+                                       @bind-Time="horaInicio" 
+                                       AdornmentIcon="@Icons.Material.Filled.AccessTime" />
+                    </MudItem>
+
+                    <!-- Hora de Fim -->
+                    <MudItem xs="6" sm="4">
+                        <MudTimePicker Label="Hora de Fim" 
+                                       Required="true" 
+                                       Editable="true"
+                                       @bind-Time="horaFim" 
+                                       AdornmentIcon="@Icons.Material.Filled.AccessTime" />
+                    </MudItem>
+
+                    <!-- Sala / Espaço -->
+                    <MudItem xs="12" sm="8">
+                        <MudTextField T="string" 
+                                      Label="Sala / Espaço" 
+                                      Required="true" 
+                                      RequiredError="O espaço/sala é obrigatório!" 
+                                      @bind-Value="novaAula.Sala" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Room" />
+                    </MudItem>
+                    
+                    <MudItem xs="12" sm="4">
+                        <MudNumericField T="int" 
+                                         Label="Capacidade" 
+                                         Required="true" 
+                                         Min="1" 
+                                         @bind-Value="novaAula.Capacidade" 
+                                         Adornment="Adornment.Start" 
+                                         AdornmentIcon="@Icons.Material.Filled.Groups" />
+                    </MudItem>
+
+                </MudGrid>
+            </MudForm>
+        </MudCardContent>
+
+        <MudCardActions Class="d-flex justify-center mt-4">
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       Size="Size.Large" 
+                       OnClick="SubmeterFormulario">
+                Gravar Aula
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private MudForm form;
+    
+    private Aula novaAula = new Aula { Capacidade = 10 }; 
+   
+    private DateTime? dataSelecionada = DateTime.Today;
+    private TimeSpan? horaInicio = new TimeSpan(09, 00, 00);
+    private TimeSpan? horaFim = new TimeSpan(10, 00, 00);
+
+    private async Task SubmeterFormulario()
+    {
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            if (dataSelecionada.HasValue && horaInicio.HasValue && horaFim.HasValue)
+            {
+                novaAula.Inicio = dataSelecionada.Value.Date + horaInicio.Value;
+                novaAula.Fim = dataSelecionada.Value.Date + horaFim.Value;
+            }
+            
+            if (novaAula.Fim <= novaAula.Inicio)
+            {
+                Snackbar.Add("Erro: A hora de fim deve ser posterior à hora de início!", Severity.Error);
+                return;
+            }
+            
+            // Grava a aula na API real através do Refit
+            var resposta = await GinasioService.AddAula(novaAula);
+
+            if (resposta.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Aula registada com sucesso!", Severity.Success);
+                await ResetarFormulario();
+                Navigation.NavigateTo("/ListarAulas");
+            }
+            else
+            {
+                Snackbar.Add("Erro ao gravar a aula no servidor.", Severity.Error);
+            }
+        }
+    }
+
+    private async Task ResetarFormulario()
+    {
+        novaAula = new Aula { Capacidade = 10 }; 
+        dataSelecionada = DateTime.Today;
+        horaInicio = new TimeSpan(09, 00, 00);
+        horaFim = new TimeSpan(10, 00, 00);
+
+        if (form != null)
+        {
+            await form.ResetValidationAsync();
+        }
+    }
+}
