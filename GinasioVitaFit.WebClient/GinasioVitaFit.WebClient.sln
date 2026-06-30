@@ -1,10 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.8.11912.234 insiders
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GinasioVitaFit.WebClient", "GinasioVitaFit.WebClient\GinasioVitaFit.WebClient.csproj", "{A7FB8892-206D-40C4-9713-F1B69EFD62E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GinasioVitaFit.Api", "GinasioVitaFit.Api\GinasioVitaFit.Api.csproj", "{12C8E026-CCB4-42E9-AA06-C452EA6D4AC7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GinasioVitaFit.UIComponentes", "GinasioVitaFit.UIComponentes\GinasioVitaFit.UIComponentes.csproj", "{C6430BA3-9769-475F-8CAD-D65B3DB72AED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GinasioVitaFit.Shared", "GinasioVitaFit.Shared\GinasioVitaFit.Shared.csproj", "{CD3CB5E1-259A-9B5D-4CEC-8704B34CB226}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,20 +21,20 @@ Global
 		{A7FB8892-206D-40C4-9713-F1B69EFD62E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7FB8892-206D-40C4-9713-F1B69EFD62E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7FB8892-206D-40C4-9713-F1B69EFD62E8}.Release|Any CPU.Build.0 = Release|Any CPU
-
 		{12C8E026-CCB4-42E9-AA06-C452EA6D4AC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{12C8E026-CCB4-42E9-AA06-C452EA6D4AC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12C8E026-CCB4-42E9-AA06-C452EA6D4AC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12C8E026-CCB4-42E9-AA06-C452EA6D4AC7}.Release|Any CPU.Build.0 = Release|Any CPU
-
-		{0C192F1E-E013-47A9-9267-9B99F7C7DE5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0C192F1E-E013-47A9-9267-9B99F7C7DE5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0C192F1E-E013-47A9-9267-9B99F7C7DE5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0C192F1E-E013-47A9-9267-9B99F7C7DE5C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C6430BA3-9769-475F-8CAD-D65B3DB72AED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C6430BA3-9769-475F-8CAD-D65B3DB72AED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6430BA3-9769-475F-8CAD-D65B3DB72AED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6430BA3-9769-475F-8CAD-D65B3DB72AED}.Release|Any CPU.Build.0 = Release|Any CPU
-
+		{CD3CB5E1-259A-9B5D-4CEC-8704B34CB226}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD3CB5E1-259A-9B5D-4CEC-8704B34CB226}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD3CB5E1-259A-9B5D-4CEC-8704B34CB226}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD3CB5E1-259A-9B5D-4CEC-8704B34CB226}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
