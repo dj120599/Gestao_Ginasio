@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GinasioVitaFit.WebClient.Models;
+namespace GinasioVitaFit.Shared.Models;
 
 public class Aula
 {

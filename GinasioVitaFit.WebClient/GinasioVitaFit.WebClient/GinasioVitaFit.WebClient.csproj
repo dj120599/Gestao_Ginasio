@@ -9,6 +9,20 @@
 
     <ItemGroup>
       <PackageReference Include="MudBlazor" Version="9.6.0" />
+      <PackageReference Include="Refit" Version="10.2.0" />
+      <PackageReference Include="Refit.HttpClientFactory" Version="10.2.0" />
+      <PackageReference Include="Refit.Newtonsoft.Json" Version="10.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="GinasioVitaFit.Api">
+        <HintPath>..\GinasioVitaFit.Api\bin\Debug\net10.0\GinasioVitaFit.Api.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\GinasioVitaFit.Shared\GinasioVitaFit.Shared.csproj" />
+      <ProjectReference Include="..\GinasioVitaFit.UIComponentes\GinasioVitaFit.UIComponentes.csproj" />
     </ItemGroup>
 
 </Project>

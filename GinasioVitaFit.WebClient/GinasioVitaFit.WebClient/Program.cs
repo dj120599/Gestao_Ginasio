@@ -1,17 +1,25 @@
-using GinasioVitaFit.WebClient.Components;
+using Refit;
 using MudBlazor.Services;
+using GinasioVitaFit.Shared.Services;
+using GinasioVitaFit.WebClient.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
 
+
+builder.Services
+    .AddRefitClient<IGinasioVitaFitService>()
+    .AddRefitClient<IAuthApi>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri ("https://localhost:7134")); 
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);

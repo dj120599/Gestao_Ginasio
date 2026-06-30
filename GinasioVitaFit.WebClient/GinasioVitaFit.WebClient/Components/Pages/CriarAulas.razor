@@ -1,8 +1,14 @@
 @page "/CriarAulas"
-@using GinasioVitaFit.WebClient.Models
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using MudBlazor
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IGinasioVitaFitService GinasioService
+
 <h3>CriarAulas</h3>
 
-@inject ISnackbar Snackbar
+<MudThemeProvider />
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
     <MudCard Elevation="3" Class="pa-4">
@@ -15,7 +21,7 @@
         </MudCardHeader>
 
         <MudCardContent>
-            <MudForm @ref="form" @bind-IsValid="@isValid">
+            <MudForm @ref="form">
                 <MudGrid>
                     
                     <MudItem xs="12" sm="6">
@@ -92,7 +98,6 @@
         <MudCardActions Class="d-flex justify-center mt-4">
             <MudButton Variant="Variant.Filled" 
                        Color="Color.Primary" 
-                       Disabled="@(!isValid)" 
                        Size="Size.Large" 
                        OnClick="SubmeterFormulario">
                 Gravar Aula
@@ -103,10 +108,9 @@
 
 @code {
     private MudForm form;
-    private bool isValid;
     
-    private Aula novaAula = new Aula();
-    
+    private Aula novaAula = new Aula { Capacidade = 10 }; 
+   
     private DateTime? dataSelecionada = DateTime.Today;
     private TimeSpan? horaInicio = new TimeSpan(09, 00, 00);
     private TimeSpan? horaFim = new TimeSpan(10, 00, 00);
@@ -129,23 +133,32 @@
                 return;
             }
             
-            Snackbar.Add("Aula registada com sucesso!", Severity.Success);
-            
-            ResetarFormulario();
+            // Grava a aula na API real através do Refit
+            var resposta = await GinasioService.AddAula(novaAula);
+
+            if (resposta.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Aula registada com sucesso!", Severity.Success);
+                await ResetarFormulario();
+                Navigation.NavigateTo("/ListarAulas");
+            }
+            else
+            {
+                Snackbar.Add("Erro ao gravar a aula no servidor.", Severity.Error);
+            }
         }
     }
 
     private async Task ResetarFormulario()
     {
-        novaAula = new Aula();
+        novaAula = new Aula { Capacidade = 10 }; 
         dataSelecionada = DateTime.Today;
         horaInicio = new TimeSpan(09, 00, 00);
         horaFim = new TimeSpan(10, 00, 00);
 
         if (form != null)
         {
-            await form.ResetAsync();
+            await form.ResetValidationAsync();
         }
     }
-
 }
