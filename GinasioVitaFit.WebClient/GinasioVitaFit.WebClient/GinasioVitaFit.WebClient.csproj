@@ -14,6 +14,7 @@
       <PackageReference Include="Refit.Newtonsoft.Json" Version="10.2.0" />
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\GinasioVitaFit.Api\GinasioVitaFit.Api.csproj" />
       <ProjectReference Include="..\GinasioVitaFit.Shared\GinasioVitaFit.Shared.csproj" />
       <ProjectReference Include="..\GinasioVitaFit.UIComponentes\GinasioVitaFit.UIComponentes.csproj" />
     </ItemGroup>
