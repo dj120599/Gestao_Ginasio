@@ -11,8 +11,6 @@ public class VitaFitDbContext: DbContext, IVitaFitDbContext
     public DbSet<Modalidade> Modalidades { get; set; }
     public DbSet<Plano> Planos { get; set; }
     public DbSet<Socio> Socios { get; set; }
-    public DbSet<InstrutorMod> InstrutorMods { get; set; }
-    public DbSet<AulaSocios> AulaSocios { get; set; }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder )
     {
