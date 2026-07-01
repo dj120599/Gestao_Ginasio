@@ -11,5 +11,5 @@ public class SocioDto
     public PlanoDto Plano { get; set; }
     public DateTime SubInicio { get; set; }
     public DateTime SubFim { get; set; }
-    public bool IsDeleted { get; set; }
+    public bool IsDeleted { get; set; } 
 }
