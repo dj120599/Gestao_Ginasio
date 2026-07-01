@@ -18,5 +18,8 @@
       <ProjectReference Include="..\GinasioVitaFit.Shared\GinasioVitaFit.Shared.csproj" />
       <ProjectReference Include="..\GinasioVitaFit.UIComponentes\GinasioVitaFit.UIComponentes.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Content Remove="Components\Pages\Weather.razor" />
+    </ItemGroup>
 
 </Project>
