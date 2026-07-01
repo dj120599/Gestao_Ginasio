@@ -11,7 +11,7 @@ builder.Services.AddRazorComponents()
 builder.Services
     .AddRefitClient<IGinasioVitaFitService>()
     .AddRefitClient<IAuthApi>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri ("https://localhost:7134"));
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri ("https://localhost:7134" ));
 
 
 var app = builder.Build();
