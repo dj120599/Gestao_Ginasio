@@ -13,4 +13,5 @@ public class Socio
     public DateTime SubInicio { get; set; }
     public DateTime SubFim { get; set; }
     public bool IsDeleted { get; set; }
+    
 }
