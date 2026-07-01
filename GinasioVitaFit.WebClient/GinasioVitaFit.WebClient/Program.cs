@@ -1,5 +1,6 @@
 using GinasioVitaFit.Shared.Services;
 using GinasioVitaFit.WebClient.Components;
+using MudBlazor.Services;
 using Refit;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,7 @@ builder.Services
     .AddRefitClient<IAuthApi>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri ("https://localhost:7134" ));
 
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 
