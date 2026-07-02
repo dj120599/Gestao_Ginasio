@@ -21,7 +21,7 @@ public class PlanoController: Controller
     }
     
     [HttpGet("/plano")]
-    public async Task<IActionResult> GetCategories()
+    public async Task<IActionResult> GetPlanos()
     {
         if (_context.Planos is not null)
         {

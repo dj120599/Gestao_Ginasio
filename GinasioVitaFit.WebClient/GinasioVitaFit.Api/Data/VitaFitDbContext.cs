@@ -13,6 +13,7 @@ public class VitaFitDbContext: DbContext, IVitaFitDbContext
     public DbSet<Socio> Socios { get; set; }
     public DbSet<InstrutorMod> InstrutorMods { get; set; }
     public DbSet<AulaSocios> AulaSocios { get; set; }
+    public DbSet<Sala> Salas { get; set; }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder )
     {
