@@ -13,6 +13,7 @@ public interface IVitaFitDbContext
     public DbSet<Socio> Socios { get; set; }
     public DbSet<InstrutorMod> InstrutorMods { get; set; }
     public DbSet<AulaSocios> AulaSocios { get; set; }
+    public DbSet<Sala> Salas { get; set; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
