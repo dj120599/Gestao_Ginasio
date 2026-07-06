@@ -3,41 +3,25 @@ using Refit;
 
 namespace GinasioVitaFit.Shared.Services;
 
-public interface IGinasioVitaFitService
+public interface IHybridClasses
 {
-    [Get("/aulas")]
-    Task<ApiResponse<List<Aula>>> GetAulas();
-    
-    [Post("/aula")]
-    Task<ApiResponse<Aula>> AddAula([Body] Aula aula);
-    
-    [Put("/aula")]
-    Task<ApiResponse<Aula>> UpdateAula([Body] Aula aula);
-    
-    [Get("/aula/{id}")]
-    Task<Aula> GetAula(int id);
-    
-    [Delete("/aula/{id}")]
-    Task<ApiResponse<string>> DeleteAula(int id);
-    
-    //Aulasocio e Instrutormod
     [Get("//sociosaula/{id}")]
     Task<ApiResponse<List<AulaSocios>>> GetAllSociosFromAula(int id);
 
     [Get("/aulassocio/{id}")]
     Task<ApiResponse<List<AulaSocios>>> GetAllAulasFromSocio(int id);
 
-    [Get("/aulasocio")]
+    [Get("/aulasocio/{id,socio}")]
     Task<ApiResponse<AulaSocios>> GetSocioFromAula(int id, int socio);
 
     [Post("/aulasocio")]
     Task<ApiResponse<AulaSocios>> AddSocioToAula([Body] AulaSocios? aulasocio);
 
-    [Delete("/aulasocio_softdelete")]
-    Task<ApiResponse<string>> DeleteSocio_Soft([Body] AulaSocios? aulasocio);
+    [Delete("aulasocio_softdelete/{id,socio}")]
+    Task<ApiResponse<string>> DeleteSocio_Soft(int id, int socio);
     
 
-    [Get("/modalidadesinstr/{id}")]
+    [Get("//modalidadesinstr/{id}")]
     Task<ApiResponse<List<InstrutorMod>>> GetAllModalidadesFromInstrutor(int id);
 
     [Get("/instrutormods/{id}")]
@@ -46,6 +30,6 @@ public interface IGinasioVitaFitService
     [Post("/instrutormod")]
     Task<ApiResponse<InstrutorMod>> AddModalidadeToInstrutor([Body] InstrutorMod? instrutormod);
 
-    [Delete("/instrutormod_softdelete")]
-    Task<ApiResponse<string>> DeleteModalidade_Soft([Body] InstrutorMod? instrutormod);
+    [Delete("instrutormod_softdelete/{id,modalidade}")]
+    Task<ApiResponse<string>> DeleteModalidade_Soft(int id, int modalidade);
 }

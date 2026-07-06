@@ -2,5 +2,5 @@ namespace GinasioVitaFit.Api.Entities;
 
 public class Sala: BaseEntity
 {
-    public string Nome {get;set;}
+    public string Name {get;set;}
 }

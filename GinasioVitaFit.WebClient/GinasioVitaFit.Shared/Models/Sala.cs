@@ -1,6 +1,6 @@
-namespace GinasioVitaFit.Api.Models;
+namespace GinasioVitaFit.Shared.Models;
 
-public class SalaDto
+public class Sala
 {
     public int Id { get; set; }
     public string Name {get;set;}
