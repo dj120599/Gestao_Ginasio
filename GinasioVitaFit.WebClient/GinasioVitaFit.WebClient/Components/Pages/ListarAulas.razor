@@ -67,6 +67,7 @@
 
     private async Task CarregarAulas()
     {
+        
         // Dados fictícios para demonstração
         listaAulas = new List<Aula>
         {
@@ -77,6 +78,7 @@
 
         
         listaAulas = listaAulas.Where(a => !a.Delete).ToList();
+        
     }
 
     private bool FiltroGlobal(Aula aula)
