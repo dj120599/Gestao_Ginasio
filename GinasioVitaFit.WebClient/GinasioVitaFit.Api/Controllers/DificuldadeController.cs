@@ -8,28 +8,28 @@ using GinasioVitaFit.Api.Models;
 
 namespace GinasioVitaFit.Api.Controllers;
 
-public class DificudadeController: Controller
+public class DificuldadeController: Controller
 {
     private readonly IVitaFitDbContext _context;
     private readonly IMapper _mapper;
 
-    public DificudadeController(IVitaFitDbContext context, IMapper mapper)
+    public DificuldadeController(IVitaFitDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
         
     } 
     
-    [HttpGet("/dificuldade")]
-    public async Task<IActionResult> GetDificuldades()
+    [HttpGet("/dificuldades")]
+    public async Task<IActionResult> GetAllDificuldades()
     {
         if (_context.Dificuldades is not null)
         {
-            var categories = await _context.Dificuldades
+            var dificuldades = await _context.Dificuldades
                 .ToListAsync();
             
-            if(categories.Any())
-                return Ok(categories);
+            if(dificuldades.Any())
+                return Ok(dificuldades);
         }
 
         return NotFound();
