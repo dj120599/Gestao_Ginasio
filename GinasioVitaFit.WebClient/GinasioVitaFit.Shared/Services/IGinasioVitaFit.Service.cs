@@ -19,4 +19,18 @@ public interface IGinasioVitaFitService
     
     [Delete("/aula/{id}")]
     Task<ApiResponse<string>> DeleteAula(int id);
+    
+    // Modalidade
+
+    [Post("/modalidade")]
+    Task<ApiResponse<string>> AddModalidade([Body] Modalidade modalidade);
+    
+    [Get("/modalidades")]
+    Task<ApiResponse<List<Modalidade>>> GetAllModalidades();
+    
+    // Dificuldade
+    
+    [Get("/dificuldades")]
+    Task<ApiResponse<List<Dificuldade>>> GetAllDificuldades();
+    
 }

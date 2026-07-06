@@ -21,7 +21,7 @@ public class ModalidadeController: Controller
     }
     
      [HttpGet("/modalidades")]
-    public async Task<IActionResult> GetAs()
+    public async Task<IActionResult> GetAllModalidades()
     {
         if (_context.Modalidades is not null)
         {
@@ -52,16 +52,49 @@ public class ModalidadeController: Controller
         return NotFound();
     }
     
-    //Metodo POSt com mapeamento automatico
     [HttpPost("/modalidade")]
-    public async Task<IResult> AddModalidade([FromBody] ModalidadeDto? modalidade)
+    public async Task<IResult> AddModalidade([FromBody] ModalidadeDto? modalidade, [FromServices] IWebHostEnvironment env)
     {
         if (modalidade is  null)
-            return Results.BadRequest();
+            return Results.BadRequest("Dados inválidos.");
         
         var mapper = _mapper.Map<Models.ModalidadeDto,Entities.Modalidade>(modalidade);
         mapper.CreatedDate = DateTime.UtcNow;
         mapper.UpdatedDate = DateTime.UtcNow;
+        
+        // Verifica se o utilizador enviou uma imagem em Base64
+        if (!string.IsNullOrEmpty(modalidade.ImageUrl) && modalidade.ImageUrl.StartsWith("data:image"))
+        {
+            try
+            {
+                // 1. Extrai os bytes puros do formato Base64
+                var base64Data = modalidade.ImageUrl.Split(',')[1];
+                var imageBytes = Convert.FromBase64String(base64Data);
+
+                // 2. Descobre a extensão do ficheiro (.png, .jpg, etc.)
+                var contentType = modalidade.ImageUrl.Split(';')[0].Split(':')[1];
+                var extension = contentType == "image/png" ? ".png" : ".jpg";
+
+                // 3. Gera um nome de ficheiro único para nunca haver duplicados
+                var fileName = $"{Guid.NewGuid()}{extension}";
+            
+                // 4. Define o caminho físico onde o ficheiro vai ser guardado no servidor
+                var uploadsFolder = Path.Combine(env.ContentRootPath, "wwwroot", "uploads");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+            
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                // 5. Escreve os bytes no disco do servidor com o caminho absoluto completo
+                await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
+
+                // 6. Guarda na Base de Dados apenas o caminho relativo para o Frontend ler
+                mapper.ImageUrl = $"/uploads/{fileName}";
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem($"Erro ao processar e salvar o ficheiro físico da imagem: {ex.Message}");
+            }
+        }
         
         var modalidades =  _context.Modalidades;
         

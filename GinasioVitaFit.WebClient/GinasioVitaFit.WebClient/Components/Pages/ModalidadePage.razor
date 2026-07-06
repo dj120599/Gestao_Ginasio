@@ -1,0 +1,164 @@
+@page "/addModalidade"
+@page "/editModalidade/{Id:int}"
+@using GinasioVitaFit.Shared.Services
+@using GinasioVitaFit.Shared.Models
+@inject IGinasioVitaFitService GinasioVitaFitService
+@inject NavigationManager NavigationManager
+
+<h3 class="text-2xl font-bold text-gray-800 mb-6">@(Id.HasValue ? "Editar" : "Adicionar") Modalidade</h3>
+
+<EditForm Model="_modalidade" FormName="modalidadeForm" OnValidSubmit="OnAddModalidade">
+    <DataAnnotationsValidator/>
+
+    <div class="flex flex-col gap-4 p-6">
+
+        <!-- Campo: Name (Atualizado para Tailwind) -->
+        <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-gray-700">Nome</label>
+            <InputText
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+                @bind-Value="_modalidade.Name"/>
+            <ValidationMessage For="() => _modalidade.Name" class="text-xs text-red-500"/>
+        </div>
+
+        <!-- Campo: Description (Atualizado para TextArea com Tailwind) -->
+        <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-gray-700">Descrição</label>
+            <InputTextArea
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white min-h-[80px]"
+                @bind-Value="_modalidade.Description"/>
+            <ValidationMessage For="() => _modalidade.Description" class="text-xs text-red-500"/>
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-gray-700">Dificuldade</label>
+            <InputSelect
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+                @bind-Value="_modalidade.DificuldadeId">
+                <option value="0">Selecione a dificuldade...</option>
+                @foreach (var dif in _dificuldades)
+                {
+                    <option value="@dif.Id">@dif.Name</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="() => _modalidade.DificuldadeId" class="text-xs text-red-500"/>
+        </div>
+
+        <div class="flex flex-col gap-1 mt-2">
+            <label class="text-sm font-medium text-gray-700">Imagem da Modalidade</label>
+
+            <!-- O label funciona como o botão invisível. Clicar nele ativa o input abaixo -->
+            <label
+                class="w-full min-h-[160px] border-2 border-dashed border-gray-300 hover:border-amber-500 bg-gray-50 rounded-xl flex flex-col items-center justify-center p-4 cursor-pointer transition-all duration-200 group">
+
+                <!-- Input nativo do Blazor completamente escondido com 'hidden' -->
+                <InputFile OnChange="OnImageFileChanged" accept=".png, .jpg, .jpeg" class="hidden"/>
+
+                @if (string.IsNullOrEmpty(_modalidade.ImageUrl) || _modalidade.ImageUrl.StartsWith("https://unsplash.com"))
+                {
+                    <!-- Estado 1: Sem Imagem (Mostra a zona de upload) -->
+                    <span
+                        class="bi bi-cloud-arrow-up text-gray-400 group-hover:text-amber-500 text-4xl transition-colors mb-2"></span>
+                    <p class="text-sm font-semibold text-gray-600 group-hover:text-amber-600">Clique para carregar a
+                        imagem</p>
+                    <p class="text-xs text-gray-400 mt-1">Formatos aceites: PNG, JPG ou JPEG</p>
+                }
+                else
+                {
+                    <!-- Estado 2: Com Imagem (Mostra a pré-visualização e o botão Remover) -->
+                    <div class="flex flex-col items-center gap-2">
+                        <!-- Se o link começar com HTTP (Unsplash), mostra direto. Se for local, junta o URL da API -->
+                        <img src="@(_modalidade.ImageUrl.StartsWith("http") ? _modalidade.ImageUrl : $"https://localhost:7134{_modalidade.ImageUrl}")" 
+                             class="w-20 h-20 object-cover rounded-lg" />
+
+                        <div class="flex items-center gap-2 mt-1">
+                    <span
+                        class="text-xs text-emerald-600 font-medium flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-xs">
+                        <span class="bi bi-check-circle-fill"></span> Imagem Carregada
+                    </span>
+
+                            <!-- Botão Remover que limpa o estado imediatamente -->
+                            <button type="button" @onclick="LimparImagemManualmente" @onclick:stopPropagation="true"
+                                    class="text-xs text-red-600 font-medium bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-xs transition-colors cursor-pointer">
+                                Remover
+                            </button>
+                        </div>
+                    </div>
+                }
+            </label>
+        </div>
+
+        @* <ValidationSummary class="text-sm text-red-600 list-disc pl-5" /> *@
+
+        <button type="submit"
+                class="mt-2 w-1/3 !bg-amber-500 hover:!bg-amber-600 text-white font-semibold py-2 self-center
+                        px-4 rounded-lg transition-colors duration-200 cursor-pointer shadow-sm">
+            @(Id.HasValue ? "Editar" : "Adicionar")
+        </button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private Modalidade _modalidade = new();
+    private List<Modalidade> _modalidades = new();
+    private List<Dificuldade> _dificuldades = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var modalidades = await GinasioVitaFitService.GetAllModalidades();
+        var dificuldades = await GinasioVitaFitService.GetAllDificuldades();
+
+        if (modalidades.IsSuccessStatusCode)
+            _modalidades = modalidades.Content ?? new List<Modalidade>();
+
+        if (dificuldades.IsSuccessStatusCode)
+            _dificuldades = dificuldades.Content ?? new List<Dificuldade>();
+    }
+
+    private async Task OnAddModalidade()
+    {
+        await GinasioVitaFitService.AddModalidade(_modalidade);
+        // NavigationManager.NavigateTo($"/");
+    }
+
+    private async Task OnImageFileChanged(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            try
+            {
+                // 1. Define um limite seguro de 5MB
+                long maxFileSize = 1024 * 1024 * 5; 
+            
+                // 2. Cria um fluxo de memória para receber os dados completos
+                using var memoryStream = new MemoryStream();
+            
+                // 3. Força o Blazor a copiar todos os bytes do ficheiro para a memória sem interrupções
+                await file.OpenReadStream(maxFileSize).CopyToAsync(memoryStream);
+            
+                // 4. Converte o array completo de bytes para a string Base64
+                var buffer = memoryStream.ToArray();
+                var base64String = Convert.ToBase64String(buffer);
+            
+                _modalidade.ImageUrl = $"data:{file.ContentType};base64,{base64String}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao processar a imagem completa: {ex.Message}");
+            }
+        }
+    }
+
+    private void LimparImagemManualmente()
+    {
+        // Restaura o link padrão do Unsplash e limpa a visualização na hora
+        _modalidade.ImageUrl = "https://plus.unsplash.com/premium_photo-1746421978363-6e3ea7668a73?q=80&w=1934&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+    }
+
+}
