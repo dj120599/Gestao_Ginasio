@@ -8,28 +8,28 @@ using GinasioVitaFit.Api.Models;
 
 namespace GinasioVitaFit.Api.Controllers;
 
-public class PlanoController: Controller
+public class SalaController: Controller
 {
     private readonly IVitaFitDbContext _context;
     private readonly IMapper _mapper;
 
-    public PlanoController(IVitaFitDbContext context, IMapper mapper)
+    public SalaController(IVitaFitDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
         
     }
     
-    [HttpGet("/plano")]
-    public async Task<IActionResult> GetPlanos()
+    [HttpGet("/sala")]
+    public async Task<IActionResult> GetSalas()
     {
         if (_context.Planos is not null)
         {
-            var categories = await _context.Planos
+            var salas = await _context.Salas
                 .ToListAsync();
             
-            if(categories.Any())
-                return Ok(categories);
+            if(salas.Any())
+                return Ok(salas);
         }
 
         return NotFound();
