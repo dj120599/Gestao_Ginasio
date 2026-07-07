@@ -132,11 +132,11 @@
         {
             if (dataSelecionada.HasValue && horaInicio.HasValue && horaFim.HasValue)
             {
-                novaAula.Inicio = dataSelecionada.Value.Date + horaInicio.Value;
-                novaAula.Fim = dataSelecionada.Value.Date + horaFim.Value;
+                novaAula.AulaInicio = dataSelecionada.Value.Date + horaInicio.Value;
+                novaAula.AulaFim = dataSelecionada.Value.Date + horaFim.Value;
             }
             
-            if (novaAula.Fim <= novaAula.Inicio)
+            if (novaAula.AulaFim <= novaAula.AulaInicio)
             {
                 Snackbar.Add("Erro: A hora de fim deve ser posterior à hora de início!", Severity.Error);
                 return;

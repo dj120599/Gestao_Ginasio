@@ -4,14 +4,16 @@
 @using GinasioVitaFit.Shared.Models;
 @using GinasioVitaFit.Shared.Services;
 
+@rendermode InteractiveServer
+
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject IGinasioVitaFitService VitaFitDbContext;
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8 mb-5" >
     <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Primary"><b>Agendar Aulas</b></MudText>
     
-    <MudDataGrid Items="@_listaAulas1" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal">
+    <MudDataGrid Items="@_listaAulas1" Filterable="true" SortMode="SortMode.Multiple"Class="mb-5" QuickFilter="@FiltroGlobal">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Horário de Aulas Disponiveis</MudText>
             <MudSpacer />
@@ -29,12 +31,12 @@
             <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
             <TemplateColumn Title="Início">
                 <CellTemplate>
-                    @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
+                    @context.Item.AulaInicio.ToString("dd/MM/yyyy HH:mm")
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn Title="Fim">
                 <CellTemplate>
-                    @context.Item.Fim.ToString("HH:mm")
+                    @context.Item.AulaFim.ToString("HH:mm")
                 </CellTemplate>
             </TemplateColumn>
 
@@ -43,7 +45,7 @@
                 <CellTemplate>
                     <MudIconButton Size="Size.Small"
                                    Icon="@Icons.Material.Filled.Add"
-                                   Color="Color.Error"
+                                   Color="Color.Success"
                                    OnClick="@(() => AdicionarAula(context.Item))" />
                 </CellTemplate>
             </TemplateColumn>
@@ -68,12 +70,12 @@
             <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
             <TemplateColumn Title="Início">
                 <CellTemplate>
-                    @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
+                    @context.Item.AulaInicio.ToString("dd/MM/yyyy HH:mm")
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn Title="Fim">
                 <CellTemplate>
-                    @context.Item.Fim.ToString("HH:mm")
+                    @context.Item.AulaFim.ToString("HH:mm")
                 </CellTemplate>
             </TemplateColumn>
 
@@ -101,17 +103,58 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-
-        var aulas = await VitaFitDbContext.GetAulas();
+        await GetAllLists();
         
-        if (aulas.IsSuccessful)
-        {
-            _listaAulas1 = aulas.Content ?? new List<Aula>();
-        }
+        StateHasChanged();
+    }
+
+    private async Task GetAllLists()
+    {
+        _listaAulas1.Clear();
+        _listaAulas2.Clear();
+        
+        var aulas = await VitaFitDbContext.GetAulas();
 
         if (Id != null)
         {
+            if (aulas.IsSuccessful)
+            {
+                _listaAulas1 = aulas.Content ?? new List<Aula>();
+            }
             
+            var aulas2 = await VitaFitDbContext.GetAllAulasFromSocio(Id.Value);
+            var aulsocios = aulas2.Content ?? new List<AulaSocios>();
+            
+            if (aulsocios != null)
+            {
+                foreach (AulaSocios aulsoc in aulsocios)
+                {
+                
+                    var aula1 = await VitaFitDbContext.GetAula(aulsoc.AulaID);
+                    _listaAulas2.Add(aula1);
+                
+                }
+
+                foreach (Aula aul in _listaAulas2)
+                {
+                    for (int i = 0; i < _listaAulas1.Count; i++)
+                    {
+                        if ((_listaAulas1[i].Modalidade.Name == aul.Modalidade.Name)&&
+                            (_listaAulas1[i].Instrutor.Name == aul.Instrutor.Name)&&
+                            (_listaAulas1[i].Sala.Name == aul.Sala.Name))
+                        {
+                            _listaAulas1.RemoveAt(i);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (aulas.IsSuccessful)
+            {
+                _listaAulas1 = aulas.Content ?? new List<Aula>();
+            }
         }
     }
 
@@ -131,7 +174,7 @@
         var mbox = new MessageBoxOptions
         {
             Title = "Adicionar Aula",
-            Message = $"Tem a certeza que deseja adicionar a aula de {aula.Modalidade} á sua agenda?",
+            Message = $"Tem a certeza que deseja adicionar a aula de {aula.Modalidade.Name} á sua agenda?",
             YesText = "Sim",
             CancelText = "Cancelar"
         };
@@ -147,8 +190,8 @@
         {
             AulaSocios aulaSocios = new AulaSocios
             {
-                AulaID = aula.AulaID,
-                Id = Id.Value,
+                AulaID = aula.Id,
+                SocioID = Id.Value,
                 IsDeleted = false
             };
             
@@ -165,7 +208,13 @@
             }
             
         }
-        Snackbar.Add("Ocorreu um Erro na Adição da Aula!", Severity.Error);
+        else
+        {
+            Snackbar.Add("Ocorreu um Erro na Adição da Aula!", Severity.Error);
+        }
+        
+        await GetAllLists();
+        StateHasChanged();
     }
 
     
@@ -177,7 +226,7 @@
         var mbox = new MessageBoxOptions
         {
             Title = "Desistir Aula",
-            Message = $"Tem a certeza que deseja desistir da aula de {aula.Modalidade}?",
+            Message = $"Tem a certeza que deseja desistir da aula de {aula.Modalidade.Name}?",
             YesText = "Sim",
             CancelText = "Não"
         };
@@ -194,8 +243,8 @@
             
             AulaSocios aulaSocios = new AulaSocios
             {
-                AulaID = aula.AulaID,
-                Id = Id.Value,
+                AulaID = aula.Id,
+                SocioID = Id.Value,
                 IsDeleted = false
             };
             
@@ -211,6 +260,12 @@
             }
             
         }
-        Snackbar.Add("Ocorreu um Erro na desistencia da Aula!", Severity.Error);
+        else
+        {
+            Snackbar.Add("Ocorreu um Erro na desistencia da Aula!", Severity.Error);
+        }
+        
+        await GetAllLists();
+        StateHasChanged();
     }
 }

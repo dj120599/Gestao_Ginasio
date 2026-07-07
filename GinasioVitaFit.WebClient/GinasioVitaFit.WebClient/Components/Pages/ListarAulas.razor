@@ -38,12 +38,12 @@
         <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
         <TemplateColumn Title="Início">
             <CellTemplate>
-                @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
+                @context.Item.AulaInicio.ToString("dd/MM/yyyy HH:mm")
             </CellTemplate>
         </TemplateColumn>
         <TemplateColumn Title="Fim">
             <CellTemplate>
-                @context.Item.Fim.ToString("HH:mm")
+                @context.Item.AulaFim.ToString("HH:mm")
             </CellTemplate>
         </TemplateColumn>
 
@@ -106,7 +106,7 @@
         var mbox = new MudBlazor.MessageBoxOptions
         {
             Title = "Eliminar Aula",
-            Message = $"Tem a certeza que deseja eliminar a aula de {aula.Modalidade}?",
+            Message = $"Tem a certeza que deseja eliminar a aula de {aula.Modalidade.Name}?",
             YesText = "Eliminar",
             CancelText = "Cancelar"
         };
@@ -120,7 +120,7 @@
         
         if (!result.Canceled && result.Data is bool confirmar && confirmar)
         {
-            aula.Delete = true;
+            aula.IsDeleted = true;
             Snackbar.Add("Aula eliminada com sucesso!", Severity.Success);
             await CarregarAulas();
         }
