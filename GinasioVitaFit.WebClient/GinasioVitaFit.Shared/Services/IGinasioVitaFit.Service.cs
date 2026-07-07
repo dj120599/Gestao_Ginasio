@@ -1,3 +1,4 @@
+using GinasioVitaFit.Api.Models;
 using GinasioVitaFit.Shared.Models;
 using Refit;
 
@@ -19,4 +20,7 @@ public interface IGinasioVitaFitService
     
     [Delete("/aula/{id}")]
     Task<ApiResponse<string>> DeleteAula(int id);
+    
+    [Post("/Instrutor")]
+    Task<ApiResponse<string>> AddInstrutor([Body] GinasioVitaFit.Shared.Models.Instrutor instrutor);
 }

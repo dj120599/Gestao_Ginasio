@@ -5,6 +5,7 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject IGinasioVitaFitService GinasioService
+@rendermode InteractiveServer
 
 <h3>CriarAulas</h3>
 
@@ -107,7 +108,7 @@
 </MudContainer>
 
 @code {
-    private MudForm form;
+    private MudForm form = default!;
     
     private Aula novaAula = new Aula { Capacidade = 10 }; 
    
@@ -117,34 +118,46 @@
 
     private async Task SubmeterFormulario()
     {
+        if (form == null) return;
+        
         await form.Validate();
 
         if (form.IsValid)
         {
-            if (dataSelecionada.HasValue && horaInicio.HasValue && horaFim.HasValue)
+            if (dataSelecionada == null || horaInicio == null || horaFim == null)
+            {
+                Snackbar.Add("Erro: Por favor, preencha a data e os horários!", Severity.Warning);
+                return;
+            }
+
+            try
             {
                 novaAula.Inicio = dataSelecionada.Value.Date + horaInicio.Value;
                 novaAula.Fim = dataSelecionada.Value.Date + horaFim.Value;
-            }
-            
-            if (novaAula.Fim <= novaAula.Inicio)
-            {
-                Snackbar.Add("Erro: A hora de fim deve ser posterior à hora de início!", Severity.Error);
-                return;
-            }
-            
-            // Grava a aula na API real através do Refit
-            var resposta = await GinasioService.AddAula(novaAula);
 
-            if (resposta.IsSuccessStatusCode)
-            {
-                Snackbar.Add("Aula registada com sucesso!", Severity.Success);
-                await ResetarFormulario();
-                Navigation.NavigateTo("/ListarAulas");
+                if (novaAula.Fim <= novaAula.Inicio)
+                {
+                    Snackbar.Add("Erro: A hora de fim deve ser posterior à hora de início!", Severity.Error);
+                    return;
+                }
+                
+                var resposta = await GinasioService.AddAula(novaAula);
+
+                if (resposta.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Aula registada com sucesso!", Severity.Success);
+                    await ResetarFormulario();
+                    Navigation.NavigateTo("/ListarAulas");
+                }
+                else
+                {
+                    var erroTexto = resposta.ReasonPhrase ?? "Erro desconhecido";
+                    Snackbar.Add($"Erro da API ({resposta.StatusCode}): {erroTexto}", Severity.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Snackbar.Add("Erro ao gravar a aula no servidor.", Severity.Error);
+                Snackbar.Add($"Erro de ligação à API: {ex.Message}", Severity.Error);
             }
         }
     }
