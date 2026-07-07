@@ -1,3 +1,4 @@
+using GinasioVitaFit.Api.Models;
 using GinasioVitaFit.Shared.Models;
 using Refit;
 

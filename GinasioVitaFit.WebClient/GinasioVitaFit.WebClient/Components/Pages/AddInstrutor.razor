@@ -1,0 +1,135 @@
+@page "/AddInstrutor"
+@rendermode InteractiveServer
+@using GinasioVitaFit.Api.Models
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using MudBlazor
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IGinasioVitaFitService GinasioService
+
+<h3>Registar Instrutor</h3>
+
+<MudThemeProvider />
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudCard Elevation="3" Class="pa-4">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h5" Color="Color.Primary" Align="Align.Center">
+                    <b>Registar Novo Instrutor</b>
+                </MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+            <MudForm @ref="form">
+                <MudGrid>
+                    
+                    <!-- Nome do Instrutor -->
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" 
+                                      Label="Nome do Instrutor" 
+                                      Required="true" 
+                                      RequiredError="O nome do instrutor é obrigatório!" 
+                                      @bind-Value="novoInstrutor.Name" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Person" />
+                    </MudItem>
+                    
+                    <!-- E-mail -->
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" 
+                                      Label="E-mail" 
+                                      Required="true" 
+                                      RequiredError="O e-mail é obrigatório!" 
+                                      @bind-Value="novoInstrutor.Email" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Email" />
+                    </MudItem>
+
+                    <!-- Contacto -->
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" 
+                                      Label="Contacto Telefónico" 
+                                      Required="true" 
+                                      RequiredError="O contacto é obrigatório!" 
+                                      @bind-Value="novoInstrutor.Contacto" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Phone" />
+                    </MudItem>
+
+                    <!-- URL da Imagem de Perfil (Opcional) -->
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" 
+                                      Label="URL da Imagem de Perfil" 
+                                      @bind-Value="novoInstrutor.ImageUrl" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Image" />
+                    </MudItem>
+
+                </MudGrid>
+            </MudForm>
+        </MudCardContent>
+
+        <MudCardActions Class="d-flex justify-center mt-4">
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       Size="Size.Large" 
+                       OnClick="SubmeterFormulario">
+                Gravar Instrutor
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private MudForm form = default!;
+    private Instrutor novoInstrutor = new Instrutor();
+    private bool IsEdicao { get; set; } = false;
+
+    private async Task SubmeterFormulario()
+    {
+        if (form == null) return;
+        
+        await form.Validate();
+
+        if (!form.IsValid)
+        {
+            var erros = string.Join(" | ", form.Errors);
+            Snackbar.Add($"Preenchimento inválido: {erros}", Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            var resposta = await GinasioService.AddInstrutor(novoInstrutor);
+
+            if (resposta.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Instrutor registado com sucesso!", Severity.Success);
+                await ResetarFormulario();
+                Navigation.NavigateTo("/ListarAulas");
+            }
+            else
+            {
+                var conteudoErro = resposta.Error?.Content ?? resposta.ReasonPhrase ?? "Erro interno";
+                Snackbar.Add($"Erro da API ({resposta.StatusCode}): {conteudoErro}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro crítico no Blazor: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task ResetarFormulario()
+    {
+        novoInstrutor = new Instrutor();
+
+        if (form != null)
+        {
+            await form.ResetValidationAsync();
+        }
+    }
+}
