@@ -62,37 +62,37 @@ public class ModalidadeController: Controller
         mapper.CreatedDate = DateTime.UtcNow;
         mapper.UpdatedDate = DateTime.UtcNow;
         
-        // Verifica se o utilizador enviou uma imagem em Base64
-        if (!string.IsNullOrEmpty(modalidade.ImageUrl) && modalidade.ImageUrl.StartsWith("data:image"))
+        if (!string.IsNullOrEmpty(modalidade.ImageUrl) && modalidade.ImageUrl.Contains("|"))
         {
             try
             {
-                // 1. Extrai os bytes puros do formato Base64
-                var base64Data = modalidade.ImageUrl.Split(',')[1];
-                var imageBytes = Convert.FromBase64String(base64Data);
+                // 1. Separa o Nome Original do Ficheiro dos dados do Base64
+                var parts = modalidade.ImageUrl.Split('|');
+                var originalFileName = parts[0]; // ex: "futebol.png"
+                var base64Raw = parts[1];
 
-                // 2. Descobre a extensão do ficheiro (.png, .jpg, etc.)
-                var contentType = modalidade.ImageUrl.Split(';')[0].Split(':')[1];
-                var extension = contentType == "image/png" ? ".png" : ".jpg";
+                var base64Data = base64Raw.Split(',');
+                var imageBytes = Convert.FromBase64String(base64Data[1]);
 
-                // 3. Gera um nome de ficheiro único para nunca haver duplicados
-                var fileName = $"{Guid.NewGuid()}{extension}";
-            
-                // 4. Define o caminho físico onde o ficheiro vai ser guardado no servidor
+                // 2. Define o caminho da pasta e o caminho final do ficheiro usando o nome original
                 var uploadsFolder = Path.Combine(env.ContentRootPath, "wwwroot", "uploads");
                 if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-            
-                var filePath = Path.Combine(uploadsFolder, fileName);
+        
+                var filePath = Path.Combine(uploadsFolder, originalFileName);
 
-                // 5. Escreve os bytes no disco do servidor com o caminho absoluto completo
-                await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
+                // 3. VERIFICAÇÃO AUTOMÁTICA: Se o ficheiro NÃO existir no disco, grava-o
+                if (!System.IO.File.Exists(filePath))
+                {
+                    await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
+                }
+                // Se já existir, o código ignora a escrita física e reutiliza o ficheiro atual!
 
-                // 6. Guarda na Base de Dados apenas o caminho relativo para o Frontend ler
-                mapper.ImageUrl = $"/uploads/{fileName}";
+                // 4. Guarda na Base de Dados o caminho com o nome limpo e original
+                mapper.ImageUrl = $"/uploads/{originalFileName}";
             }
             catch (Exception ex)
             {
-                return Results.Problem($"Erro ao processar e salvar o ficheiro físico da imagem: {ex.Message}");
+                return Results.Problem($"Erro ao processar o ficheiro físico da imagem: {ex.Message}");
             }
         }
         

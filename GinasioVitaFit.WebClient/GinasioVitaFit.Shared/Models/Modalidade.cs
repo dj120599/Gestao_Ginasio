@@ -24,12 +24,12 @@ public class Modalidade
     public Dificuldade Dificuldade { get; set; }
     
     [JsonPropertyName("imageUrl")]
-    public string ImageUrl { get; set; } = "https://plus.unsplash.com/premium_photo-1746421978363-6e3ea7668a73?q=80&w=1934&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+    public string ImageUrl { get; set; } = "/images/modalidade-placeholder.png";
     
     [JsonPropertyName("createdDate")]
     public DateTime CreatedDate { get; set; }
     
-    [JsonPropertyName("UpdatedDate")]
+    [JsonPropertyName("updatedDate")]
     public DateTime UpdatedDate { get; set; }
     
     [JsonPropertyName("isDeleted")]
