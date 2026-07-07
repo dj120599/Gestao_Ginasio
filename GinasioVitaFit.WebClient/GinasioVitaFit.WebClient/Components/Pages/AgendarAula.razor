@@ -144,6 +144,7 @@
                             (_listaAulas1[i].Sala.Name == aul.Sala.Name))
                         {
                             _listaAulas1.RemoveAt(i);
+                            break;
                         }
                     }
                 }
@@ -204,13 +205,13 @@
             }
             else
             {
-                Snackbar.Add("Ocorreu um Erro na Adição da Aula!", Severity.Error);
+                Snackbar.Add("Ocorreu um Erro na Adição da Aula1!", Severity.Error);
             }
             
         }
         else
         {
-            Snackbar.Add("Ocorreu um Erro na Adição da Aula!", Severity.Error);
+            Snackbar.Add("Ocorreu um Erro na Adição da Aula2!", Severity.Error);
         }
         
         await GetAllLists();
