@@ -48,6 +48,9 @@ public class AulaController: Controller
         if (_context.Aulas is not null)
         {
             var aulas = await _context.Aulas.
+                Include(a => a.Instrutor).
+                Include(a => a.Modalidade).
+                Include(a => a.Sala).
                 FirstOrDefaultAsync(a => a.Id == id && a.IsDeleted.Equals(false));
             
             if(aulas is not null)
