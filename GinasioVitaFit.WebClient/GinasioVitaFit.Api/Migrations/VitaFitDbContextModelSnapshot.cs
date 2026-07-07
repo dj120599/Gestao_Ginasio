@@ -39,6 +39,10 @@ namespace GinasioVitaFit.Api.Migrations
                     b.Property<DateTime>("Fim")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ImagemUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("Inicio")
                         .HasColumnType("datetime2");
 

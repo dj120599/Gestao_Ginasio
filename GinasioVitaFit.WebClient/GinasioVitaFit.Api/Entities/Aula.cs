@@ -7,6 +7,6 @@ public class Aula : BaseEntity
     public Modalidade Modalidade { get; set; }
     public Sala Sala { get; set; }
     public int Capacidade { get; set; }
-    public DateTime Inicio { get; set; }
-    public DateTime Fim { get; set; }
+    public DateTime AulaInicio { get; set; }
+    public DateTime AulaFim { get; set; }
 }

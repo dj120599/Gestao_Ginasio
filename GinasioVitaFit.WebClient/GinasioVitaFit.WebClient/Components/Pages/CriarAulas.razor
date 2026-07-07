@@ -1,6 +1,8 @@
 @page "/CriarAulas"
+
 @using GinasioVitaFit.Shared.Models
 @using GinasioVitaFit.Shared.Services
+
 @using MudBlazor
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
@@ -24,15 +26,15 @@
         <MudCardContent>
             <MudForm @ref="form">
                 <MudGrid>
-                    
+                    <!--
                     <MudItem xs="12" sm="6">
-                        <MudTextField T="string" 
-                                      Label="Modalidade Associada" 
-                                      Required="true" 
-                                      RequiredError="A modalidade é obrigatória!" 
-                                      @bind-Value="novaAula.Modalidade" 
-                                      Adornment="Adornment.Start" 
-                                      AdornmentIcon="@Icons.Material.Filled.FitnessCenter" />
+                        <MudTextField T="string"
+                                      Label="Modalidade Associada"
+                                      Required="true"
+                                      RequiredError="A modalidade é obrigatória!"
+                                      @bind-Value="novaAula.Modalidade.Name"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.FitnessCenter"/>
                     </MudItem>
                     
                     <MudItem xs="12" sm="6">
@@ -40,7 +42,7 @@
                                       Label="Instrutor Responsável" 
                                       Required="true" 
                                       RequiredError="O instrutor é obrigatório!" 
-                                      @bind-Value="novaAula.Instrutor" 
+                                      @bind-Value="novaAula.Instrutor.Name" 
                                       Adornment="Adornment.Start" 
                                       AdornmentIcon="@Icons.Material.Filled.Person" />
                     </MudItem>
@@ -53,7 +55,6 @@
                                        AdornmentIcon="@Icons.Material.Filled.CalendarMonth" />
                     </MudItem>
 
-                    <!-- Hora de Início -->
                     <MudItem xs="6" sm="4">
                         <MudTimePicker Label="Hora de Início" 
                                        Required="true" 
@@ -62,7 +63,6 @@
                                        AdornmentIcon="@Icons.Material.Filled.AccessTime" />
                     </MudItem>
 
-                    <!-- Hora de Fim -->
                     <MudItem xs="6" sm="4">
                         <MudTimePicker Label="Hora de Fim" 
                                        Required="true" 
@@ -71,13 +71,12 @@
                                        AdornmentIcon="@Icons.Material.Filled.AccessTime" />
                     </MudItem>
 
-                    <!-- Sala / Espaço -->
                     <MudItem xs="12" sm="8">
                         <MudTextField T="string" 
                                       Label="Sala / Espaço" 
                                       Required="true" 
                                       RequiredError="O espaço/sala é obrigatório!" 
-                                      @bind-Value="novaAula.Sala" 
+                                      @bind-Value="novaAula.Sala.Name" 
                                       Adornment="Adornment.Start" 
                                       AdornmentIcon="@Icons.Material.Filled.Room" />
                     </MudItem>
@@ -91,11 +90,11 @@
                                          Adornment="Adornment.Start" 
                                          AdornmentIcon="@Icons.Material.Filled.Groups" />
                     </MudItem>
+        -->
 
                 </MudGrid>
             </MudForm>
         </MudCardContent>
-
         <MudCardActions Class="d-flex justify-center mt-4">
             <MudButton Variant="Variant.Filled" 
                        Color="Color.Primary" 
@@ -104,11 +103,15 @@
                 Gravar Aula
             </MudButton>
         </MudCardActions>
+        
     </MudCard>
 </MudContainer>
 
 @code {
-    private MudForm form = default!;
+    [Parameter]
+    public int? Id { get; set; } 
+    
+    private MudForm form;
     
     private Aula novaAula = new Aula { Capacidade = 10 }; 
    
@@ -116,6 +119,12 @@
     private TimeSpan? horaInicio = new TimeSpan(09, 00, 00);
     private TimeSpan? horaFim = new TimeSpan(10, 00, 00);
 
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+    }
+    
     private async Task SubmeterFormulario()
     {
         if (form == null) return;
@@ -126,7 +135,13 @@
         {
             if (dataSelecionada == null || horaInicio == null || horaFim == null)
             {
-                Snackbar.Add("Erro: Por favor, preencha a data e os horários!", Severity.Warning);
+                novaAula.AulaInicio = dataSelecionada.Value.Date + horaInicio.Value;
+                novaAula.AulaFim = dataSelecionada.Value.Date + horaFim.Value;
+            }
+            
+            if (novaAula.AulaFim <= novaAula.AulaInicio)
+            {
+                Snackbar.Add("Erro: A hora de fim deve ser posterior à hora de início!", Severity.Error);
                 return;
             }
 
