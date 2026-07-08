@@ -21,6 +21,9 @@ public interface IGinasioVitaFitService
     [Delete("/aula/{id}")]
     Task<ApiResponse<string>> DeleteAula(int id);
     
+    // Instrutor
+    [Post("/aula")]
+    Task<ApiResponse<Instrutor>> AddInstrutor([Body] Instrutor instrutor);    
     // Modalidade
 
     [Post("/modalidade")]
@@ -62,4 +65,6 @@ public interface IGinasioVitaFitService
 
     [Delete("/instrutormod_softdelete")]
     Task<ApiResponse<string>> DeleteModalidade_Soft([Body] InstrutorMod? instrutormod);
+
+    
 }
