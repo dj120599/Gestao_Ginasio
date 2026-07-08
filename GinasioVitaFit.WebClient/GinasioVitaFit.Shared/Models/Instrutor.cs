@@ -10,12 +10,12 @@ public class Instrutor
     
     [Required(ErrorMessage = "Nome é obrigatório.")]
     [JsonPropertyName("name")] 
-    public required string Name { get; set; }
+    public string Name { get; set; }
     
     [Required(ErrorMessage = "Email é obrigatório.")]
     [EmailAddress(ErrorMessage = "Formato do email incorreto.")]
     [JsonPropertyName("email")] 
-    public required string Email { get; set; }
+    public string Email { get; set; }
     
     [JsonPropertyName("imageUrl")] 
     public string ImageUrl { get; set; } = "/images/modalidade-placeholder.png";
@@ -23,7 +23,7 @@ public class Instrutor
     [Required(ErrorMessage = "Contacto telefónico é obrigatório.")]
     [Phone(ErrorMessage = "Formato do contacto incorreto.")]
     [JsonPropertyName("contacto")] 
-    public required string Contacto { get; set; }
+    public string Contacto { get; set; }
     
     [JsonPropertyName("createdDate")] 
     public DateTime CreatedDate { get; set; }

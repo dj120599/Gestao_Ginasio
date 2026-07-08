@@ -10,7 +10,7 @@ public class Socio
     
     [Required(ErrorMessage = "Nome é obrigatório.")]
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; } = String.Empty;
     
     [Required(ErrorMessage = "Data de nascimento é obrigatória.")]
     [JsonPropertyName("nascimento")]
@@ -19,7 +19,7 @@ public class Socio
     [Required(ErrorMessage = "Email é obrigatório.")]
     [EmailAddress(ErrorMessage = "O formato do email incorreto.")]
     [JsonPropertyName("email")]
-    public required string Email { get; set; }
+    public string Email { get; set; } = String.Empty;
 
     [JsonPropertyName("imageUrl")]
     public string ImageUrl { get; set; } = "/images/modalidade-placeholder.png";
@@ -27,7 +27,7 @@ public class Socio
     [Required(ErrorMessage = "Contacto telefónico é obrigatório.")]
     [Phone(ErrorMessage = "Formato do contacto incorreto.")]
     [JsonPropertyName("contacto")]
-    public required string Contacto { get; set; }
+    public string Contacto { get; set; } = String.Empty;
     
     [Range(1, int.MaxValue, ErrorMessage = "Escolha um plano.")]
     [JsonPropertyName("planoId")]

@@ -10,11 +10,11 @@ public class Modalidade
     
     [Required(ErrorMessage = "Nome da modalidade é obrigatório.")]
     [JsonPropertyName("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; } = String.Empty;
     
     [Required(ErrorMessage = "Descrição da modalidade é obrigatória.")]
     [JsonPropertyName("description")]
-    public required string Description { get; set; }
+    public string Description { get; set; } = String.Empty;
     
     [Range(1, int.MaxValue, ErrorMessage = "Escolha uma dificuldade.")]
     [JsonPropertyName("dificuldadeId")]
