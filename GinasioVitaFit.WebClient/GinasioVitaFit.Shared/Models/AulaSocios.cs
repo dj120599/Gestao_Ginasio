@@ -4,7 +4,7 @@ namespace GinasioVitaFit.Shared.Models;
 
 public class AulaSocios
 {
-    [JsonPropertyName("AulaId")]
+    [JsonPropertyName("aulaId")]
     public int AulaId { get; set; }
     
     [JsonPropertyName("socioId")]

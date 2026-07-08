@@ -150,7 +150,7 @@ public class AulaController: Controller
         if (_context.AulaSocios is not null)
         {
             var socios = await _context.AulaSocios.
-                Where(a => a.AulaID == id && a.IsDeleted.Equals(false)).
+                Where(a => a.AulaId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
             if(socios.Any())
@@ -166,7 +166,7 @@ public class AulaController: Controller
         if (_context.AulaSocios is not null)
         {
             var socios = await _context.AulaSocios.
-                Where(a => a.AulaID == id && a.SocioID == socio && a.IsDeleted.Equals(false)).
+                Where(a => a.AulaId == id && a.SocioId == socio && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
             if(socios.Any())
@@ -218,7 +218,7 @@ public class AulaController: Controller
         
         if (_context.AulaSocios is not null)
         {
-            var instrutor = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaID == id && t.SocioID == socio);
+            var instrutor = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaId == id && t.SocioId == socio);
 
             if(instrutor is null)
                 return Results.NotFound("Socio não foi encontrado");
