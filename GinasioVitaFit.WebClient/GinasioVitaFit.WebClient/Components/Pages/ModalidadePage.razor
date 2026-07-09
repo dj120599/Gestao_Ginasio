@@ -1,0 +1,261 @@
+@page "/addModalidade"
+@page "/editModalidade/{Id:int}"
+@using GinasioVitaFit.Shared.Services
+@using GinasioVitaFit.Shared.Models
+@inject IGinasioVitaFitService GinasioVitaFitService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<h3 class="text-2xl font-bold text-gray-800 mb-6">@(Id.HasValue ? "Editar" : "Adicionar") Modalidade</h3>
+
+<EditForm Model="_modalidade" FormName="modalidadeForm" OnValidSubmit="OnAddModalidade">
+    <DataAnnotationsValidator/>
+
+    <div class="flex flex-col gap-4 p-6">
+
+        <!-- Campo: Name (Atualizado para Tailwind) -->
+        <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-gray-700">Nome</label>
+            <InputText
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+                @bind-Value="_modalidade.Name"/>
+            <ValidationMessage For="() => _modalidade.Name" class="text-xs text-red-500"/>
+        </div>
+
+        <!-- Campo: Description (Atualizado para TextArea com Tailwind) -->
+        <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-gray-700">Descrição</label>
+            <InputTextArea
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white min-h-[80px]"
+                @bind-Value="_modalidade.Description"/>
+            <ValidationMessage For="() => _modalidade.Description" class="text-xs text-red-500"/>
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-gray-700">Dificuldade</label>
+            <InputSelect
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+                @bind-Value="_modalidade.DificuldadeId">
+                <option value="0">Selecione a dificuldade...</option>
+                @foreach (var dif in _dificuldades)
+                {
+                    <option value="@dif.Id">@dif.Name</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="() => _modalidade.DificuldadeId" class="text-xs text-red-500"/>
+        </div>
+
+        <!-- Campo: Imagem da Modalidade -->
+        <div class="flex flex-col gap-1 mt-2">
+            <label class="text-sm font-medium text-gray-700">Imagem da Modalidade</label>
+
+            <label
+                class="w-full min-h-[160px] border-2 border-dashed border-gray-300 hover:border-amber-500 bg-gray-50 rounded-xl flex flex-col items-center justify-center p-4 cursor-pointer transition-all duration-200 group relative">
+                <InputFile OnChange="OnImageFileChanged" accept=".png, .jpg, .jpeg" class="hidden"
+                           disabled="@_isUploading"/>
+
+                @if (_isUploading)
+                {
+                    <!-- ESTADO DE ESPERA: Spinner Animado com Tailwind -->
+                    <div class="flex flex-col items-center justify-center gap-2">
+                        <div
+                            class="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+                        <p class="text-sm font-medium text-amber-600 animate-pulse">A processar imagem pesada...</p>
+                    </div>
+                }
+                else if (string.IsNullOrEmpty(_modalidade.ImageUrl) || _modalidade.ImageUrl.Contains("placeholder"))
+                {
+                    <!-- Estado 1: Sem Imagem (Mostra a zona de upload) -->
+                    <span
+                        class="bi bi-cloud-arrow-up text-gray-400 group-hover:text-amber-500 text-4xl transition-colors mb-2"></span>
+                    <p class="text-sm font-semibold text-gray-600 group-hover:text-amber-600">Clique para carregar a
+                        imagem</p>
+                    <p class="text-xs text-gray-400 mt-1">Formatos aceites: PNG, JPG ou JPEG</p>
+                }
+                else
+                {
+                    <!-- Estado 2: Com Imagem Carregada -->
+                    <div class="flex flex-col items-center gap-2">
+                        <!-- O HTML lê diretamente a variável de preview purificada -->
+                        <img src="@_previewUrl"
+                             class="max-h-36 w-auto rounded-lg shadow-sm border border-gray-200 object-contain bg-white p-1"/>
+
+                        <div class="flex items-center gap-2 mt-1">
+                            <span
+                                class="text-xs text-emerald-600 font-medium flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-xs">
+                                <span class="bi bi-check-circle-fill"></span> Imagem Carregada
+                            </span>
+                            <button type="button" @onclick="LimparImagemManualmente" @onclick:stopPropagation="true"
+                                    class="text-xs text-red-600 font-medium bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-xs transition-colors cursor-pointer">
+                                Remover
+                            </button>
+                        </div>
+                    </div>
+                }
+            </label>
+            
+            @if (_imagensExistentes.Any())
+            {
+                <div class="mt-3">
+                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Ou escolha uma imagem do servidor:</span>
+        
+                    <!-- Garantimos o flex-row e o overflow-x-auto para a linha horizontal voltar -->
+                    <div class="flex flex-row gap-2 overflow-x-auto py-3 px-2 bg-gray-50 rounded-lg border border-gray-100 overflow-y-visible">
+                        @foreach (var imgPath in _imagensExistentes)
+                        {
+                            bool isSelected = _modalidade.ImageUrl == imgPath;
+                            string nomeFicheiro = imgPath.Contains("/") ? imgPath.Split('/').Last() : imgPath;
+
+                            <!-- Classe inline-block força o tooltip a ficar colado ao botão -->
+                            <MudTooltip Text="@nomeFicheiro" Arrow="true" Placement="Placement.Bottom" RootClass="inline-block flex-shrink-0">
+                                <ChildContent>
+                        
+                                    <button type="button" 
+                                            @onclick="() => SelecionarImagemExistente(imgPath)"
+                                            class="w-16 h-16 rounded-lg border-2 transition-all bg-white p-0.5 cursor-pointer shadow-xs focus:outline-none
+                                       @(isSelected ? "border-amber-500 ring-2 ring-amber-500/75 scale-105" : "border-gray-200 hover:border-amber-400 hover:scale-105")">
+                            
+                                        <img src="@(imgPath.StartsWith("/uploads") ? $"https://localhost:7134{imgPath}" : imgPath)" 
+                                             class="w-full h-full object-cover rounded-md pointer-events-none" />
+
+                                    </button>
+
+                                </ChildContent>
+                            </MudTooltip>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        @* <ValidationSummary class="text-sm text-red-600 list-disc pl-5" /> *@
+
+        <button type="submit"
+                class="mt-2 w-1/3 !bg-amber-500 hover:!bg-amber-600 text-white font-semibold py-2 self-center
+                        px-4 rounded-lg transition-colors duration-200 cursor-pointer shadow-sm">
+            @(Id.HasValue ? "Editar" : "Adicionar")
+        </button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private Modalidade _modalidade = new();
+    private List<Modalidade> _modalidades = new();
+    private List<Dificuldade> _dificuldades = new();
+
+    private string _previewUrl = "/images/modalidade-placeholder.png";
+    private bool _isUploading = false;
+    
+    private List<string> _imagensExistentes = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var modalidades = await GinasioVitaFitService.GetAllModalidades();
+        var dificuldades = await GinasioVitaFitService.GetAllDificuldades();
+
+        if (modalidades.IsSuccessStatusCode)
+        {
+            _modalidades = modalidades.Content ?? new List<Modalidade>();
+            _imagensExistentes = _modalidades
+                .Where(m => 
+                    !string.IsNullOrEmpty(m.ImageUrl) 
+                    && !m.ImageUrl.Contains("placeholder")
+                    && m.ImageUrl != "something")
+                .Select(m => m.ImageUrl)
+                .Distinct() 
+                .ToList();
+        }
+
+        if (dificuldades.IsSuccessStatusCode)
+            _dificuldades = dificuldades.Content ?? new List<Dificuldade>();
+        
+            
+    }
+
+    private async Task OnAddModalidade()
+    {
+        try
+        {
+            if (Id.HasValue)
+            {
+                
+            }
+            else
+            {
+                await GinasioVitaFitService.AddModalidade(_modalidade);
+            
+                Snackbar.Add("Modalidade guardada com sucesso!", Severity.Success, config => 
+                {
+                    config.VisibleStateDuration = 1500;
+                    config.HideTransitionDuration = 200;
+                });
+            }
+
+            await Task.Delay(1500);
+        
+            // NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao guardar modalidade: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task OnImageFileChanged(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            try
+            {
+                _isUploading = true;
+                StateHasChanged();
+
+                long maxFileSize = 1024 * 1024 * 10; // Limite de 10MB para ficheiros pesados
+                using var memoryStream = new MemoryStream();
+                await file.OpenReadStream(maxFileSize).CopyToAsync(memoryStream);
+            
+                var buffer = memoryStream.ToArray();
+                var base64String = Convert.ToBase64String(buffer);
+                var base64Completo = $"data:{file.ContentType};base64,{base64String}";
+
+                // 1. O HTML usa esta variável limpa para renderizar a imagem sem falhas
+                _previewUrl = base64Completo;
+
+                // 2. A propriedade que vai para a API guarda a tua estrutura com a barra |
+                _modalidade.ImageUrl = $"{file.Name}|{base64Completo}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao processar imagem: {ex.Message}");
+            }
+            finally
+            {
+                _isUploading = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void LimparImagemManualmente()
+    {
+        _previewUrl = "/images/modalidade-placeholder.png";
+        _modalidade.ImageUrl = "/images/modalidade-placeholder.png";
+    }
+    
+    private void SelecionarImagemExistente(string caminhoImagem)
+    {
+        _modalidade.ImageUrl = caminhoImagem;
+
+        // 2. Atualiza o ecrã com o caminho completo da API para a imagem aparecer na hora
+        _previewUrl = caminhoImagem.StartsWith("/uploads") 
+            ? $"https://localhost:7134{caminhoImagem}" 
+            : caminhoImagem;
+    }
+
+}

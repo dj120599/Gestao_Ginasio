@@ -4,6 +4,7 @@ public class Modalidade : BaseEntity
 {
     public string Name { get; set; }
     public string Description { get; set; }
+    public int DificuldadeId { get; set; }
     public Dificuldade Dificuldade { get; set; }
-    public string ImageUrl { get; set; }
+    public string ImageUrl { get; set; } = "/images/modalidade-placeholder.png";
 }

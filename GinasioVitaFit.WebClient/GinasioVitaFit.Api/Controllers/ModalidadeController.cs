@@ -21,7 +21,7 @@ public class ModalidadeController: Controller
     }
     
      [HttpGet("/modalidades")]
-    public async Task<IActionResult> GetAs()
+    public async Task<IActionResult> GetAllModalidades()
     {
         if (_context.Modalidades is not null)
         {
@@ -52,16 +52,49 @@ public class ModalidadeController: Controller
         return NotFound();
     }
     
-    //Metodo POSt com mapeamento automatico
     [HttpPost("/modalidade")]
-    public async Task<IResult> AddModalidade([FromBody] ModalidadeDto? modalidade)
+    public async Task<IResult> AddModalidade([FromBody] ModalidadeDto? modalidade, [FromServices] IWebHostEnvironment env)
     {
         if (modalidade is  null)
-            return Results.BadRequest();
+            return Results.BadRequest("Dados inválidos.");
         
         var mapper = _mapper.Map<Models.ModalidadeDto,Entities.Modalidade>(modalidade);
         mapper.CreatedDate = DateTime.UtcNow;
         mapper.UpdatedDate = DateTime.UtcNow;
+        
+        if (!string.IsNullOrEmpty(modalidade.ImageUrl) && modalidade.ImageUrl.Contains("|"))
+        {
+            try
+            {
+                // 1. Separa o Nome Original do Ficheiro dos dados do Base64
+                var parts = modalidade.ImageUrl.Split('|');
+                var originalFileName = parts[0]; // ex: "futebol.png"
+                var base64Raw = parts[1];
+
+                var base64Data = base64Raw.Split(',');
+                var imageBytes = Convert.FromBase64String(base64Data[1]);
+
+                // 2. Define o caminho da pasta e o caminho final do ficheiro usando o nome original
+                var uploadsFolder = Path.Combine(env.ContentRootPath, "wwwroot", "uploads");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+        
+                var filePath = Path.Combine(uploadsFolder, originalFileName);
+
+                // 3. VERIFICAÇÃO AUTOMÁTICA: Se o ficheiro NÃO existir no disco, grava-o
+                if (!System.IO.File.Exists(filePath))
+                {
+                    await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
+                }
+                // Se já existir, o código ignora a escrita física e reutiliza o ficheiro atual!
+
+                // 4. Guarda na Base de Dados o caminho com o nome limpo e original
+                mapper.ImageUrl = $"/uploads/{originalFileName}";
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem($"Erro ao processar o ficheiro físico da imagem: {ex.Message}");
+            }
+        }
         
         var modalidades =  _context.Modalidades;
         

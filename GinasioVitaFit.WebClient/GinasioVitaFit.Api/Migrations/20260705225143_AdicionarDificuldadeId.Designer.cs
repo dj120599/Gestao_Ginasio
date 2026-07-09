@@ -4,6 +4,7 @@ using GinasioVitaFit.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GinasioVitaFit.Api.Migrations
 {
     [DbContext(typeof(VitaFitDbContext))]
-    partial class VitaFitDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260705225143_AdicionarDificuldadeId")]
+    partial class AdicionarDificuldadeId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,8 +58,9 @@ namespace GinasioVitaFit.Api.Migrations
                     b.Property<int>("ModalidadeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SalaId")
-                        .HasColumnType("int");
+                    b.Property<string>("Sala")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
@@ -66,8 +70,6 @@ namespace GinasioVitaFit.Api.Migrations
                     b.HasIndex("InstrutorId");
 
                     b.HasIndex("ModalidadeId");
-
-                    b.HasIndex("SalaId");
 
                     b.ToTable("Aulas");
                 });
@@ -257,32 +259,6 @@ namespace GinasioVitaFit.Api.Migrations
                     b.ToTable("Planos");
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Sala", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Salas");
-                });
-
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Socio", b =>
                 {
                     b.Property<int>("Id")
@@ -349,17 +325,9 @@ namespace GinasioVitaFit.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GinasioVitaFit.Api.Entities.Sala", "Sala")
-                        .WithMany()
-                        .HasForeignKey("SalaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Instrutor");
 
                     b.Navigation("Modalidade");
-
-                    b.Navigation("Sala");
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Modalidade", b =>

@@ -10,7 +10,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "dotnet watch run",
+    "dev": "dotnet watch run --urls \"https://localhost:7280\"",
     "tail": "npx @tailwindcss/cli -i ./wwwroot/tailwindInput.css -o ./wwwroot/lib/tailwind.css --watch"
   },
   "keywords": [],
