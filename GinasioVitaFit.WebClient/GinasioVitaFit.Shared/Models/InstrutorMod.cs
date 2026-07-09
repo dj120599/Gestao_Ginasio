@@ -1,9 +1,21 @@
+using System.Text.Json.Serialization;
+
 namespace GinasioVitaFit.Shared.Models;
 
 public class InstrutorMod
 {
-    public int Id { get; set; }
-    public int InstrutorID {get;set;}
-    public int ModalidadeID {get;set;}
-    public bool IsDeleted { get; set;  }
+    [JsonPropertyName("instrutorId")] 
+    public int InstrutorId { get; set; }
+    
+    [JsonPropertyName("modalidadeId")] 
+    public int ModalidadeId { get; set; }
+    
+    [JsonPropertyName("createdDate")]
+    public DateTime CreatedDate { get; set; }
+    
+    [JsonPropertyName("updatedDate")]
+    public DateTime UpdatedDate { get; set; }
+    
+    [JsonPropertyName("isDeleted")] 
+    public bool IsDeleted { get; set; }
 }

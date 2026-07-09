@@ -2,8 +2,9 @@ namespace GinasioVitaFit.Api.Models;
 
 public class AulaSociosDto
 {
-    public int Id { get; set; }
-    public int AulaID {get;set;}
-    public int SocioID {get;set;}
+    public int AulaId { get; set; }
+    public int SocioId { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime UpdatedDate { get; set; }
     public bool IsDeleted { get; set; }
 }
