@@ -20,7 +20,7 @@ public class VitaFitDbContext: DbContext, IVitaFitDbContext
         base.OnConfiguring(optionsBuilder);
         
        
-        optionsBuilder.UseSqlServer("Data Source=SQL8005.site4now.net;Initial Catalog=db_acb35f_gestaoginasio;User Id=db_acb35f_gestaoginasio_admin;Password=2026Brazil;Encrypt=True;TrustServerCertificate=True");
+        optionsBuilder.UseSqlServer("Data Source=SQL8012.site4now.net;Initial Catalog=db_acb35f_ginasiovitafit;User Id=db_acb35f_ginasiovitafit_admin;Password=2026Brazil;Encrypt=True;TrustServerCertificate=True;");
     }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
