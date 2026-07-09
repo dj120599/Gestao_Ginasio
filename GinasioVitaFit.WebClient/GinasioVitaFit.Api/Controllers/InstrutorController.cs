@@ -52,35 +52,42 @@ public class InstrutorController: Controller
     }
     
     //Metodo POSt com mapeamento automatico
-    [HttpPost("/instrutor")]
-    public async Task<IResult> AddInstrutor([FromBody] InstrutorDto? instrutor)
+    [HttpPost("/Instrutor")]
+    public async Task<IActionResult> AddInstrutor([FromBody] Instrutor? instrutor)
     {
-        if (instrutor is  null)
-            return Results.BadRequest();
-        
-        var mapper = _mapper.Map<Models.InstrutorDto,Entities.Instrutor>(instrutor);
-        mapper.CreatedDate = DateTime.UtcNow;
-        mapper.UpdatedDate = DateTime.UtcNow;
-        
-        var instrutores =  _context.Instrutores;
-        
-        if (instrutores is not null)
+        if (instrutor == null)
         {
-            instrutores.Add(mapper);
-            
+            return BadRequest();
+        }
+
+        // 1. Força a data no modelo para evitar campos nulos no SQL
+        instrutor.CreatedDate = DateTime.Now;
+
+        // 2. Mapeia o modelo recebido para a entidade do EF Core
+        var novoInstrutor = _mapper.Map<Entities.Instrutor>(instrutor);
+
+        // 3. Garante que a entidade também recebe a data
+        novoInstrutor.CreatedDate = DateTime.Now;
+
+        if (_context.Instrutores != null)
+        {
+            _context.Instrutores.Add(novoInstrutor);
+
             try
             {
                 await _context.SaveChangesAsync();
-                return Results.Ok("Instrutor adicionado com Successo.");
+                return Ok("Instrutor adicionado com Sucesso.");
             }
             catch (Exception e)
             {
-                return Results.NotFound(e.Message);
+                return BadRequest($"Erro no SQL: {e.Message} -> {e.InnerException?.Message}");
             }
         }
-        
-        return Results.Empty;
+
+        return NotFound();
     }
+
+      
     
     [HttpPut("/instrutor")]
     public async Task<IActionResult> UpdateInstrutor([FromBody] InstrutorDto? instrutor)

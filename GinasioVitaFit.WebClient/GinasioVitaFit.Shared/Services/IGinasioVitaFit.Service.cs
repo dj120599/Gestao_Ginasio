@@ -1,3 +1,4 @@
+using GinasioVitaFit.Api.Models;
 using GinasioVitaFit.Shared.Models;
 using Refit;
 
@@ -20,6 +21,9 @@ public interface IGinasioVitaFitService
     [Delete("/aula/{id}")]
     Task<ApiResponse<string>> DeleteAula(int id);
     
+    // Instrutor
+    [Post("/aula")]
+    Task<ApiResponse<Instrutor>> AddInstrutor([Body] Instrutor instrutor);    
     // Modalidade
 
     [Post("/modalidade")]
@@ -44,7 +48,7 @@ public interface IGinasioVitaFitService
     Task<ApiResponse<AulaSocios>> GetSocioFromAula(int id, int socio);
 
     [Post("/aulasocio")]
-    Task<ApiResponse<AulaSocios>> AddSocioToAula([Body] AulaSocios? aulasocio);
+    Task<ApiResponse<string>> AddSocioToAula([Body] AulaSocios? aulasocio);
 
     [Delete("/aulasocio_softdelete")]
     Task<ApiResponse<string>> DeleteSocio_Soft([Body] AulaSocios? aulasocio);
@@ -61,4 +65,6 @@ public interface IGinasioVitaFitService
 
     [Delete("/instrutormod_softdelete")]
     Task<ApiResponse<string>> DeleteModalidade_Soft([Body] InstrutorMod? instrutormod);
+
+    
 }

@@ -75,24 +75,51 @@ public class AulaSocioController : Controller
         if (aulasocio is  null)
             return Results.BadRequest();
         
-        var mapper = _mapper.Map<Models.AulaSociosDto,Entities.AulaSocios>(aulasocio);
-        mapper.CreatedDate = DateTime.UtcNow;
-        mapper.UpdatedDate = DateTime.UtcNow;
+        var aulaexist = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaID == aulasocio.AulaID && t.SocioID == aulasocio.SocioID);
         
-        var aulasocios =  _context.AulaSocios;
-        
-        if (aulasocios is not null)
+        if (aulaexist != null)
         {
-            aulasocios.Add(mapper);
+            var newaula = aulaexist;
+            newaula.UpdatedDate = DateTime.UtcNow;  
+            newaula.IsDeleted = false;
             
+            newaula.Adapt(aulaexist);
+            
+            var result = await _context.SaveChangesAsync();
+        
             try
             {
-                await _context.SaveChangesAsync();
-                return Results.Ok("Socio adicionado á aula com Successo.");
+                if (result <= 0)
+                    return Results.NotFound("Não foi possivel guardar os dados.");
             }
             catch (Exception e)
             {
                 return Results.NotFound(e.Message);
+            }
+        
+            return Results.Ok("Product Updated with Success.");
+        }
+        else
+        {
+            var mapper = _mapper.Map<Models.AulaSociosDto,Entities.AulaSocios>(aulasocio);
+            mapper.CreatedDate = DateTime.UtcNow;
+            mapper.UpdatedDate = DateTime.UtcNow;
+        
+            var aulasocios =  _context.AulaSocios;
+        
+            if (aulasocios is not null)
+            {
+                aulasocios.Add(mapper);
+            
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    return Results.Ok("Socio adicionado á aula com Successo.");
+                }
+                catch (Exception e)
+                {
+                    return Results.NotFound(e.Message);
+                }
             }
         }
         
