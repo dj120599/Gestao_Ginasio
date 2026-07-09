@@ -5,10 +5,18 @@
 namespace GinasioVitaFit.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class AdicionarDificuldadeId : Migration
+    public partial class ForcarRemocaoImagemUrl : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            // migrationBuilder.DropColumn(
+            //     name: "ImagemUrl",
+            //     table: "Aulas");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
                 name: "ImagemUrl",
@@ -16,14 +24,6 @@ namespace GinasioVitaFit.Api.Migrations
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "");
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "ImagemUrl",
-                table: "Aulas");
         }
     }
 }

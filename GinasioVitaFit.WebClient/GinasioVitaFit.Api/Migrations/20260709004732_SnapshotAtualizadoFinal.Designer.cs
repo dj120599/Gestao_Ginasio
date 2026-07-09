@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GinasioVitaFit.Api.Migrations
 {
     [DbContext(typeof(VitaFitDbContext))]
-    [Migration("20260629173420_Initial migrations")]
-    partial class Initialmigrations
+    [Migration("20260709004732_SnapshotAtualizadoFinal")]
+    partial class SnapshotAtualizadoFinal
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,9 +54,8 @@ namespace GinasioVitaFit.Api.Migrations
                     b.Property<int>("ModalidadeId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Sala")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("SalaId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
@@ -67,7 +66,31 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasIndex("ModalidadeId");
 
+                    b.HasIndex("SalaId");
+
                     b.ToTable("Aulas");
+                });
+
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.AulaSocios", b =>
+                {
+                    b.Property<int>("AulaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SocioId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("AulaId", "SocioId");
+
+                    b.ToTable("AulaSocios");
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Dificuldade", b =>
@@ -132,6 +155,28 @@ namespace GinasioVitaFit.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Instrutores");
+                });
+
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.InstrutorMod", b =>
+                {
+                    b.Property<int>("InstrutorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ModalidadeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("InstrutorId", "ModalidadeId");
+
+                    b.ToTable("InstrutorMods");
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Modalidade", b =>
@@ -199,6 +244,32 @@ namespace GinasioVitaFit.Api.Migrations
                     b.ToTable("Planos");
                 });
 
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Sala", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Salas");
+                });
+
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Socio", b =>
                 {
                     b.Property<int>("Id")
@@ -229,8 +300,8 @@ namespace GinasioVitaFit.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Nascimento")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("Nascimento")
+                        .HasColumnType("date");
 
                     b.Property<int>("PlanoId")
                         .HasColumnType("int");
@@ -265,9 +336,17 @@ namespace GinasioVitaFit.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GinasioVitaFit.Api.Entities.Sala", "Sala")
+                        .WithMany()
+                        .HasForeignKey("SalaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Instrutor");
 
                     b.Navigation("Modalidade");
+
+                    b.Navigation("Sala");
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Modalidade", b =>
