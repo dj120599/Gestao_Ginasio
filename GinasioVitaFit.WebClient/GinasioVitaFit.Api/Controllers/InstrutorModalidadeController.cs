@@ -26,7 +26,7 @@ public class InstrutorModalidadeController : Controller
         if (_context.InstrutorMods is not null)
         {
             var modalidades = await _context.InstrutorMods.
-                Where(a => a.InstrutorID == id && a.IsDeleted.Equals(false)).
+                Where(a => a.InstrutorId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
             if(modalidades.Any())
@@ -42,7 +42,7 @@ public class InstrutorModalidadeController : Controller
         if (_context.InstrutorMods is not null)
         {
             var modalidades = await _context.InstrutorMods.
-                Where(a => a.ModalidadeID == id && a.IsDeleted.Equals(false)).
+                Where(a => a.ModalidadeId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
             if(modalidades.Any())
@@ -85,15 +85,15 @@ public class InstrutorModalidadeController : Controller
     [HttpDelete("instrutormod_softdelete")]
     public async Task<IResult> DeleteModalidade_Soft([FromBody] InstrutorModDto? instrutormod)
     {
-        if (instrutormod.InstrutorID == null)
+        if (instrutormod.InstrutorId == null)
             return Results.Empty;
         
-        if (instrutormod.ModalidadeID == null)
+        if (instrutormod.ModalidadeId == null)
             return Results.Empty;
         
         if (_context.InstrutorMods is not null)
         {
-            var instrutor = await _context.InstrutorMods.FirstOrDefaultAsync(t => t.InstrutorID == instrutormod.InstrutorID && t.ModalidadeID == instrutormod.ModalidadeID);
+            var instrutor = await _context.InstrutorMods.FirstOrDefaultAsync(t => t.InstrutorId == instrutormod.InstrutorId && t.ModalidadeId == instrutormod.ModalidadeId);
 
             if(instrutor is null)
                 return Results.NotFound("Modalidade não foi encontrado");

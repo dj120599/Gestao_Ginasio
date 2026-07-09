@@ -27,7 +27,7 @@ public class AulaSocioController : Controller
         if (_context.AulaSocios is not null)
         {
             var socios = await _context.AulaSocios.
-                Where(a => a.AulaID == id && a.IsDeleted.Equals(false)).
+                Where(a => a.AulaId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
             if(socios.Any())
@@ -43,7 +43,7 @@ public class AulaSocioController : Controller
         if (_context.AulaSocios is not null)
         {
             var socios = await _context.AulaSocios.
-                Where(a => a.SocioID == id && a.IsDeleted.Equals(false)).
+                Where(a => a.SocioId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
             if(socios.Any())
@@ -59,7 +59,7 @@ public class AulaSocioController : Controller
         if (_context.AulaSocios is not null)
         {
             var socios = await _context.AulaSocios.FirstOrDefaultAsync(
-                a => a.AulaID == aulasocio.AulaID && a.SocioID == aulasocio.SocioID && a.IsDeleted.Equals(false));
+                a => a.AulaId == aulasocio.AulaId && a.SocioId == aulasocio.SocioId && a.IsDeleted.Equals(false));
             
             if(socios != null)
                 return Ok(socios);
@@ -102,15 +102,15 @@ public class AulaSocioController : Controller
     [HttpDelete("aulasocio_softdelete")]
     public async Task<IResult> DeleteSocio_Soft([FromBody] AulaSociosDto? aulasocio)
     {
-        if (aulasocio.AulaID == null)
+        if (aulasocio.AulaId == null)
             return Results.Empty;
         
-        if (aulasocio.SocioID == null)
+        if (aulasocio.SocioId == null)
             return Results.Empty;
         
         if (_context.AulaSocios is not null)
         {
-            var instrutor = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaID == aulasocio.AulaID && t.SocioID == aulasocio.SocioID);
+            var instrutor = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaId == aulasocio.AulaId && t.SocioId == aulasocio.SocioId);
 
             if(instrutor is null)
                 return Results.NotFound("Socio não foi encontrado");
