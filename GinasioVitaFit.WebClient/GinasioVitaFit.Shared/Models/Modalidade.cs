@@ -8,15 +8,15 @@ public class Modalidade
     [JsonPropertyName("id")]
     public int Id { get; set; }
     
-    [Required(ErrorMessage = "O nome da modalidade é obrigatório.")]
+    [Required(ErrorMessage = "Nome da modalidade é obrigatório.")]
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = String.Empty;
     
-    [Required(ErrorMessage = "A descrição da modalidade é obrigatória.")]
+    [Required(ErrorMessage = "Descrição da modalidade é obrigatória.")]
     [JsonPropertyName("description")]
-    public string Description { get; set; }
+    public string Description { get; set; } = String.Empty;
     
-    [Range(1, int.MaxValue, ErrorMessage = "Selecione uma dificuldade.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Escolha uma dificuldade.")]
     [JsonPropertyName("dificuldadeId")]
     public int DificuldadeId { get; set; }
     
