@@ -1,7 +1,10 @@
 namespace GinasioVitaFit.Api.Entities;
 
-public class AulaSocios: BaseEntity
+public class AulaSocios
 {
-    public int AulaID {get;set;}
-    public int SocioID {get;set;}
+    public int AulaId { get; set; }
+    public int SocioId { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime UpdatedDate { get; set; }
+    public bool IsDeleted { get; set; }
 }
