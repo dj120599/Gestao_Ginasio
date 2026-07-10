@@ -1,5 +1,6 @@
 @page "/AgendarAula"
 
+@using System.Diagnostics
 @using GinasioVitaFit.Shared.Models;
 @using GinasioVitaFit.Shared.Services;
 
@@ -110,6 +111,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine("d");
         await GetAllLists();
         
         await base.OnInitializedAsync();
@@ -122,7 +124,7 @@
         if (aulas.IsSuccessful)
         {
             _listaAulas1 = aulas.Content ?? new List<Aula>();
-        }
+        }      
         
         var socios = await VitaFitDbContext.GetSocios();
         _listaSocios = socios.Content ?? new List<Socio>();
@@ -185,7 +187,8 @@
         {
             Snackbar.Add("Ocorreu um Erro na Adição da Aula2!", Severity.Error);
         }
-
+        
+        UpdateLists();
         StateHasChanged();
     }
 
@@ -237,13 +240,18 @@
             Snackbar.Add("Ocorreu um Erro na desistencia da Aula!", Severity.Error);
         }
 
-        //await GetAllLists();
+        UpdateLists();
         StateHasChanged();
     }
 
     private async void OnValueChanged(Socio s)
     {
         Id = s.Id;
+        UpdateLists();
+    }
+
+    private async void UpdateLists()
+    {
         _listaAulas2.Clear();
         
         var aulas = await VitaFitDbContext.GetAulas();
