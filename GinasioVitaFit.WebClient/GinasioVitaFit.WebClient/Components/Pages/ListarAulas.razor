@@ -1,8 +1,11 @@
 @page "/ListarAulas"
-@using GinasioVitaFit.Shared.Models
-@using MudBlazor
+
+@using GinasioVitaFit.Shared.Models;
+@using GinasioVitaFit.Shared.Services;
+
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject IGinasioVitaFitService VitaFitDbContext;
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
     <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Primary"><b>Gestão de Aulas</b></MudText>
@@ -26,20 +29,20 @@
                       Clearable="true" />
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x.Modalidade" Title="Modalidade" />
-        <PropertyColumn Property="x => x.Instrutor" Title="Instrutor" />
-        <PropertyColumn Property="x => x.Sala" Title="Sala / Espaço" />
+        <PropertyColumn Property="x => x.Modalidade.Name" Title="Modalidade" />
+        <PropertyColumn Property="x => x.Instrutor.Name" Title="Instrutor" />
+        <PropertyColumn Property="x => x.Sala.Name" Title="Sala / Espaço" />
         <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Máz." />
 
         <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
         <TemplateColumn Title="Início">
             <CellTemplate>
-                @context.Item.AulaInicio.ToString("dd/MM/yyyy HH:mm")
+                @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
             </CellTemplate>
         </TemplateColumn>
         <TemplateColumn Title="Fim">
             <CellTemplate>
-                @context.Item.AulaFim.ToString("HH:mm")
+                @context.Item.Fim.ToString("HH:mm")
             </CellTemplate>
         </TemplateColumn>
 
@@ -67,18 +70,13 @@
 
     private async Task CarregarAulas()
     {
-        /*
-        // Dados fictícios para demonstração
-        listaAulas = new List<Aula>
+        var aulas = await VitaFitDbContext.GetAulas();
+        
+        if (aulas.IsSuccessful)
         {
-            // new Aula { Id= 1, Modalidade = "Pilates", Instrutor = "Maria Silva", Sala = "Estúdio A", Capacidade = 15, Inicio = DateTime.Today.AddHours(9), Fim = DateTime.Today.AddHours(10), IsDeleted = false },
-            // new Aula { Id = 2, Modalidade = "Crossfit", Instrutor = "João Santos", Sala = "Box Principal", Capacidade = 20, Inicio = DateTime.Today.AddHours(11), Fim = DateTime.Today.AddHours(12), IsDeleted = false },
-            // new Aula { Id = 3, Modalidade = "Zumba", Instrutor = "Ana Costa", Sala = "Estúdio B", Capacidade = 30, Inicio = DateTime.Today.AddHours(18), Fim = DateTime.Today.AddHours(19), IsDeleted = false }
-        };
-*/
-        
-        listaAulas = listaAulas.Where(a => !a.IsDeleted).ToList();
-        
+            listaAulas = aulas.Content ?? new List<Aula>();
+        }
+
     }
 
     private bool FiltroGlobal(Aula aula)
@@ -93,7 +91,7 @@
     private async Task ConfirmarEliminacao(Aula aula)
     {
         var parameters = new DialogParameters<MudMessageBox>();
-        
+
         var mbox = new MudBlazor.MessageBoxOptions
         {
             Title = "Eliminar Aula",
@@ -101,14 +99,14 @@
             YesText = "Eliminar",
             CancelText = "Cancelar"
         };
-    
+
         parameters.Add(x => x.MarkupMessage, new Microsoft.AspNetCore.Components.MarkupString(mbox.Message));
         parameters.Add(x => x.YesText, mbox.YesText);
         parameters.Add(x => x.CancelText, mbox.CancelText);
-        
+
         var dialog = await DialogService.ShowAsync<MudMessageBox>(mbox.Title, parameters);
         var result = await dialog.Result;
-        
+
         if (!result.Canceled && result.Data is bool confirmar && confirmar)
         {
             aula.IsDeleted = true;
@@ -116,5 +114,4 @@
             await CarregarAulas();
         }
     }
-
 }

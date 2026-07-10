@@ -37,12 +37,12 @@
             <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
             <TemplateColumn Title="Início">
                 <CellTemplate>
-                    @context.Item.AulaInicio.ToString("dd/MM/yyyy HH:mm")
+                    @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn Title="Fim">
                 <CellTemplate>
-                    @context.Item.AulaFim.ToString("HH:mm")
+                    @context.Item.Fim.ToString("HH:mm")
                 </CellTemplate>
             </TemplateColumn>
 
@@ -76,12 +76,12 @@
             <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
             <TemplateColumn Title="Início">
                 <CellTemplate>
-                    @context.Item.AulaInicio.ToString("dd/MM/yyyy HH:mm")
+                    @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn Title="Fim">
                 <CellTemplate>
-                    @context.Item.AulaFim.ToString("HH:mm")
+                    @context.Item.Fim.ToString("HH:mm")
                 </CellTemplate>
             </TemplateColumn>
 
@@ -186,7 +186,6 @@
             Snackbar.Add("Ocorreu um Erro na Adição da Aula2!", Severity.Error);
         }
 
-        //await GetAllLists();
         StateHasChanged();
     }
 
@@ -279,5 +278,4 @@
         }
         StateHasChanged();
     }
-
 }

@@ -1,7 +1,10 @@
 @page "/CriarAulas"
+
 @using GinasioVitaFit.Shared.Models
 @using GinasioVitaFit.Shared.Services
+
 @using MudBlazor
+
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject IGinasioVitaFitService GinasioService
@@ -25,21 +28,21 @@
                 <MudGrid>
                     <!--
                     <MudItem xs="12" sm="6">
-                        <MudTextField T="int" 
+                        <MudTextField T="string" 
                                       Label="Modalidade Associada" 
                                       Required="true" 
                                       RequiredError="A modalidade é obrigatória!" 
-                                      @bind-Value="novaAula.ModalidadeId" 
+                                      @bind-Value="novaAula.Modalidade" 
                                       Adornment="Adornment.Start" 
                                       AdornmentIcon="@Icons.Material.Filled.FitnessCenter" />
                     </MudItem>
                     
                     <MudItem xs="12" sm="6">
-                        <MudTextField T="int" 
+                        <MudTextField T="string" 
                                       Label="Instrutor Responsável" 
                                       Required="true" 
                                       RequiredError="O instrutor é obrigatório!" 
-                                      @bind-Value="novaAula.InstrutorId" 
+                                      @bind-Value="novaAula.Instrutor" 
                                       Adornment="Adornment.Start" 
                                       AdornmentIcon="@Icons.Material.Filled.Person" />
                     </MudItem>
@@ -73,11 +76,11 @@
                     <!-- Sala / Espaço -->
                     <!--
                     <MudItem xs="12" sm="8">
-                        <MudTextField T="int" 
+                        <MudTextField T="string" 
                                       Label="Sala / Espaço" 
                                       Required="true" 
                                       RequiredError="O espaço/sala é obrigatório!" 
-                                      @bind-Value="novaAula.SalaId" 
+                                      @bind-Value="novaAula.Sala" 
                                       Adornment="Adornment.Start" 
                                       AdornmentIcon="@Icons.Material.Filled.Room" />
                     </MudItem>
@@ -124,11 +127,11 @@
         {
             if (dataSelecionada.HasValue && horaInicio.HasValue && horaFim.HasValue)
             {
-                novaAula.AulaInicio = dataSelecionada.Value.Date + horaInicio.Value;
-                novaAula.AulaFim = dataSelecionada.Value.Date + horaFim.Value;
+                novaAula.Inicio = dataSelecionada.Value.Date + horaInicio.Value;
+                novaAula.Fim = dataSelecionada.Value.Date + horaFim.Value;
             }
             
-            if (novaAula.AulaFim <= novaAula.AulaInicio)
+            if (novaAula.Fim <= novaAula.Inicio)
             {
                 Snackbar.Add("Erro: A hora de fim deve ser posterior à hora de início!", Severity.Error);
                 return;
