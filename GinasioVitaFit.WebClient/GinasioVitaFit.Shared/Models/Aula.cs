@@ -1,24 +1,55 @@
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+
 namespace GinasioVitaFit.Shared.Models;
 
 public class Aula
 {
+    [JsonPropertyName("id")] 
+    public int Id { get; set; }
 
-    public int AulaID { get; set; }
+    [Range(1, int.MaxValue, ErrorMessage = "Escolha um instrutor.")]
+    [JsonPropertyName("instrutorId")] 
+    public int InstrutorId { get; set; }
 
-    public string Instrutor { get; set; }
+    [JsonPropertyName("instrutor")] 
+    public Instrutor Instrutor { get; set; }
 
-    public string Modalidade { get; set; }
+    [Range(1, int.MaxValue, ErrorMessage = "Escolha uma modalidade.")]
+    [JsonPropertyName("modalidadeId")] 
+    public int ModalidadeId { get; set; }
 
-    public string Sala { get; set; }
+    [JsonPropertyName("modalidade")] 
+    public Modalidade Modalidade { get; set; }
 
+    [Range(1, int.MaxValue, ErrorMessage = "Escolha uma sala.")]
+    [JsonPropertyName("salaId")] 
+    public int SalaId { get; set; }
+
+    [JsonPropertyName("sala")] 
+    public Sala Sala { get; set; }
+
+    [Range(1, 100, ErrorMessage = "Capacidade da aula deve ser entre 1 e 100 alunos.")]
+    [JsonPropertyName("capacidade")] 
     public int Capacidade { get; set; }
 
-    public DateTime Inicio { get; set; }
+    [Required(ErrorMessage = "Horário início é obrigatório.")]
+    [JsonPropertyName("aulaInicio")] 
+    public DateTime AulaInicio { get; set; }
 
-    public DateTime Fim { get; set; }
+    [Required(ErrorMessage = "Horário final é obrigatório.")]
+    [JsonPropertyName("Aulafim")] 
+    public DateTime AulaFim { get; set; }
+    
+    [JsonPropertyName("createdDate")] 
+    public DateTime CreatedDate { get; set; }
 
-    public bool Delete { get; set; } = false;
+    [JsonPropertyName("updatedDate")] 
+    public DateTime UpdatedDate { get; set; }
+
+    [JsonPropertyName("isDeleted")] 
+    public bool IsDeleted { get; set; }
     
-    public string ImagemUrl { get; set; } = "https://plus.unsplash.com/premium_photo-1746421978363-6e3ea7668a73?q=80&w=1934&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
-    
+    [JsonPropertyName("isOpen")] 
+    public bool IsOpen { get; set; }
 }

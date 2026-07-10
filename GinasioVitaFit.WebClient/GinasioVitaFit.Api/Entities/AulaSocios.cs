@@ -1,7 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace GinasioVitaFit.Api.Entities;
 
-public class AulaSocios: BaseEntity
+[Keyless]
+public class AulaSocios: BaseEntity2
 {
-    public int AulaID {get;set;}
-    public int SocioID {get;set;}
+    public int AulaId {get;set;}
+    public int SocioId {get;set;}
 }

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="Microsoft SQL Server (JetBrains)" uuid="55fb6543-8e23-4764-b4e4-2a46e77e4a0f">
+    <data-source source="LOCAL" name="Microsoft SQL Server (JetBrains)" uuid="59309797-65eb-4164-b8be-ce38f64c30f8">
       <driver-ref>sqlserver.jb</driver-ref>
       <synchronize>true</synchronize>
       <configured-by-url>true</configured-by-url>
       <jdbc-driver>com.jetbrains.jdbc.sqlserver.SqlServerDriver</jdbc-driver>
-      <jdbc-url>Data Source=SQL8005.site4now.net;Initial Catalog=db_acb35f_gestaoginasio;User Id=db_acb35f_gestaoginasio_admin;Password=2026Brazil;Encrypt=True;TrustServerCertificate=True</jdbc-url>
+      <jdbc-url>Data Source=SQL8012.site4now.net;Initial Catalog=db_acb35f_ginasiovitafit;User Id=db_acb35f_ginasiovitafit_admin;Password=2026Brazil;Encrypt=True;TrustServerCertificate=True;</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

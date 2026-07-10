@@ -25,15 +25,14 @@ public class AulaController: Controller
     {
         if (_context.Aulas is not null)
         {
-            /*
+            
             var aulas = await _context.Aulas.
                 Where(a => a.IsDeleted.Equals(false)).
                 Include(a => a.Instrutor).
                 Include(a => a.Modalidade).
                 Include(a => a.Sala).
                 ToListAsync();
-            */
-            var aulas = await _context.Aulas.ToListAsync();
+             
             
             if(aulas.Any())
                 return Ok(aulas);
@@ -48,6 +47,9 @@ public class AulaController: Controller
         if (_context.Aulas is not null)
         {
             var aulas = await _context.Aulas.
+                Include(a => a.Instrutor).
+                Include(a => a.Modalidade).
+                Include(a => a.Sala).
                 FirstOrDefaultAsync(a => a.Id == id && a.IsDeleted.Equals(false));
             
             if(aulas is not null)
@@ -150,7 +152,7 @@ public class AulaController: Controller
         if (_context.AulaSocios is not null)
         {
             var socios = await _context.AulaSocios.
-                Where(a => a.AulaID == id && a.IsDeleted.Equals(false)).
+                Where(a => a.AulaId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
             if(socios.Any())
@@ -166,7 +168,7 @@ public class AulaController: Controller
         if (_context.AulaSocios is not null)
         {
             var socios = await _context.AulaSocios.
-                Where(a => a.AulaID == id && a.SocioID == socio && a.IsDeleted.Equals(false)).
+                Where(a => a.AulaId == id && a.SocioId == socio && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
             if(socios.Any())
@@ -218,7 +220,7 @@ public class AulaController: Controller
         
         if (_context.AulaSocios is not null)
         {
-            var instrutor = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaID == id && t.SocioID == socio);
+            var instrutor = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaId == id && t.SocioId == socio);
 
             if(instrutor is null)
                 return Results.NotFound("Socio não foi encontrado");

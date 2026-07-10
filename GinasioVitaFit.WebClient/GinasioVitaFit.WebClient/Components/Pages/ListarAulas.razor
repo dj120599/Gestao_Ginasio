@@ -34,12 +34,12 @@
         <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
         <TemplateColumn Title="Início">
             <CellTemplate>
-                @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
+                @context.Item.AulaInicio.ToString("dd/MM/yyyy HH:mm")
             </CellTemplate>
         </TemplateColumn>
         <TemplateColumn Title="Fim">
             <CellTemplate>
-                @context.Item.Fim.ToString("HH:mm")
+                @context.Item.AulaFim.ToString("HH:mm")
             </CellTemplate>
         </TemplateColumn>
 
@@ -67,7 +67,7 @@
 
     private async Task CarregarAulas()
     {
-        
+        /*
         // Dados fictícios para demonstração
         listaAulas = new List<Aula>
         {
@@ -75,18 +75,18 @@
             new Aula { AulaID = 2, Modalidade = "Crossfit", Instrutor = "João Santos", Sala = "Box Principal", Capacidade = 20, Inicio = DateTime.Today.AddHours(11), Fim = DateTime.Today.AddHours(12), Delete = false },
             new Aula { AulaID = 3, Modalidade = "Zumba", Instrutor = "Ana Costa", Sala = "Estúdio B", Capacidade = 30, Inicio = DateTime.Today.AddHours(18), Fim = DateTime.Today.AddHours(19), Delete = false }
         };
-
+*/
         
-        listaAulas = listaAulas.Where(a => !a.Delete).ToList();
+        listaAulas = listaAulas.Where(a => !a.IsDeleted).ToList();
         
     }
 
     private bool FiltroGlobal(Aula aula)
     {
         if (string.IsNullOrWhiteSpace(pesquisa)) return true;
-        if (aula.Modalidade?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
-        if (aula.Instrutor?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
-        if (aula.Sala?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aula.Modalidade?.Name.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aula.Instrutor?.Name.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aula.Sala?.Name.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
         return false;
     }
 
@@ -111,7 +111,7 @@
         
         if (!result.Canceled && result.Data is bool confirmar && confirmar)
         {
-            aula.Delete = true;
+            aula.IsDeleted = true;
             Snackbar.Add("Aula eliminada com sucesso!", Severity.Success);
             await CarregarAulas();
         }

@@ -1,6 +1,9 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace GinasioVitaFit.Api.Entities;
 
-public class InstrutorMod: BaseEntity
+[Keyless]
+public class InstrutorMod: BaseEntity2
 {
     public int InstrutorID {get;set;}
     public int ModalidadeID {get;set;}

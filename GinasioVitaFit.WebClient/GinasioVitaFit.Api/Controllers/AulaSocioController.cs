@@ -27,7 +27,7 @@ public class AulaSocioController : Controller
         if (_context.AulaSocios is not null)
         {
             var socios = await _context.AulaSocios.
-                Where(a => a.AulaID == id && a.IsDeleted.Equals(false)).
+                Where(a => a.AulaId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
             if(socios.Any())
@@ -42,10 +42,11 @@ public class AulaSocioController : Controller
     {
         if (_context.AulaSocios is not null)
         {
-            var socios = await _context.AulaSocios.
-                Where(a => a.SocioID == id && a.IsDeleted.Equals(false)).
-                ToListAsync();
             
+            var socios = await _context.AulaSocios.
+                Where(a => a.SocioId == id && a.IsDeleted.Equals(false)).
+                ToListAsync();
+
             if(socios.Any())
                 return Ok(socios);
         }
@@ -59,7 +60,7 @@ public class AulaSocioController : Controller
         if (_context.AulaSocios is not null)
         {
             var socios = await _context.AulaSocios.FirstOrDefaultAsync(
-                a => a.AulaID == aulasocio.AulaID && a.SocioID == aulasocio.SocioID && a.IsDeleted.Equals(false));
+                a => a.AulaId == aulasocio.AulaID && a.SocioId == aulasocio.SocioID && a.IsDeleted.Equals(false));
             
             if(socios != null)
                 return Ok(socios);
@@ -70,21 +71,23 @@ public class AulaSocioController : Controller
     
     
     [HttpPost("/aulasocio")]
-    public async Task<IResult> AddSocioToAula([FromBody] AulaSociosDto? aulasocio)
+    //public async Task<IResult> AddSocioToAula([FromBody] AulaSociosDto? aulasocio)
+    public async Task<IResult> AddSocioToAula(int[] aulasocio)
     {
+        /*
         if (aulasocio is  null)
             return Results.BadRequest();
-        
+
         var mapper = _mapper.Map<Models.AulaSociosDto,Entities.AulaSocios>(aulasocio);
         mapper.CreatedDate = DateTime.UtcNow;
         mapper.UpdatedDate = DateTime.UtcNow;
-        
+
         var aulasocios =  _context.AulaSocios;
-        
+
         if (aulasocios is not null)
         {
             aulasocios.Add(mapper);
-            
+
             try
             {
                 await _context.SaveChangesAsync();
@@ -95,7 +98,7 @@ public class AulaSocioController : Controller
                 return Results.NotFound(e.Message);
             }
         }
-        
+        */
         return Results.Empty;
     }
     
@@ -110,7 +113,7 @@ public class AulaSocioController : Controller
         
         if (_context.AulaSocios is not null)
         {
-            var instrutor = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaID == aulasocio.AulaID && t.SocioID == aulasocio.SocioID);
+            var instrutor = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaId == aulasocio.AulaID && t.SocioId == aulasocio.SocioID);
 
             if(instrutor is null)
                 return Results.NotFound("Socio não foi encontrado");
