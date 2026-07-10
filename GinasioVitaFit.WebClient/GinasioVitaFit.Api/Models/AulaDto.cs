@@ -9,5 +9,6 @@ public class AulaDto
     public int Capacidade { get; set; }
     public DateTime AulaInicio { get; set; }
     public DateTime AulaFim { get; set; }
+    public DateTime UpdatedDate { get; set; }
     public bool IsDeleted { get; set; }
 }

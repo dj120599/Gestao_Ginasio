@@ -7,5 +7,6 @@ public class InstrutorDto
     public string Email { get; set; }
     public string ImageUrl { get; set; }
     public string Contacto { get; set; }
+    public DateTime UpdatedDate { get; set; }
     public bool IsDeleted { get; set; }
 }
