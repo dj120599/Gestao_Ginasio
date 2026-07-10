@@ -25,21 +25,21 @@
                 <MudGrid>
                     <!--
                     <MudItem xs="12" sm="6">
-                        <MudTextField T="string" 
+                        <MudTextField T="int" 
                                       Label="Modalidade Associada" 
                                       Required="true" 
                                       RequiredError="A modalidade é obrigatória!" 
-                                      @bind-Value="novaAula.Modalidade" 
+                                      @bind-Value="novaAula.ModalidadeId" 
                                       Adornment="Adornment.Start" 
                                       AdornmentIcon="@Icons.Material.Filled.FitnessCenter" />
                     </MudItem>
                     
                     <MudItem xs="12" sm="6">
-                        <MudTextField T="string" 
+                        <MudTextField T="int" 
                                       Label="Instrutor Responsável" 
                                       Required="true" 
                                       RequiredError="O instrutor é obrigatório!" 
-                                      @bind-Value="novaAula.Instrutor" 
+                                      @bind-Value="novaAula.InstrutorId" 
                                       Adornment="Adornment.Start" 
                                       AdornmentIcon="@Icons.Material.Filled.Person" />
                     </MudItem>
@@ -73,11 +73,11 @@
                     <!-- Sala / Espaço -->
                     <!--
                     <MudItem xs="12" sm="8">
-                        <MudTextField T="string" 
+                        <MudTextField T="int" 
                                       Label="Sala / Espaço" 
                                       Required="true" 
                                       RequiredError="O espaço/sala é obrigatório!" 
-                                      @bind-Value="novaAula.Sala" 
+                                      @bind-Value="novaAula.SalaId" 
                                       Adornment="Adornment.Start" 
                                       AdornmentIcon="@Icons.Material.Filled.Room" />
                     </MudItem>

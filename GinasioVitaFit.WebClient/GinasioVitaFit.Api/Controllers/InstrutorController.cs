@@ -143,7 +143,7 @@ public class InstrutorController: Controller
         if (_context.InstrutorMods is not null)
         {
             var modalidades = await _context.InstrutorMods.
-                Where(a => a.InstrutorID == id && a.IsDeleted.Equals(false)).
+                Where(a => a.InstrutorId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
             if(modalidades.Any())
@@ -194,7 +194,7 @@ public class InstrutorController: Controller
         
         if (_context.InstrutorMods is not null)
         {
-            var instrutor = await _context.InstrutorMods.FirstOrDefaultAsync(t => t.InstrutorID == id && t.ModalidadeID == modalidade);
+            var instrutor = await _context.InstrutorMods.FirstOrDefaultAsync(t => t.InstrutorId == id && t.ModalidadeId == modalidade);
 
             if(instrutor is null)
                 return Results.NotFound("Modalidade não foi encontrado");

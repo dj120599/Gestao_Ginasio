@@ -2,9 +2,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GinasioVitaFit.Api.Entities;
 
-[Keyless]
-public class InstrutorMod: BaseEntity2
+public class InstrutorMod
 {
-    public int InstrutorID {get;set;}
-    public int ModalidadeID {get;set;}
+    public int InstrutorId { get; set; }
+    public int ModalidadeId { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime UpdatedDate { get; set; }
+    public bool IsDeleted { get; set; }
 }

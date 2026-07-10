@@ -34,13 +34,16 @@ public class Aula
     public int Capacidade { get; set; }
 
     [Required(ErrorMessage = "Horário início é obrigatório.")]
-    [JsonPropertyName("aulaInicio")] 
-    public DateTime AulaInicio { get; set; }
+    [JsonPropertyName("inicio")] 
+    public DateTime Inicio { get; set; }
 
     [Required(ErrorMessage = "Horário final é obrigatório.")]
-    [JsonPropertyName("Aulafim")] 
-    public DateTime AulaFim { get; set; }
+    [JsonPropertyName("fim")] 
+    public DateTime Fim { get; set; }
     
+    [JsonPropertyName("isOpen")] 
+    public bool IsOpen { get; set; }
+
     [JsonPropertyName("createdDate")] 
     public DateTime CreatedDate { get; set; }
 
@@ -49,7 +52,4 @@ public class Aula
 
     [JsonPropertyName("isDeleted")] 
     public bool IsDeleted { get; set; }
-    
-    [JsonPropertyName("isOpen")] 
-    public bool IsOpen { get; set; }
 }

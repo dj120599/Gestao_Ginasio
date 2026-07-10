@@ -23,5 +23,18 @@ public class VitaFitDbContext: DbContext, IVitaFitDbContext
         optionsBuilder.UseSqlServer("Data Source=SQL8012.site4now.net;Initial Catalog=db_acb35f_ginasiovitafit;User Id=db_acb35f_ginasiovitafit_admin;Password=2026Brazil;Encrypt=True;TrustServerCertificate=True;");
     }
     
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Resolve o erro do AulaSocios definindo a chave composta
+        modelBuilder.Entity<AulaSocios>()
+            .HasKey(asoc => new { asoc.AulaId, asoc.SocioId });
+
+        // Resolve o provável erro do InstrutorMod (ajuste os nomes das propriedades se forem diferentes)
+        modelBuilder.Entity<InstrutorMod>()
+            .HasKey(imod => new { imod.InstrutorId, imod.ModalidadeId });
+    }
+    
     
 }

@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GinasioVitaFit.Api.Entities;
 
-
-public class AulaSocios: BaseEntity2
+public class AulaSocios
 {
-    [Key]
-    public int AulaId {get;set;}
-
-    public int SocioId {get;set;}
+    public int AulaId { get; set; }
+    public int SocioId { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime UpdatedDate { get; set; }
+    public bool IsDeleted { get; set; }
 }

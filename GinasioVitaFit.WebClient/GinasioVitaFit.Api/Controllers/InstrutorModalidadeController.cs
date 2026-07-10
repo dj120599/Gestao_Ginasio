@@ -26,7 +26,7 @@ public class InstrutorModalidadeController : Controller
         if (_context.InstrutorMods is not null)
         {
             var modalidades = await _context.InstrutorMods.
-                Where(a => a.InstrutorID == id && a.IsDeleted.Equals(false)).
+                Where(a => a.InstrutorId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
             if(modalidades.Any())
