@@ -23,7 +23,7 @@
         <MudCardContent>
             <MudForm @ref="form">
                 <MudGrid>
-                    
+                    <!--
                     <MudItem xs="12" sm="6">
                         <MudTextField T="int" 
                                       Label="Modalidade Associada" 
@@ -43,7 +43,7 @@
                                       Adornment="Adornment.Start" 
                                       AdornmentIcon="@Icons.Material.Filled.Person" />
                     </MudItem>
-                    
+                    -->
                     <MudItem xs="12" sm="4">
                         <MudDatePicker Label="Data da Aula" 
                                        Required="true" 
@@ -71,6 +71,7 @@
                     </MudItem>
 
                     <!-- Sala / Espaço -->
+                    <!--
                     <MudItem xs="12" sm="8">
                         <MudTextField T="int" 
                                       Label="Sala / Espaço" 
@@ -80,7 +81,7 @@
                                       Adornment="Adornment.Start" 
                                       AdornmentIcon="@Icons.Material.Filled.Room" />
                     </MudItem>
-                    
+                    -->
                     <MudItem xs="12" sm="4">
                         <MudNumericField T="int" 
                                          Label="Capacidade" 
@@ -123,11 +124,11 @@
         {
             if (dataSelecionada.HasValue && horaInicio.HasValue && horaFim.HasValue)
             {
-                novaAula.Inicio = dataSelecionada.Value.Date + horaInicio.Value;
-                novaAula.Fim = dataSelecionada.Value.Date + horaFim.Value;
+                novaAula.AulaInicio = dataSelecionada.Value.Date + horaInicio.Value;
+                novaAula.AulaFim = dataSelecionada.Value.Date + horaFim.Value;
             }
             
-            if (novaAula.Fim <= novaAula.Inicio)
+            if (novaAula.AulaFim <= novaAula.AulaInicio)
             {
                 Snackbar.Add("Erro: A hora de fim deve ser posterior à hora de início!", Severity.Error);
                 return;
