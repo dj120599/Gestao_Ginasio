@@ -45,8 +45,8 @@ public interface IGinasioVitaFitService
     Task<ApiResponse<AulaSocios>> GetSocioFromAula(int id, int socio);
 
     [Post("/aulasocio")]
-    //Task<ApiResponse<string>> AddSocioToAula([Body] AulaSocios aulasocio);
-    Task<ApiResponse<string>> AddSocioToAula(int[] aulasocio);
+    Task<ApiResponse<string>> AddSocioToAula([Body] AulaSocios aulasocio);
+    
     [Delete("/aulasocio_softdelete")]
     Task<ApiResponse<string>> DeleteSocio_Soft([Body] AulaSocios aulasocio);
     

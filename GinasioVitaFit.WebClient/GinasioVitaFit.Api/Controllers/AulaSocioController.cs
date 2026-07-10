@@ -71,10 +71,8 @@ public class AulaSocioController : Controller
     
     
     [HttpPost("/aulasocio")]
-    //public async Task<IResult> AddSocioToAula([FromBody] AulaSociosDto? aulasocio)
-    public async Task<IResult> AddSocioToAula(int[] aulasocio)
+    public async Task<IResult> AddSocioToAula([FromBody] AulaSociosDto? aulasocio)
     {
-        /*
         if (aulasocio is  null)
             return Results.BadRequest();
 
@@ -98,7 +96,7 @@ public class AulaSocioController : Controller
                 return Results.NotFound(e.Message);
             }
         }
-        */
+        
         return Results.Empty;
     }
     

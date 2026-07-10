@@ -169,9 +169,9 @@
             };
 
 
-            //var aulas = await VitaFitDbContext.AddSocioToAula(aulaSocios);
-            int[] index = new[] { 1, 20 };
-            var aulas = await VitaFitDbContext.AddSocioToAula(index);
+            var aulas = await VitaFitDbContext.AddSocioToAula(aulaSocios);
+
+            
             if (aulas.IsSuccessful)
             {
                 Snackbar.Add("Aula Adicionada com sucesso!", Severity.Success);
