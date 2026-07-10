@@ -3,7 +3,7 @@ namespace GinasioVitaFit.Api.Entities;
 public class Socio : BaseEntity
 {
     public string Name { get; set; }
-    public DateTime Nascimento { get; set; }
+    public DateOnly Nascimento { get; set; }
     public string Email { get; set; }
     public string ImageUrl { get; set; }
     public string Contacto { get; set; }

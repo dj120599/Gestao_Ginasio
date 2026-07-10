@@ -14,7 +14,7 @@ public class Socio
     
     [Required(ErrorMessage = "Data de nascimento é obrigatória.")]
     [JsonPropertyName("nascimento")]
-    public DateTime Nascimento { get; set; }
+    public DateOnly Nascimento { get; set; }
     
     [Required(ErrorMessage = "Email é obrigatório.")]
     [EmailAddress(ErrorMessage = "O formato do email incorreto.")]

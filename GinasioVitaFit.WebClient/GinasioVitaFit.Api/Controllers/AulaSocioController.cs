@@ -118,7 +118,8 @@ public class AulaSocioController : Controller
             
             aulasocio.UpdatedDate = DateTime.UtcNow;
             aulasocio.IsDeleted = true;
-            aulasocio.Adapt(oldAulaSocios);
+            //aulasocio.Adapt(oldAulaSocios);
+            oldAulaSocios.Adapt(aulasocio);
             
             await _context.SaveChangesAsync();
             
