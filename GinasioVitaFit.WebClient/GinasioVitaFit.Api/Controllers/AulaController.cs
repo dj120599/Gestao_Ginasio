@@ -28,11 +28,13 @@ public class AulaController: Controller
             
             var aulas = await _context.Aulas.
                 Where(a => a.IsDeleted.Equals(false)).
+                //Include(a => a.InstrutorId).
                 Include(a => a.Instrutor).
+                //Include(a => a.ModalidadeId).
                 Include(a => a.Modalidade).
+                //Include(a => a.SalaId).
                 Include(a => a.Sala).
                 ToListAsync();
-             
             
             if(aulas.Any())
                 return Ok(aulas);
