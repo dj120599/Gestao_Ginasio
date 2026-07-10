@@ -68,6 +68,14 @@
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0"/>
+        <PackageReference Include="MudBlazor" Version="9.6.0" />
+        <PackageReference Include="Refit" Version="10.2.0" />
+        <PackageReference Include="Refit.HttpClientFactory" Version="10.2.0" />
+        <PackageReference Include="Refit.Newtonsoft.Json" Version="10.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\GinasioVitaFit.Shared\GinasioVitaFit.Shared.csproj" />
     </ItemGroup>
 
 </Project>
