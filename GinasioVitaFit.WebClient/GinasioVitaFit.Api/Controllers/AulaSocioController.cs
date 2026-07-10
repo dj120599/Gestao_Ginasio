@@ -60,7 +60,7 @@ public class AulaSocioController : Controller
         if (_context.AulaSocios is not null)
         {
             var socios = await _context.AulaSocios.FirstOrDefaultAsync(
-                a => a.AulaId == aulasocio.AulaID && a.SocioId == aulasocio.SocioID && a.IsDeleted.Equals(false));
+                a => a.AulaId == aulasocio.AulaId && a.SocioId == aulasocio.SocioId && a.IsDeleted.Equals(false));
             
             if(socios != null)
                 return Ok(socios);
@@ -103,23 +103,22 @@ public class AulaSocioController : Controller
     [HttpPut("aulasocio_softdelete")]
     public async Task<IResult> DeleteSocio_Soft([FromBody] AulaSociosDto? aulasocio)
     {
-        if (aulasocio.AulaID == null)
+        if (aulasocio.AulaId == null)
             return Results.Empty;
         
-        if (aulasocio.SocioID == null)
+        if (aulasocio.SocioId == null)
             return Results.Empty;
         
         if (_context.AulaSocios is not null)
         {
-            var oldAulaSocios = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaId == aulasocio.AulaID && t.SocioId == aulasocio.SocioID);
+            var oldAulaSocios = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaId == aulasocio.AulaId && t.SocioId == aulasocio.SocioId);
             
             if(oldAulaSocios is null)
                 return Results.NotFound("Aula Agendada não foi encontrado");
             
             aulasocio.UpdatedDate = DateTime.UtcNow;
             aulasocio.IsDeleted = true;
-            //aulasocio.Adapt(oldAulaSocios);
-            oldAulaSocios.Adapt(aulasocio);
+            aulasocio.Adapt(oldAulaSocios);
             
             await _context.SaveChangesAsync();
             
