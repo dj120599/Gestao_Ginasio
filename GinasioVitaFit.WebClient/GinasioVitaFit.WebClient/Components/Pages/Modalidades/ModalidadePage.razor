@@ -1,0 +1,28 @@
+@page "/modalidades"
+@using GinasioVitaFit.Shared.Services
+@using GinasioVitaFit.Shared.Models
+@inject IGinasioVitaFitService GinasioVitaFitService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@using GinasioVitaFit.WebClient.Components.Pages.Modalidades.Componentes
+
+<h1 class="text-3xl font-bold mb-6">
+    Modalidades
+</h1>
+
+<button @onclick="AbrirModal"
+        class="!bg-blue-600 hover:!bg-blue-700 text-white px-4 py-2 rounded-lg">
+    Nova Modalidade
+</button>
+
+<AddModalidadeComponente @ref="_modal" />
+
+@code {
+    private AddModalidadeComponente? _modal;
+
+    private async Task AbrirModal()
+    {
+        await _modal!.Show();
+    }
+}
