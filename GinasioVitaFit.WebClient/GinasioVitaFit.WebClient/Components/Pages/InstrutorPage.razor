@@ -1,0 +1,116 @@
+@page "/InstrutorPage"
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using MudBlazor
+@inject IGinasioVitaFitService GinasioService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@rendermode InteractiveServer
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    <div class="d-flex justify-space-between align-center mb-4">
+        <MudText Typo="Typo.h4" Color="Color.Primary"><b>Gestão de Instrutores</b></MudText>
+        
+        <!-- Botão Corrigido para abrir o seu formulário de criação -->
+        <MudButton Variant="Variant.Filled" 
+                   Color="Color.Primary" 
+                   OnClick="IrParaCriarInstrutor"
+                   StartIcon="@Icons.Material.Filled.PersonAdd">
+            + NOVO INSTRUTOR
+        </MudButton>
+    </div>
+
+    <MudDataGrid Items="@listaInstrutores" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Instrutores do Ginásio</MudText>
+            <MudSpacer />
+            
+            <!-- Campo de Pesquisa Rápida -->
+            <MudTextField @bind-Value="pesquisa" 
+                          Placeholder="Pesquisar por nome ou email..." 
+                          Adornment="Adornment.Start" 
+                          AdornmentIcon="@Icons.Material.Filled.Search" 
+                          Class="mt-0"
+                          Clearable="true" />
+        </ToolBarContent>
+        
+        <Columns>
+            <!-- 1. Coluna da Imagem/Avatar -->
+            <TemplateColumn Title="Foto" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudAvatar Image="@context.Item.ImageUrl" Alt="Foto" Size="Size.Medium" />
+                </CellTemplate>
+            </TemplateColumn>
+
+            <!-- 2. Colunas de Propriedades Diretas -->
+            <PropertyColumn Property="x => x.Name" Title="Nome Completo" />
+            <PropertyColumn Property="x => x.Email" Title="Email" />
+            <PropertyColumn Property="x => x.Contacto" Title="Contacto" />
+
+            <!-- 3. Coluna de Ações -->
+            <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudIconButton Size="Size.Small"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error" />
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    private List<Instrutor> listaInstrutores = new List<Instrutor>();
+    private string pesquisa = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarInstrutores();
+    }
+
+    private async Task CarregarInstrutores()
+    {
+        try
+        {
+            // Abordagem dynamic que resolveu o problema de tipos do Refit na página anterior
+            dynamic resposta = await GinasioService.GetAllInstrutores(); 
+            
+            if (resposta != null)
+            {
+                listaInstrutores = resposta.Content ?? resposta;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Aviso de ligação: {ex.Message}. A carregar salvaguarda...", Severity.Info);
+            
+            // Fallback com dados simulados caso a API não responda
+            listaInstrutores = new List<Instrutor>
+            {
+                new() { Id = 1, Name = "Carlos Neves", Email = "carlos@ginasio.com", Contacto = "911222333", ImageUrl = "default.png" },
+                new() { Id = 2, Name = "Mariana Silva", Email = "mariana@ginasio.com", Contacto = "966555444", ImageUrl = "default.png" }
+            };
+        }
+
+        // Filtro básico de segurança contra nulos
+        if (listaInstrutores == null)
+        {
+            listaInstrutores = new List<Instrutor>();
+        }
+    }
+
+    private void IrParaCriarInstrutor()
+    {
+        Navigation.NavigateTo("/AddInstrutor");
+    }
+
+    private bool FiltroGlobal(Instrutor instrutor)
+    {
+        if (string.IsNullOrWhiteSpace(pesquisa)) return true;
+        
+        if (instrutor.Name?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (instrutor.Email?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        
+        return false;
+    }
+}

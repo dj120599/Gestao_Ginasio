@@ -25,14 +25,14 @@ public class AulaController: Controller
     {
         if (_context.Aulas is not null)
         {
-            /*
-            var aulas = await _context.Aulas.
+            
+            await _context.Aulas.
                 Where(a => a.IsDeleted.Equals(false)).
                 Include(a => a.Instrutor).
                 Include(a => a.Modalidade).
                 Include(a => a.Sala).
                 ToListAsync();
-            */
+            
             var aulas = await _context.Aulas.ToListAsync();
             
             if(aulas.Any())
