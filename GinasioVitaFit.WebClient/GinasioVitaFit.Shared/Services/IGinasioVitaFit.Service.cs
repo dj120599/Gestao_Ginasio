@@ -29,6 +29,9 @@ public interface IGinasioVitaFitService
     [Get("/modalidades")]
     Task<ApiResponse<List<Modalidade>>> GetAllModalidades();
     
+    [Put("/modalidade_softdelete/{id}")]
+    Task<ApiResponse<string>> DeleteModalidade_Soft(int id);
+    
     // Dificuldade
     
     [Get("/dificuldades")]
@@ -61,7 +64,7 @@ public interface IGinasioVitaFitService
     Task<ApiResponse<InstrutorMod>> AddModalidadeToInstrutor([Body] InstrutorMod? instrutormod);
 
     [Delete("/instrutormod_softdelete")]
-    Task<ApiResponse<string>> DeleteModalidade_Soft([Body] InstrutorMod? instrutormod);
+    Task<ApiResponse<string>> DeleteModalidadeToInstrutor_Soft([Body] InstrutorMod? instrutormod);
     
     //Socios
     [Get("/socios")]

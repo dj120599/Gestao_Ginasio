@@ -138,7 +138,7 @@
                                         }
                                     </label>
 
-                                    @if (_imagensExistentes.Any())
+                                    @if (ImagensExistentes.Any())
                                     {
                                         <div class="mt-3">
                                         <span
@@ -147,7 +147,7 @@
                                             <!-- Garantimos o flex-row e o overflow-x-auto para a linha horizontal voltar -->
                                             <div
                                                 class="flex flex-row gap-2 overflow-x-auto py-3 px-2 bg-gray-50 rounded-lg border border-gray-100 overflow-y-visible">
-                                                @foreach (var imgPath in _imagensExistentes)
+                                                @foreach (var imgPath in ImagensExistentes)
                                                 {
                                                     bool isSelected = _modalidade.ImageUrl == imgPath;
                                                     string nomeFicheiro = imgPath.Contains("/") ? imgPath.Split('/').Last() : imgPath;
@@ -195,20 +195,20 @@
 }
 
 @code {
+    [Parameter]
+    public List<string> ImagensExistentes { get; set; } = new();
+    
     private bool _isOpen;
     private bool _isAnimating;
     private bool _isLoading;
     private bool _loaded;
 
     private Modalidade _modalidade = new();
-    private List<Modalidade> _modalidades = new();
     private List<Dificuldade> _dificuldades = new();
 
     private string _previewUrl = "/images/modalidade-placeholder.png";
     private bool _isUploading = false;
-
-    private List<string> _imagensExistentes = new();
-
+    
     private string OverlayClass =>
         $"fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 " +
         $"{(_isAnimating ? "opacity-100" : "opacity-0")}";
@@ -255,22 +255,7 @@
 
     private async Task CarregarDados()
     {
-        var modalidades = await GinasioVitaFitService.GetAllModalidades();
         var dificuldades = await GinasioVitaFitService.GetAllDificuldades();
-
-        if (modalidades.IsSuccessStatusCode)
-        {
-            _modalidades = modalidades.Content ?? new List<Modalidade>();
-
-            _imagensExistentes = _modalidades
-                .Where(m =>
-                    !string.IsNullOrEmpty(m.ImageUrl)
-                    && !m.ImageUrl.Contains("placeholder")
-                    && m.ImageUrl != "something")
-                .Select(m => m.ImageUrl)
-                .Distinct()
-                .ToList();
-        }
 
         if (dificuldades.IsSuccessStatusCode)
             _dificuldades = dificuldades.Content ?? new List<Dificuldade>();
