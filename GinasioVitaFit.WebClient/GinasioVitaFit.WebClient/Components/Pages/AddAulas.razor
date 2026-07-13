@@ -1,4 +1,6 @@
 @page "/AddAula"
+@page "/AddAula/{id:int}"
+
 @using GinasioVitaFit.Shared.Models
 @using GinasioVitaFit.Shared.Services
 @using MudBlazor
@@ -27,19 +29,19 @@
 
                     <!-- 1. Dropdown de Modalidades -->
                     <MudItem xs="12" sm="6">
-                        <MudSelect T="Modalidade"
+                        <MudSelect T="string"
                                    Label="Modalidade Associada"
                                    Required="true"
                                    RequiredError="A modalidade é obrigatória!"
-                                   @bind-Value="modalidadeSelecionada"
+                                   @bind-Value="_aula.Modalidade.Name"
                                    Adornment="Adornment.Start"
                                    AdornmentIcon="@Icons.Material.Filled.FitnessCenter">
                             @if (modalidades != null)
                             {
-                            @foreach (var mod in modalidades)
-                            {
-                            <MudSelectItem Value="@mod">@mod.Name</MudSelectItem>
-                            }
+                                @foreach (var mod in modalidades)
+                                {
+                                    <MudSelectItem Value="@mod">@mod.Name</MudSelectItem>
+                                }
                             }
                         </MudSelect>
                     </MudItem>
@@ -50,15 +52,15 @@
                                    Label="Instrutor Responsável"
                                    Required="true"
                                    RequiredError="O instrutor é obrigatório!"
-                                   @bind-Value="instrutorSelecionado"
+                                   @bind-Value="_aula.Instrutor"
                                    Adornment="Adornment.Start"
                                    AdornmentIcon="@Icons.Material.Filled.Person">
                             @if (instrutores != null)
                             {
-                            @foreach (var inst in instrutores)
-                            {
-                            <MudSelectItem Value="@inst">@inst.Name</MudSelectItem>
-                            }
+                                @foreach (var inst in instrutores)
+                                {
+                                    <MudSelectItem Value="@inst">@inst.Name</MudSelectItem>
+                                }
                             }
                         </MudSelect>
                     </MudItem>
@@ -93,15 +95,15 @@
                                    Label="Sala / Espaço"
                                    Required="true"
                                    RequiredError="O espaço/sala é obrigatório!"
-                                   @bind-Value="salaSelecionada"
+                                   @bind-Value="_aula.Sala"
                                    Adornment="Adornment.Start"
                                    AdornmentIcon="@Icons.Material.Filled.Room">
                             @if (salas != null)
                             {
-                            @foreach (var s in salas)
-                            {
-                            <MudSelectItem Value="@s">@s.Name</MudSelectItem>
-                            }
+                                @foreach (var s in salas)
+                                {
+                                    <MudSelectItem Value="@s">@s.Name</MudSelectItem>
+                                }
                             }
                         </MudSelect>
                     </MudItem>
@@ -112,6 +114,7 @@
                                          Required="true"
                                          Min="1"
                                          Max="100"
+                                         Placeholder="20"
                                          @bind-Value="capacidade"
                                          Adornment="Adornment.Start"
                                          AdornmentIcon="@Icons.Material.Filled.Groups" />
@@ -125,6 +128,7 @@
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        Size="Size.Large"
+                       Disabled="@Changebool"
                        OnClick="SubmeterFormulario">
                 Gravar Aula
             </MudButton>
@@ -133,17 +137,23 @@
 </MudContainer>
 
 @code {
-    private MudForm form = default!;
+    [Parameter]
+    public int? Id { get; set; }
     
+    private MudForm form = default!;
+    private bool Changebool = false;
     private int capacidade = 20;
+
+    private Aula _aula = new Aula();
+    
     private DateTime? dataSelecionada = DateTime.Today;
     private TimeSpan? horaInicio = new TimeSpan(19, 00, 00);
     private TimeSpan? horaFim = new TimeSpan(20, 00, 00);
-
-    private Modalidade? modalidadeSelecionada;
-    private Instrutor? instrutorSelecionado;
-    private Sala? salaSelecionada;
-
+/*
+    string _modalidade;
+    string _instrutor;
+    string _sala;
+    */
     private List<Modalidade> modalidades = new();
     private List<Instrutor> instrutores = new();
     private List<Sala> salas = new();
@@ -152,6 +162,27 @@
     {
         try
         {
+            if (Id.HasValue)
+            {
+                
+                Changebool = true;
+                /*
+                int aulaid = (int)Id.Value;
+                _aula  = await GinasioService.GetAula(aulaid);
+
+                capacidade = _aula.Capacidade;
+                dataSelecionada=_aula.Inicio.Date;
+                horaInicio=_aula.Inicio.TimeOfDay;
+                horaFim=_aula.Inicio.TimeOfDay;
+                _modalidade = _aula.Modalidade.Name;
+                _instrutor = _aula.Instrutor.Name;
+                _sala = _aula.Sala.Name;
+                */
+            }
+            else
+            {
+                Changebool = false;
+            }
             var resModalidades = await GinasioService.GetAllModalidades();
             modalidades = resModalidades?.Content ?? new();
 
@@ -214,7 +245,7 @@
 
             try
             {
-                var novaAula = new Aula
+                _aula = new Aula
                 {
                     Capacidade = capacidade,
                     Inicio = dataSelecionada.Value.Date + horaInicio.Value,
@@ -222,36 +253,60 @@
                     IsDeleted = false,
                     IsOpen = true,
                     
-                    ModalidadeId = modalidadeSelecionada?.Id > 0 ? modalidadeSelecionada.Id : 3,
-                    InstrutorId = instrutorSelecionado?.Id > 0 ? instrutorSelecionado.Id : 1,
-                    SalaId = salaSelecionada?.Id > 0 ? salaSelecionada.Id : 1,
+                    ModalidadeId = _aula.Modalidade.Id,
+                    InstrutorId = _aula.Instrutor.Id,
+                    SalaId = _aula.Sala.Id,
                     
                     Modalidade = null,
                     Instrutor = null,
                     Sala = null
                 };
 
-                if (novaAula.Fim <= novaAula.Inicio)
+                if (_aula.Fim <= _aula.Inicio)
                 {
                     Snackbar.Add("Erro: A hora de fim deve ser posterior à hora de início!", Severity.Error);
                     return;
                 }
-                
-                // Faz a chamada para a rota da API
-                using var resposta = await GinasioService.AddAula(novaAula);
 
-                // CORREÇÃO DEFINTIVA: Valida se o StatusCode está na gama dos 200 (Sucesso)
-                if (resposta.StatusCode == System.Net.HttpStatusCode.OK || resposta.StatusCode == System.Net.HttpStatusCode.Created)
+                if (Changebool)
                 {
-                    Snackbar.Add("Aula registada com sucesso!", Severity.Success);
-                    await ResetarFormulario();
-                    Navigation.NavigateTo("/AulasPage");
+                    // Faz a chamada para a rota da API
+                    using var resposta = await GinasioService.UpdateAula(_aula);
 
+                    // CORREÇÃO DEFINTIVA: Valida se o StatusCode está na gama dos 200 (Sucesso)
+                    if (resposta.StatusCode == System.Net.HttpStatusCode.OK || resposta.StatusCode == System.Net.HttpStatusCode.Created)
+                    {
+                        Snackbar.Add("Aula alterada com sucesso!", Severity.Success);
+                        await ResetarFormulario();
+                        Navigation.NavigateTo("/AulasPage");
+
+                    }
+                    else
+                    {
+                        var erroTexto = resposta.ReasonPhrase ?? "Erro desconhecido na API";
+                        Snackbar.Add($"Erro da API: {erroTexto}", Severity.Error);
+                    }
+                    
                 }
                 else
                 {
-                    var erroTexto = resposta.ReasonPhrase ?? "Erro desconhecido na API";
-                    Snackbar.Add($"Erro da API: {erroTexto}", Severity.Error);
+                    // Faz a chamada para a rota da API
+                    using var resposta = await GinasioService.AddAula(_aula);
+
+                    // CORREÇÃO DEFINTIVA: Valida se o StatusCode está na gama dos 200 (Sucesso)
+                    if (resposta.StatusCode == System.Net.HttpStatusCode.OK || resposta.StatusCode == System.Net.HttpStatusCode.Created)
+                    {
+                        Snackbar.Add("Aula registada com sucesso!", Severity.Success);
+                        await ResetarFormulario();
+                        Navigation.NavigateTo("/AulasPage");
+
+                    }
+                    else
+                    {
+                        var erroTexto = resposta.ReasonPhrase ?? "Erro desconhecido na API";
+                        Snackbar.Add($"Erro da API: {erroTexto}", Severity.Error);
+                    }
+                    
                 }
             }
             catch (Exception ex)
@@ -263,6 +318,7 @@
 
     private async Task ResetarFormulario()
     {
+        /*
         capacidade = 20;
         dataSelecionada = DateTime.Today;
         horaInicio = new TimeSpan(19, 00, 00);
@@ -270,7 +326,9 @@
         modalidadeSelecionada = null;
         instrutorSelecionado = null;
         salaSelecionada = null;
-
+        */
+        _aula = new Aula();
+        
         if (form != null)
         {
             await form.ResetValidationAsync();

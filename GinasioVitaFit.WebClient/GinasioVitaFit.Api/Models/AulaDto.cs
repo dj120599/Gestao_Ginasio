@@ -6,7 +6,7 @@ public class AulaDto
     public int InstrutorId { get; set; }
     public InstrutorDto Instrutor { get; set; }
     public int ModalidadeId { get; set; }
-    public ModalidadeDto Modalidades { get; set; }
+    public ModalidadeDto Modalidade { get; set; }
     public int SalaId { get; set; }
     public SalaDto Sala { get; set; }
     public int Capacidade { get; set; }

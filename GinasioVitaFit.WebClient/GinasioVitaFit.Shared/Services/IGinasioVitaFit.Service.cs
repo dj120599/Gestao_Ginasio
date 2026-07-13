@@ -18,7 +18,7 @@ public interface IGinasioVitaFitService
     [Get("/aula/{id}")]
     Task<Aula> GetAula(int id);
     
-    [Delete("/aula/{id}")]
+    [Delete("/aula_softdelete/{id}")]
     Task<ApiResponse<string>> DeleteAula(int id);
     
     //Instrutor
