@@ -1,0 +1,117 @@
+@page "/ListarAulas"
+
+@using GinasioVitaFit.Shared.Models;
+@using GinasioVitaFit.Shared.Services;
+
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject IGinasioVitaFitService VitaFitDbContext;
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Primary"><b>Gestão de Aulas</b></MudText>
+    
+    <MudButton Variant="Variant.Filled" 
+               Color="Color.Primary" 
+               StartIcon="@Icons.Material.Filled.Add" 
+               Href="/CriarAulas" 
+               Class="mb-4">
+        Nova Aula
+    </MudButton>
+
+
+<MudDataGrid Items="@listaAulas" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Horário de Aulas</MudText>
+        <MudSpacer />
+        <!-- Campo de Pesquisa Rápida -->
+        <MudTextField @bind-Value="pesquisa" Placeholder="Pesquisar por modalidade, instrutor ou sala..." 
+                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0"
+                      Clearable="true" />
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Modalidade.Name" Title="Modalidade" />
+        <PropertyColumn Property="x => x.Instrutor.Name" Title="Instrutor" />
+        <PropertyColumn Property="x => x.Sala.Name" Title="Sala / Espaço" />
+        <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Máz." />
+
+        <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
+        <TemplateColumn Title="Início">
+            <CellTemplate>
+                @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Fim">
+            <CellTemplate>
+                @context.Item.Fim.ToString("HH:mm")
+            </CellTemplate>
+        </TemplateColumn>
+
+        <!-- Coluna de Ações (Eliminar de forma lógica com o campo Delete) -->
+        <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
+            <CellTemplate>
+                <MudIconButton Size="Size.Small"
+                               Icon="@Icons.Material.Filled.Delete"
+                               Color="Color.Error"
+                               OnClick="@(() => ConfirmarEliminacao(context.Item))" />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid>
+</MudContainer>
+
+@code {
+    private List<Aula> listaAulas = new List<Aula>();
+    private string pesquisa = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarAulas();
+    }
+
+    private async Task CarregarAulas()
+    {
+        var aulas = await VitaFitDbContext.GetAulas();
+        
+        if (aulas.IsSuccessful)
+        {
+            listaAulas = aulas.Content ?? new List<Aula>();
+        }
+
+    }
+
+    private bool FiltroGlobal(Aula aula)
+    {
+        if (string.IsNullOrWhiteSpace(pesquisa)) return true;
+        if (aula.Modalidade?.Name.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aula.Instrutor?.Name.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aula.Sala?.Name.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        return false;
+    }
+
+    private async Task ConfirmarEliminacao(Aula aula)
+    {
+        var parameters = new DialogParameters<MudMessageBox>();
+
+        var mbox = new MudBlazor.MessageBoxOptions
+        {
+            Title = "Eliminar Aula",
+            Message = $"Tem a certeza que deseja eliminar a aula de {aula.Modalidade}?",
+            YesText = "Eliminar",
+            CancelText = "Cancelar"
+        };
+
+        parameters.Add(x => x.MarkupMessage, new Microsoft.AspNetCore.Components.MarkupString(mbox.Message));
+        parameters.Add(x => x.YesText, mbox.YesText);
+        parameters.Add(x => x.CancelText, mbox.CancelText);
+
+        var dialog = await DialogService.ShowAsync<MudMessageBox>(mbox.Title, parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is bool confirmar && confirmar)
+        {
+            aula.IsDeleted = true;
+            Snackbar.Add("Aula eliminada com sucesso!", Severity.Success);
+            await CarregarAulas();
+        }
+    }
+}

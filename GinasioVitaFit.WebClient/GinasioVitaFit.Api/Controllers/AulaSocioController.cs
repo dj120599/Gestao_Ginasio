@@ -42,10 +42,11 @@ public class AulaSocioController : Controller
     {
         if (_context.AulaSocios is not null)
         {
+            
             var socios = await _context.AulaSocios.
                 Where(a => a.SocioId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
-            
+
             if(socios.Any())
                 return Ok(socios);
         }
@@ -74,32 +75,49 @@ public class AulaSocioController : Controller
     {
         if (aulasocio is  null)
             return Results.BadRequest();
-        
+
         var mapper = _mapper.Map<Models.AulaSociosDto,Entities.AulaSocios>(aulasocio);
         mapper.CreatedDate = DateTime.UtcNow;
         mapper.UpdatedDate = DateTime.UtcNow;
-        
+
         var aulasocios =  _context.AulaSocios;
-        
+
         if (aulasocios is not null)
         {
-            aulasocios.Add(mapper);
-            
-            try
+            var oldsocios = await _context.AulaSocios.FirstOrDefaultAsync(
+                a => a.AulaId == mapper.AulaId && a.SocioId == mapper.SocioId && a.IsDeleted.Equals(true));
+
+            if (oldsocios != null)
             {
+                aulasocio.UpdatedDate = DateTime.UtcNow;
+                aulasocio.IsDeleted = false;
+                aulasocio.Adapt(oldsocios);
+            
                 await _context.SaveChangesAsync();
+            
                 return Results.Ok("Socio adicionado á aula com Successo.");
             }
-            catch (Exception e)
+            else
             {
-                return Results.NotFound(e.Message);
+                aulasocios.Add(mapper);
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    return Results.Ok("Socio adicionado á aula com Successo.");
+                }
+                catch (Exception e)
+                {
+                    return Results.NotFound(e.Message);
+                }
             }
+            
         }
         
         return Results.Empty;
     }
     
-    [HttpDelete("aulasocio_softdelete")]
+    [HttpPut("aulasocio_softdelete")]
     public async Task<IResult> DeleteSocio_Soft([FromBody] AulaSociosDto? aulasocio)
     {
         if (aulasocio.AulaId == null)
@@ -110,13 +128,14 @@ public class AulaSocioController : Controller
         
         if (_context.AulaSocios is not null)
         {
-            var instrutor = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaId == aulasocio.AulaId && t.SocioId == aulasocio.SocioId);
-
-            if(instrutor is null)
-                return Results.NotFound("Socio não foi encontrado");
+            var oldAulaSocios = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaId == aulasocio.AulaId && t.SocioId == aulasocio.SocioId);
             
-            instrutor.IsDeleted = true;
+            if(oldAulaSocios is null)
+                return Results.NotFound("Aula Agendada não foi encontrado");
             
+            aulasocio.UpdatedDate = DateTime.UtcNow;
+            aulasocio.IsDeleted = true;
+            aulasocio.Adapt(oldAulaSocios);
             
             await _context.SaveChangesAsync();
             

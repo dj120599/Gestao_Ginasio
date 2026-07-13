@@ -5,6 +5,7 @@ namespace GinasioVitaFit.Shared.Services;
 
 public interface IGinasioVitaFitService
 {
+    //Aulas
     [Get("/aulas")]
     Task<ApiResponse<List<Aula>>> GetAulas();
     
@@ -52,10 +53,10 @@ public interface IGinasioVitaFitService
     Task<ApiResponse<AulaSocios>> GetSocioFromAula(int id, int socio);
 
     [Post("/aulasocio")]
-    Task<ApiResponse<AulaSocios>> AddSocioToAula([Body] AulaSocios? aulasocio);
-
-    [Delete("/aulasocio_softdelete")]
-    Task<ApiResponse<string>> DeleteSocio_Soft([Body] AulaSocios? aulasocio);
+    Task<ApiResponse<string>> AddSocioToAula([Body] AulaSocios aulasocio);
+    
+    [Put("/aulasocio_softdelete")]
+    Task<ApiResponse<string>> DeleteSocio_Soft([Body] AulaSocios aulasocio);
     
 
     [Get("/modalidadesinstr/{id}")]
@@ -73,7 +74,8 @@ public interface IGinasioVitaFitService
     //Sala
     [Get("/salas")]
     Task<ApiResponse<List<Sala>>> GetAllSalas();
-
-
-  
+    
+    //Socios
+    [Get("/socios")]
+    Task<ApiResponse<List<Socio>>> GetSocios();
 }
