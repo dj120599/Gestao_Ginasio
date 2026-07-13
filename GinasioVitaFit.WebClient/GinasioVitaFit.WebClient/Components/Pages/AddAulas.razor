@@ -1,0 +1,279 @@
+@page "/AddAula"
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using MudBlazor
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IGinasioVitaFitService GinasioService
+@rendermode InteractiveServer
+
+<h3>AddAula</h3>
+
+<MudThemeProvider />
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudCard Elevation="3" Class="pa-4">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h5" Color="Color.Primary" Align="Align.Center">
+                    <b>Registar Nova Aula</b>
+                </MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+            <MudForm @ref="form">
+                <MudGrid>
+
+                    <!-- 1. Dropdown de Modalidades -->
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="Modalidade"
+                                   Label="Modalidade Associada"
+                                   Required="true"
+                                   RequiredError="A modalidade é obrigatória!"
+                                   @bind-Value="modalidadeSelecionada"
+                                   Adornment="Adornment.Start"
+                                   AdornmentIcon="@Icons.Material.Filled.FitnessCenter">
+                            @if (modalidades != null)
+                            {
+                            @foreach (var mod in modalidades)
+                            {
+                            <MudSelectItem Value="@mod">@mod.Name</MudSelectItem>
+                            }
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <!-- 2. Dropdown de Instrutores -->
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="Instrutor"
+                                   Label="Instrutor Responsável"
+                                   Required="true"
+                                   RequiredError="O instrutor é obrigatório!"
+                                   @bind-Value="instrutorSelecionado"
+                                   Adornment="Adornment.Start"
+                                   AdornmentIcon="@Icons.Material.Filled.Person">
+                            @if (instrutores != null)
+                            {
+                            @foreach (var inst in instrutores)
+                            {
+                            <MudSelectItem Value="@inst">@inst.Name</MudSelectItem>
+                            }
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="4">
+                        <MudDatePicker Label="Data da Aula"
+                                       Required="true"
+                                       Editable="true"
+                                       @bind-Date="dataSelecionada"
+                                       AdornmentIcon="@Icons.Material.Filled.CalendarMonth" />
+                    </MudItem>
+
+                    <MudItem xs="6" sm="4">
+                        <MudTimePicker Label="Hora de Início"
+                                       Required="true"
+                                       Editable="true"
+                                       @bind-Time="horaInicio"
+                                       AdornmentIcon="@Icons.Material.Filled.AccessTime" />
+                    </MudItem>
+
+                    <MudItem xs="6" sm="4">
+                        <MudTimePicker Label="Hora de Fim"
+                                       Required="true"
+                                       Editable="true"
+                                       @bind-Time="horaFim"
+                                       AdornmentIcon="@Icons.Material.Filled.AccessTime" />
+                    </MudItem>
+
+                    <!-- 3. Dropdown de Salas -->
+                    <MudItem xs="12" sm="8">
+                        <MudSelect T="Sala"
+                                   Label="Sala / Espaço"
+                                   Required="true"
+                                   RequiredError="O espaço/sala é obrigatório!"
+                                   @bind-Value="salaSelecionada"
+                                   Adornment="Adornment.Start"
+                                   AdornmentIcon="@Icons.Material.Filled.Room">
+                            @if (salas != null)
+                            {
+                            @foreach (var s in salas)
+                            {
+                            <MudSelectItem Value="@s">@s.Name</MudSelectItem>
+                            }
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="4">
+                        <MudNumericField T="int"
+                                         Label="Capacidade"
+                                         Required="true"
+                                         Min="1"
+                                         Max="100"
+                                         @bind-Value="capacidade"
+                                         Adornment="Adornment.Start"
+                                         AdornmentIcon="@Icons.Material.Filled.Groups" />
+                    </MudItem>
+
+                </MudGrid>
+            </MudForm>
+        </MudCardContent>
+
+        <MudCardActions Class="d-flex justify-center mt-4">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       OnClick="SubmeterFormulario">
+                Gravar Aula
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private MudForm form = default!;
+    
+    private int capacidade = 20;
+    private DateTime? dataSelecionada = DateTime.Today;
+    private TimeSpan? horaInicio = new TimeSpan(19, 00, 00);
+    private TimeSpan? horaFim = new TimeSpan(20, 00, 00);
+
+    private Modalidade? modalidadeSelecionada;
+    private Instrutor? instrutorSelecionado;
+    private Sala? salaSelecionada;
+
+    private List<Modalidade> modalidades = new();
+    private List<Instrutor> instrutores = new();
+    private List<Sala> salas = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var resModalidades = await GinasioService.GetAllModalidades();
+            modalidades = resModalidades?.Content ?? new();
+
+            var resInstrutores = await GinasioService.GetAllInstrutores();
+            instrutores = resInstrutores?.Content ?? new();
+
+            var resSalas = await GinasioService.GetAllSalas();
+            salas = resSalas?.Content ?? new();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Aviso de ligação: {ex.Message}. Usando dados locais...", Severity.Info);
+        }
+
+        if (modalidades == null || !modalidades.Any())
+        {
+            modalidades = new List<Modalidade> 
+            { 
+                new() { Id = 3, Name = "Musculação" }, 
+                new() { Id = 1, Name = "Zumba" },
+                new() { Id = 2, Name = "Pilates" }
+            };
+        }
+
+        if (instrutores == null || !instrutores.Any())
+        {
+            instrutores = new List<Instrutor> 
+            { 
+                new() { Id = 1, Name = "Carlos Neves" },
+                new() { Id = 2, Name = "Mariana Silva" }
+            };
+        }
+
+        if (salas == null || !salas.Any())
+        {
+            salas = new List<Sala> 
+            { 
+                new() { Id = 1, Name = "Sala 1" }, 
+                new() { Id = 2, Name = "Sala 2" }, 
+                new() { Id = 3, Name = "Sala 3" }, 
+                new() { Id = 4, Name = "Sala 4" }, 
+                new() { Id = 5, Name = "Sala 5" }
+            };
+        }
+    }
+
+       private async Task SubmeterFormulario()
+    {
+        if (form == null) return;
+        
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            if (dataSelecionada == null || horaInicio == null || horaFim == null)
+            {
+                Snackbar.Add("Erro: Preencha a data e os horários!", Severity.Warning);
+                return;
+            }
+
+            try
+            {
+                var novaAula = new Aula
+                {
+                    Capacidade = capacidade,
+                    Inicio = dataSelecionada.Value.Date + horaInicio.Value,
+                    Fim = dataSelecionada.Value.Date + horaFim.Value,
+                    IsDeleted = false,
+                    IsOpen = true,
+                    
+                    ModalidadeId = modalidadeSelecionada?.Id > 0 ? modalidadeSelecionada.Id : 3,
+                    InstrutorId = instrutorSelecionado?.Id > 0 ? instrutorSelecionado.Id : 1,
+                    SalaId = salaSelecionada?.Id > 0 ? salaSelecionada.Id : 1,
+                    
+                    Modalidade = null,
+                    Instrutor = null,
+                    Sala = null
+                };
+
+                if (novaAula.Fim <= novaAula.Inicio)
+                {
+                    Snackbar.Add("Erro: A hora de fim deve ser posterior à hora de início!", Severity.Error);
+                    return;
+                }
+                
+                // Faz a chamada para a rota da API
+                using var resposta = await GinasioService.AddAula(novaAula);
+
+                // CORREÇÃO DEFINTIVA: Valida se o StatusCode está na gama dos 200 (Sucesso)
+                if (resposta.StatusCode == System.Net.HttpStatusCode.OK || resposta.StatusCode == System.Net.HttpStatusCode.Created)
+                {
+                    Snackbar.Add("Aula registada com sucesso!", Severity.Success);
+                    await ResetarFormulario();
+                    Navigation.NavigateTo("/AulasPage");
+
+                }
+                else
+                {
+                    var erroTexto = resposta.ReasonPhrase ?? "Erro desconhecido na API";
+                    Snackbar.Add($"Erro da API: {erroTexto}", Severity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Erro de ligação: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    private async Task ResetarFormulario()
+    {
+        capacidade = 20;
+        dataSelecionada = DateTime.Today;
+        horaInicio = new TimeSpan(19, 00, 00);
+        horaFim = new TimeSpan(20, 00, 00);
+        modalidadeSelecionada = null;
+        instrutorSelecionado = null;
+        salaSelecionada = null;
+
+        if (form != null)
+        {
+            await form.ResetValidationAsync();
+        }
+    }
+}
