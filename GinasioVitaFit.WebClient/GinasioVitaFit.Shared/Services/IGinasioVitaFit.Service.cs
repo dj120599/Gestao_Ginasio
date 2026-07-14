@@ -27,6 +27,9 @@ public interface IGinasioVitaFitService
     
     [Get("/instrutores")]
     Task<ApiResponse<List<Instrutor>>> GetAllInstrutores();
+    
+    [Delete("/instrutor_softdelete/{id}")]
+    Task<HttpResponseMessage> DeleteInstrutorSoft(int id);
 
     
     // Modalidade
