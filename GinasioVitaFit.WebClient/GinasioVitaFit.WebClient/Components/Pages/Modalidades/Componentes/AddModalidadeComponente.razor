@@ -4,11 +4,13 @@
 @inject ISnackbar Snackbar
 @* @inject NavigationManager NavigationManager *@
 
+
 @if (_isOpen)
 {
     <div class="@OverlayClass">
 
-        <div class="@ModalClass bg-white rounded-xl shadow-xl w-full max-w-3xl mx-4 overflow-hidden" @onclick:stopPropagation>
+        <div class="@ModalClass bg-white rounded-xl shadow-xl w-full max-w-3xl mx-4 overflow-hidden"
+             @onclick:stopPropagation>
 
             @if (_isLoading)
             {
@@ -29,21 +31,20 @@
 
                     <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
 
-                        <h3 class="text-2xl font-bold !text-gray-800">
+                        <h3 class="text-2xl font-bold text-gray-800!">
                             Adicionar Modalidade
                         </h3>
 
                         <button
                             @onclick="Hide"
-                            class="p-2 !text-amber-500 rounded-lg hover:!bg-gray-100 hover:!text-amber-700 transition cursor-pointer">
+                            class="p-2 text-amber-500! rounded-lg hover:bg-gray-100! hover:text-amber-700! transition cursor-pointer">
 
-                            <MudIcon Icon="@Icons.Material.Filled.Close" class="!text-xl"/>
+                            <MudIcon Icon="@Icons.Material.Filled.Close" class="text-xl!"/>
                             @* <span class="bi bi-x-lg text-xl"></span> *@
                         </button>
 
                     </div>
-
-                    <div class="!p-6 overflow-y-auto max-h-[70vh]">
+                    <div class="p-6! overflow-y-auto max-h-[70vh]">
                         <EditForm Model="_modalidade" FormName="modalidadeForm" OnValidSubmit="OnAddModalidade">
                             <DataAnnotationsValidator/>
 
@@ -60,7 +61,7 @@
                                 <div class="flex flex-col gap-1">
                                     <label class="text-sm font-medium text-gray-700">Descrição</label>
                                     <InputTextArea
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white min-h-[80px]"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white min-h-20"
                                         @bind-Value="_modalidade.Description"/>
                                     <ValidationMessage For="() => _modalidade.Description"
                                                        class="text-xs text-red-500"/>
@@ -85,7 +86,7 @@
                                     <label class="text-sm font-medium text-gray-700">Imagem da Modalidade</label>
 
                                     <label
-                                        class="w-full min-h-[160px] border-2 border-dashed border-gray-300 hover:border-amber-500 bg-gray-50 rounded-xl flex flex-col items-center justify-center p-4 cursor-pointer transition-all duration-200 group relative">
+                                        class="w-full min-h-40 border-2 border-dashed border-gray-300 hover:border-amber-500 bg-gray-50 rounded-xl flex flex-col items-center justify-center p-4 cursor-pointer transition-all duration-200 group relative">
                                         <InputFile OnChange="OnImageFileChanged" accept=".png, .jpg, .jpeg"
                                                    class="hidden"
                                                    disabled="@_isUploading"/>
@@ -121,6 +122,7 @@
                                             <div class="flex flex-col items-center gap-2">
                                                 <!-- O HTML lê diretamente a variável de preview purificada -->
                                                 <img src="@_previewUrl"
+                                                     alt="@_previewUrl"
                                                      class="max-h-36 w-auto rounded-lg shadow-sm border border-gray-200 object-contain bg-white p-1"/>
 
                                                 <div class="flex items-center gap-2 mt-1">
@@ -165,6 +167,7 @@
 
                                                                 <img
                                                                     src="@(imgPath.StartsWith("/uploads") ? $"https://localhost:7134{imgPath}" : imgPath)"
+                                                                    alt="@imgPath"
                                                                     class="w-full h-full object-cover rounded-md pointer-events-none"/>
 
                                                             </button>
@@ -180,9 +183,31 @@
                                 @* <ValidationSummary class="text-sm text-red-600 list-disc pl-5" /> *@
 
                                 <button type="submit"
-                                        class="mt-2 w-1/3 !bg-amber-500 hover:!bg-amber-600 text-white font-semibold py-2 self-center
-                        px-4 rounded-lg transition-colors duration-200 cursor-pointer shadow-sm">
-                                    Adicionar
+                                        disabled="@(_saveState != SaveState.Idle)"
+                                        class="@LoadingSave @ButtonCursor mt-2 w-1/3 text-white font-semibold 
+                                            py-2 px-4 rounded-lg transition-all duration-300
+                                            flex items-center justify-center gap-2 self-center">
+
+                                    @if (_saveState == SaveState.Idle)
+                                    {
+                                        <span>Adicionar</span>
+                                    }
+                                    else if (_saveState == SaveState.Saving)
+                                    {
+                                        <span
+                                            class="w-5 h-5 border-2! border-white! 
+                                                border-t-transparent!
+                                                rounded-full animate-spin"></span>
+                                        <span>A guardar...</span>
+                                    }
+                                    else if (_saveState == SaveState.Saved)
+                                    {
+                                        <MudIcon
+                                            Icon="@Icons.Material.Filled.Check"
+                                            class="text-white! w-5! h-5!"/>
+                                        <span>Guardado!</span>
+                                    }
+
                                 </button>
                             </div>
                         </EditForm>
@@ -195,20 +220,30 @@
 }
 
 @code {
-    [Parameter]
-    public List<string> ImagensExistentes { get; set; } = new();
-    
+    [Parameter] public List<string> ImagensExistentes { get; set; } = new();
+
+    [Parameter] public EventCallback ModalidadeAdded { get; set; }
+
     private bool _isOpen;
     private bool _isAnimating;
     private bool _isLoading;
     private bool _loaded;
 
+    private enum SaveState
+    {
+        Idle,
+        Saving,
+        Saved
+    }
+
+    private SaveState _saveState = SaveState.Idle;
+
     private Modalidade _modalidade = new();
     private List<Dificuldade> _dificuldades = new();
 
     private string _previewUrl = "/images/modalidade-placeholder.png";
-    private bool _isUploading = false;
-    
+    private bool _isUploading;
+
     private string OverlayClass =>
         $"fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 " +
         $"{(_isAnimating ? "opacity-100" : "opacity-0")}";
@@ -219,8 +254,20 @@
             ? "opacity-100 scale-100 translate-y-0"
             : "opacity-0 scale-95 translate-y-6")}";
 
+    private string LoadingSave =>
+        $"{(_saveState == SaveState.Idle ? "bg-amber-500! hover:bg-amber-600!" : "")}" +
+        $"{(_saveState == SaveState.Saving ? "bg-amber-300!" : "")}" +
+        $"{(_saveState == SaveState.Saved ? "bg-emerald-400!" : "")}";
+
+    private string ButtonCursor =>
+        _saveState == SaveState.Idle
+            ? "cursor-pointer"
+            : "cursor-not-allowed";
+
     public async Task Show()
     {
+        _saveState = SaveState.Idle;
+
         _isOpen = true;
         _isLoading = true;
         _isAnimating = true;
@@ -265,7 +312,11 @@
     {
         try
         {
+            _saveState = SaveState.Saving;
+
             await GinasioVitaFitService.AddModalidade(_modalidade);
+
+            _saveState = SaveState.Saved;
 
             Snackbar.Add("Modalidade guardada com sucesso!", Severity.Success, config =>
             {
@@ -273,13 +324,16 @@
                 config.HideTransitionDuration = 200;
             });
 
+            await ModalidadeAdded.InvokeAsync();
 
             await Task.Delay(1500);
 
-            // NavigationManager.NavigateTo("/");
+            await Hide();
         }
         catch (Exception ex)
         {
+            _saveState = SaveState.Idle;
+
             Snackbar.Add($"Erro ao guardar modalidade: {ex.Message}", Severity.Error);
         }
     }
