@@ -7,25 +7,37 @@
             </NavLink>
         </div>
 
-        <!-- 🟢 LINK PARA A LISTA DE AULAS -->
+        <!-- 1. Link para o Horário / Listagem (Aponta para AulasPage) -->
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="ListarAulas">
-                <span class="bi bi-list-ul-nav-menu" aria-hidden="true"></span> Horário de Aulas
-            </NavLink>
+            <MudNavLink Href="/AulasPage" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.CalendarMonth">
+                Horário de Aulas
+            </MudNavLink>
         </div>
 
-        <!-- LINK PARA CRIAR NOVA AULA -->
+        <!-- 2. Link para Adicionar Aula (Aponta para AddAula) -->
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="CriarAulas">
-                <span class="bi bi-plus-square-nav-menu" aria-hidden="true"></span> Registar Aula
-            </NavLink>
+            <MudNavLink Href="/AddAula" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FitnessCenter">
+                Registar Aula
+            </MudNavLink>
         </div>
 
-        <!-- 🟢 LINK PARA CRIAR NOVA AULA -->
+        <!-- 3. Link para Adicionar Instrutor (Aponta para AddInstrutor) -->
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="AgendarAula">
-                <span class="bi bi-plus-circle-fill-nav-menu" aria-hidden="true"></span> Agendar Aula
-            </NavLink>
+            <MudNavLink Href="/AddInstrutor" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PersonAdd">
+                AddInstrutor
+            </MudNavLink>
+        </div>
+        
+        <div class="nav-item px-3">
+            <MudNavLink Href="/InstrutorPage" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.People">
+                Lista de Instrutores
+            </MudNavLink>
+        </div>
+        
+        <div class="nav-item px-3">
+            <MudNavLink Href="/AgendarAula" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EditCalendar">
+                Agendar Aula
+            </MudNavLink>
         </div>
     </nav>
 </div>

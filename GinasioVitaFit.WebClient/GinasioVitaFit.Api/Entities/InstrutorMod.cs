@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace GinasioVitaFit.Api.Entities;
 
 public class InstrutorMod

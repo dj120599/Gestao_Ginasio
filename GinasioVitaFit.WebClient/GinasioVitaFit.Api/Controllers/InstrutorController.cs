@@ -53,34 +53,34 @@ public class InstrutorController: Controller
     
     //Metodo POSt com mapeamento automatico
     [HttpPost("/instrutor")]
-    public async Task<IResult> AddInstrutor([FromBody] InstrutorDto? instrutor)
-    {
-        if (instrutor is  null)
-            return Results.BadRequest();
-        
-        var mapper = _mapper.Map<Models.InstrutorDto,Entities.Instrutor>(instrutor);
-        mapper.CreatedDate = DateTime.UtcNow;
-        mapper.UpdatedDate = DateTime.UtcNow;
-        
-        var instrutores =  _context.Instrutores;
-        
-        if (instrutores is not null)
-        {
-            instrutores.Add(mapper);
-            
-            try
-            {
-                await _context.SaveChangesAsync();
-                return Results.Ok("Instrutor adicionado com Successo.");
-            }
-            catch (Exception e)
-            {
-                return Results.NotFound(e.Message);
-            }
-        }
-        
-        return Results.Empty;
-    }
+       public async Task<IResult> AddInstrutor([FromBody] InstrutorDto? instrutor)
+       {
+           if (instrutor is  null)
+               return Results.BadRequest();
+           
+           var mapper = _mapper.Map<Models.InstrutorDto,Entities.Instrutor>(instrutor);
+           mapper.CreatedDate = DateTime.UtcNow;
+           mapper.UpdatedDate = DateTime.UtcNow;
+           
+           var instrutores =  _context.Instrutores;
+           
+           if (instrutores is not null)
+           {
+               instrutores.Add(mapper);
+               
+               try
+               {
+                   await _context.SaveChangesAsync();
+                   return Results.Ok("Instrutor adicionado com Successo.");
+               }
+               catch (Exception e)
+               {
+                   return Results.NotFound(e.Message);
+               }
+           }
+           
+           return Results.Empty;
+       }
     
     [HttpPut("/instrutor")]
     public async Task<IActionResult> UpdateInstrutor([FromBody] InstrutorDto? instrutor)

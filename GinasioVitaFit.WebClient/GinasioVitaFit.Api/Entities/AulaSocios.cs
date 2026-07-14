@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
+
 namespace GinasioVitaFit.Api.Entities;
 
 public class AulaSocios
