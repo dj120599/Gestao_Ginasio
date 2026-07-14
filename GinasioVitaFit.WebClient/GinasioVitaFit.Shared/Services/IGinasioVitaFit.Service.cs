@@ -79,6 +79,10 @@ public interface IGinasioVitaFitService
     Task<ApiResponse<List<Sala>>> GetAllSalas();
     
     //Socios
+    
+    [Post("/socio")] 
+    Task<HttpResponseMessage> AddSocio([Body] Socio socio);
+    
     [Get("/socios")]
     Task<ApiResponse<List<Socio>>> GetSocios();
 }
