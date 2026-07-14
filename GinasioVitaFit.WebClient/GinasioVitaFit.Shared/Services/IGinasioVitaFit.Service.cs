@@ -16,7 +16,7 @@ public interface IGinasioVitaFitService
     Task<ApiResponse<Aula>> UpdateAula([Body] Aula aula);
     
     [Get("/aula/{id}")]
-    Task<Aula> GetAula(int id);
+    Task<ApiResponse<Aula>> GetAula(int id);
     
     [Delete("/aula_softdelete/{id}")]
     Task<ApiResponse<string>> DeleteAula(int id);

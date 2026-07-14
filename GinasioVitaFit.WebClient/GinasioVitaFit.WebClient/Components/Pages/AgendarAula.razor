@@ -265,10 +265,11 @@
             {
 
                 var aula1 = await VitaFitDbContext.GetAula(aulsoc.AulaId);
-                _listaAulas2.Add(aula1);
+                Aula _aula = aula1.Content ?? new Aula(); 
+                _listaAulas2.Add(_aula);
 
             }
-
+/*
             foreach (Aula aul in _listaAulas2)
             {
                 for (int i = 0; i < _listaAulas1.Count; i++)
@@ -281,7 +282,7 @@
                     }
                 }
             }
-                
+                */
         }
         StateHasChanged();
     }
