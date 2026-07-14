@@ -3,7 +3,7 @@
 
 @using GinasioVitaFit.Shared.Models
 @using GinasioVitaFit.Shared.Services
-@using MudBlazor
+
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject IGinasioVitaFitService GinasioService
@@ -28,12 +28,14 @@
                 <MudGrid>
 
                     <!-- 1. Dropdown de Modalidades -->
+                    
                     <MudItem xs="12" sm="6">
-                        <MudSelect T="string"
+                        <MudSelect T="Modalidade"
                                    Label="Modalidade Associada"
                                    Required="true"
                                    RequiredError="A modalidade é obrigatória!"
-                                   @bind-Value="_aula.Modalidade.Name"
+                                   @bind-Value="_modalidade"
+                                   Text="@_modalidadename"
                                    Adornment="Adornment.Start"
                                    AdornmentIcon="@Icons.Material.Filled.FitnessCenter">
                             @if (modalidades != null)
@@ -45,14 +47,15 @@
                             }
                         </MudSelect>
                     </MudItem>
-
+                    
                     <!-- 2. Dropdown de Instrutores -->
                     <MudItem xs="12" sm="6">
                         <MudSelect T="Instrutor"
                                    Label="Instrutor Responsável"
                                    Required="true"
                                    RequiredError="O instrutor é obrigatório!"
-                                   @bind-Value="_aula.Instrutor"
+                                       @bind-Value="_instrutor"
+                                   Text="@_instrutorname"
                                    Adornment="Adornment.Start"
                                    AdornmentIcon="@Icons.Material.Filled.Person">
                             @if (instrutores != null)
@@ -64,7 +67,6 @@
                             }
                         </MudSelect>
                     </MudItem>
-
                     <MudItem xs="12" sm="4">
                         <MudDatePicker Label="Data da Aula"
                                        Required="true"
@@ -90,12 +92,14 @@
                     </MudItem>
 
                     <!-- 3. Dropdown de Salas -->
+                    
                     <MudItem xs="12" sm="8">
                         <MudSelect T="Sala"
                                    Label="Sala / Espaço"
                                    Required="true"
                                    RequiredError="O espaço/sala é obrigatório!"
-                                   @bind-Value="_aula.Sala"
+                                   @bind-Value="_sala"
+                                   Text="@_salaname"
                                    Adornment="Adornment.Start"
                                    AdornmentIcon="@Icons.Material.Filled.Room">
                             @if (salas != null)
@@ -107,7 +111,7 @@
                             }
                         </MudSelect>
                     </MudItem>
-
+                    
                     <MudItem xs="12" sm="4">
                         <MudNumericField T="int"
                                          Label="Capacidade"
@@ -128,7 +132,6 @@
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        Size="Size.Large"
-                       Disabled="@Changebool"
                        OnClick="SubmeterFormulario">
                 Gravar Aula
             </MudButton>
@@ -149,11 +152,15 @@
     private DateTime? dataSelecionada = DateTime.Today;
     private TimeSpan? horaInicio = new TimeSpan(19, 00, 00);
     private TimeSpan? horaFim = new TimeSpan(20, 00, 00);
-/*
-    string _modalidade;
-    string _instrutor;
-    string _sala;
-    */
+
+    private Modalidade? _modalidade;
+    private Instrutor? _instrutor;
+    private Sala? _sala;
+    
+    private string? _modalidadename;
+    private string? _instrutorname;
+    private string? _salaname;
+    
     private List<Modalidade> modalidades = new();
     private List<Instrutor> instrutores = new();
     private List<Sala> salas = new();
@@ -166,18 +173,21 @@
             {
                 
                 Changebool = true;
-                /*
+                
                 int aulaid = (int)Id.Value;
-                _aula  = await GinasioService.GetAula(aulaid);
-
+                var aula  = await GinasioService.GetAula(aulaid);
+                _aula  = aula.Content?? new Aula();
+                
                 capacidade = _aula.Capacidade;
                 dataSelecionada=_aula.Inicio.Date;
                 horaInicio=_aula.Inicio.TimeOfDay;
-                horaFim=_aula.Inicio.TimeOfDay;
-                _modalidade = _aula.Modalidade.Name;
-                _instrutor = _aula.Instrutor.Name;
-                _sala = _aula.Sala.Name;
-                */
+                horaFim=_aula.Fim.TimeOfDay;
+                _modalidade = _aula.Modalidade;
+                _instrutor = _aula.Instrutor;
+                _sala = _aula.Sala;
+                _salaname = _aula.Sala.Name;
+                _instrutorname = _aula.Instrutor.Name;
+                _modalidadename = _aula.Modalidade.Name;
             }
             else
             {
@@ -245,23 +255,20 @@
 
             try
             {
-                _aula = new Aula
-                {
-                    Capacidade = capacidade,
-                    Inicio = dataSelecionada.Value.Date + horaInicio.Value,
-                    Fim = dataSelecionada.Value.Date + horaFim.Value,
-                    IsDeleted = false,
-                    IsOpen = true,
-                    
-                    ModalidadeId = _aula.Modalidade.Id,
-                    InstrutorId = _aula.Instrutor.Id,
-                    SalaId = _aula.Sala.Id,
-                    
-                    Modalidade = null,
-                    Instrutor = null,
-                    Sala = null
-                };
+                _aula.Capacidade = capacidade;
+                _aula.Inicio = dataSelecionada.Value.Date + horaInicio.Value;
+                _aula.Fim = dataSelecionada.Value.Date + horaFim.Value;
+                _aula.IsDeleted = false;
+                _aula.IsOpen = true;
 
+                _aula.ModalidadeId = _modalidade.Id;
+                _aula.InstrutorId = _instrutor.Id;
+                _aula.SalaId = _sala.Id;
+
+                _aula.Modalidade = null;
+                _aula.Instrutor = null;
+                _aula.Sala = null;
+                
                 if (_aula.Fim <= _aula.Inicio)
                 {
                     Snackbar.Add("Erro: A hora de fim deve ser posterior à hora de início!", Severity.Error);
