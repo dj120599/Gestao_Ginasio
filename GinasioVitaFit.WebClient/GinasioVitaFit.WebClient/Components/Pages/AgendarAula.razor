@@ -111,7 +111,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Console.WriteLine("d");
         await GetAllLists();
         
         await base.OnInitializedAsync();
@@ -266,7 +265,8 @@
             {
 
                 var aula1 = await VitaFitDbContext.GetAula(aulsoc.AulaId);
-                _listaAulas2.Add(aula1);
+                Aula _aula = aula1.Content ?? new Aula(); 
+                _listaAulas2.Add(_aula);
 
             }
 

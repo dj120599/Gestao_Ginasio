@@ -138,7 +138,25 @@ public class AulaController: Controller
             
             aula.IsDeleted = true;
             
-            
+            if (_context.AulaSocios is not null)
+            {
+                var oldAulaSocios = await _context.AulaSocios.
+                    Where(a => a.AulaId == id && a.IsDeleted.Equals(false)).
+                    ToListAsync();
+
+                if (oldAulaSocios is null)
+                    return Results.NotFound("Aula Agendada não foi encontrado");
+
+                foreach (AulaSocios oldAulaSocio in oldAulaSocios)
+                {
+                    AulaSocios _aulaSocio = oldAulaSocio;
+                    
+                    _aulaSocio.UpdatedDate = DateTime.UtcNow;
+                    _aulaSocio.IsDeleted = true;
+                    _aulaSocio.Adapt(oldAulaSocio);
+                }
+            }
+
             await _context.SaveChangesAsync();
             
             return Results.Ok("Aula apagada com Successo.");
