@@ -1,0 +1,172 @@
+@page "/AddSocio"
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IGinasioVitaFitService GinasioService
+@rendermode InteractiveServer
+
+<MudThemeProvider />
+<MudSnackbarProvider />
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudCard Elevation="3" Class="pa-4">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h5" Color="Color.Primary" Align="Align.Center">
+                    <b>Registar Novo Sócio</b>
+                </MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+            <MudForm @ref="form">
+                <MudGrid>
+                    
+                    <!-- 1. Nome Completo -->
+                    <MudItem xs="12">
+                        <MudTextField T="string" 
+                                      Label="Nome Completo" 
+                                      Required="true" 
+                                      RequiredError="O nome do sócio é obrigatório!" 
+                                      @bind-Value="novoSocio.Name" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Person" />
+                    </MudItem>
+
+                    <!-- 2. Email com Validação -->
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" 
+                                      Label="Email" 
+                                      Required="true" 
+                                      RequiredError="O email é obrigatório!" 
+                                      @bind-Value="novoSocio.Email" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Email" />
+                    </MudItem>
+
+                    <!-- 3. Contacto Telefónico -->
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" 
+                                      Label="Contacto Telefónico" 
+                                      Required="true" 
+                                      RequiredError="O contacto é obrigatório!" 
+                                      @bind-Value="novoSocio.Contacto" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Phone" />
+                    </MudItem>
+
+                    <!-- 4. Data de Nascimento -->
+                    <MudItem xs="12" sm="6">
+                        <MudDatePicker Label="Data de Nascimento" 
+                                       Required="true" 
+                                       RequiredError="A data de nascimento é obrigatória!" 
+                                       @bind-Date="dataNascimentoAux" 
+                                       Adornment="Adornment.Start" 
+                                       AdornmentIcon="@Icons.Material.Filled.Cake" />
+                    </MudItem>
+
+                    <!-- 5. Dropdown para selecionar o ID do Plano -->
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="int" 
+                                   Label="Plano" 
+                                   Required="true" 
+                                   RequiredError="Selecione um plano!" 
+                                   @bind-Value="novoSocio.PlanoId"
+                                   Adornment="Adornment.Start"
+                                   AdornmentIcon="@Icons.Material.Filled.CardMembership">
+                            <MudSelectItem Value="1">Plano Mensal Básico</MudSelectItem>
+                            <MudSelectItem Value="2">Plano Mensal Premium</MudSelectItem>
+                            <MudSelectItem Value="3">Plano Anual Especial</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+
+                </MudGrid>
+            </MudForm>
+        </MudCardContent>
+
+        <MudCardActions Class="d-flex justify-center mt-4">
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       Size="Size.Large" 
+                       OnClick="SubmeterFormulario">
+                Gravar Sócio
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private MudForm form = default!;
+    
+    // Variável auxiliar porque o MudDatePicker trabalha com DateTime? e o vosso modelo usa DateOnly
+    private DateTime? dataNascimentoAux = DateTime.Today.AddYears(-20);
+    
+    private Socio novoSocio = new Socio 
+    { 
+        Name = "",
+        Email = "",
+        Contacto = "",
+        ImageUrl = "/images/modalidade-placeholder.png"
+    }; 
+
+    private async Task SubmeterFormulario()
+    {
+        if (form == null) return;
+        
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            if (dataNascimentoAux == null)
+            {
+                Snackbar.Add("Erro: Insira uma data de nascimento!", Severity.Warning);
+                return;
+            }
+
+            try
+            {
+                // Converte a data auxiliar para o formato DateOnly exigido pelo vosso modelo
+                var dataOnly = DateOnly.FromDateTime(dataNascimentoAux.Value);
+
+                var socioParaEnviar = new Socio
+                {
+                    Name = novoSocio.Name,
+                    Email = novoSocio.Email,
+                    Contacto = novoSocio.Contacto,
+                    Nascimento = dataOnly, // Atribui o DateOnly correto
+                    PlanoId = novoSocio.PlanoId,
+                    ImageUrl = novoSocio.ImageUrl,
+                    
+                    // Inicializações padrão para evitar nulos na API
+                    SubInicio = DateTime.Now,
+                    SubFim = DateTime.Now.AddMonths(1)
+                };
+
+                var resposta = await GinasioService.AddSocio(socioParaEnviar);
+
+                if (resposta != null && resposta.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Sócio registado com sucesso!", Severity.Success);
+                    
+                    novoSocio = new Socio { ImageUrl = "/images/modalidade-placeholder.png" };
+                    dataNascimentoAux = DateTime.Today.AddYears(-20);
+                    await form.ResetValidationAsync();
+                    
+                    Navigation.NavigateTo("/SocioPage");
+                }
+                else
+                {
+                    var erroTexto = resposta?.ReasonPhrase ?? "Erro desconhecido na API";
+                    Snackbar.Add($"Erro da API: {erroTexto}", Severity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Erro de ligação à API: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+}

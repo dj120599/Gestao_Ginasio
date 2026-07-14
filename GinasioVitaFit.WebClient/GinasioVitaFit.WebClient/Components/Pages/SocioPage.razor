@@ -1,0 +1,135 @@
+@page "/SocioPage"
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using MudBlazor
+@inject IGinasioVitaFitService GinasioService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@rendermode InteractiveServer
+
+<MudThemeProvider />
+<MudSnackbarProvider />
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    <div class="d-flex justify-space-between align-center mb-4">
+        <MudText Typo="Typo.h4" Color="Color.Primary"><b>Gestão de Sócios</b></MudText>
+        
+        <!-- Botão para abrir o formulário que acabámos de criar -->
+        <MudButton Variant="Variant.Filled" 
+                   Color="Color.Primary" 
+                   OnClick="IrParaCriarSocio"
+                   StartIcon="@Icons.Material.Filled.PersonAdd">
+            + NOVO SÓCIO
+        </MudButton>
+    </div>
+
+    <MudDataGrid Items="@listaSocios" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Sócios Registados</MudText>
+            <MudSpacer />
+            
+            <!-- Barra de Pesquisa Rápida -->
+            <MudTextField @bind-Value="pesquisa" 
+                          Placeholder="Pesquisar por nome ou email..." 
+                          Adornment="Adornment.Start" 
+                          AdornmentIcon="@Icons.Material.Filled.Search" 
+                          Class="mt-0"
+                          Clearable="true" />
+        </ToolBarContent>
+        
+        <Columns>
+            <!-- 1. Coluna Avatar -->
+            <TemplateColumn Title="Foto" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudAvatar Image="@context.Item.ImageUrl" Alt="Foto" Size="Size.Medium" />
+                </CellTemplate>
+            </TemplateColumn>
+
+            <!-- 2. Colunas de Propriedades Diretas -->
+            <PropertyColumn Property="x => x.Name" Title="Nome Completo" />
+            <PropertyColumn Property="x => x.Email" Title="Email" />
+            <PropertyColumn Property="x => x.Contacto" Title="Contacto" />
+            
+            <!-- 3. Coluna Data de Nascimento Formatada -->
+            <TemplateColumn Title="Nascimento">
+                <CellTemplate>
+                    @context.Item.Nascimento.ToString("dd/MM/yyyy")
+                </CellTemplate>
+            </TemplateColumn>
+
+            <!-- 4. Coluna Plano (Mostra o nome se a API incluir, senão mostra o ID) -->
+            <TemplateColumn Title="Plano">
+                <CellTemplate>
+                    @(context.Item.Plano?.Name ?? $"ID Plano: {context.Item.PlanoId}")
+                </CellTemplate>
+            </TemplateColumn>
+
+            <!-- 5. Coluna de Ações -->
+            <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudIconButton Size="Size.Small"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error" />
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    private List<Socio> listaSocios = new List<Socio>();
+    private string pesquisa = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarSocios();
+    }
+
+    private async Task CarregarSocios()
+    {
+        try
+        {
+            // Abordagem dynamic que resolve conflitos de tipo com o Refit
+            dynamic resposta = await GinasioService.GetSocios(); 
+            
+            if (resposta != null)
+            {
+                listaSocios = resposta.Content ?? resposta;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Aviso de ligação: {ex.Message}. A carregar dados locais...", Severity.Info);
+            
+            // Dados simulados caso a API ainda não tenha registos ou o método GET falhe
+            listaSocios = new List<Socio>
+            {
+                new() { Id = 1, Name = "Sócio Exemplo 1", Email = "socio1@ginasio.com", Contacto = "911111111", Nascimento = new DateOnly(1995, 5, 20), PlanoId = 1, ImageUrl = "/images/modalidade-placeholder.png" },
+                new() { Id = 2, Name = "Sócio Exemplo 2", Email = "socio2@ginasio.com", Contacto = "922222222", Nascimento = new DateOnly(1998, 10, 12), PlanoId = 2, ImageUrl = "/images/modalidade-placeholder.png" }
+            };
+        }
+
+        // Filtro básico de segurança contra nulos (Aqui vais aplicar o .Where(!IsDeleted) assim que o teu colega criar o softdelete)
+        if (listaSocios == null)
+        {
+            listaSocios = new List<Socio>();
+        }
+
+        StateHasChanged();
+    }
+
+    private void IrParaCriarSocio()
+    {
+        Navigation.NavigateTo("/AddSocio");
+    }
+
+    private bool FiltroGlobal(Socio socio)
+    {
+        if (string.IsNullOrWhiteSpace(pesquisa)) return true;
+        
+        if (socio.Name?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (socio.Email?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        
+        return false;
+    }
+}
