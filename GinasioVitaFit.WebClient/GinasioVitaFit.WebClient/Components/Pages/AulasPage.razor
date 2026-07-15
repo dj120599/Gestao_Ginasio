@@ -10,27 +10,28 @@
 @inject NavigationManager Navigation
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
-    <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Primary">
+    <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Warning">
         <b>Gestão de Aulas</b>
     </MudText>
     
     <!-- Botão Corrigido para abrir a vossa nova página de agendamento -->
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="IrParaCriarAula" Class="mb-4">
+    <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="IrParaCriarAula" Class="mb-4">
         + NOVA AULA
     </MudButton>
 
-    <MudDataGrid Items="@listaAulas" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal">
+    <MudDataGrid Items="@listaAulas" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal"
+                 Striped="true" Dense="true">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Horário de Aulas</MudText>
-            <MudSpacer />
-            
+            <MudSpacer/>
+
             <!-- Campo de Pesquisa Rápida -->
-            <MudTextField @bind-Value="pesquisa" 
-                          Placeholder="Pesquisar por modalidade, instrutor ou sala..." 
-                          Adornment="Adornment.Start" 
-                          AdornmentIcon="@Icons.Material.Filled.Search" 
+            <MudTextField @bind-Value="pesquisa"
+                          Placeholder="Pesquisar por modalidade, instrutor ou sala..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
                           Class="mt-0"
-                          Clearable="true" />
+                          Clearable="true"/>
         </ToolBarContent>
         
         <Columns>
@@ -56,18 +57,42 @@
             </TemplateColumn>
 
             <!-- 4. Coluna Capacidade Máz. -->
-            <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Máz." />
+            <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Máz." Filterable="false"/>
 
             <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
+            <!--
             <TemplateColumn Title="Início">
                 <CellTemplate>
                     @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
                 </CellTemplate>
             </TemplateColumn>
+            -->
             
+            <TemplateColumn Title="Data">
+                <CellTemplate>
+                    @context.Item.Inicio.ToString("dd/MM/yyyy")
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Início">
+                <CellTemplate>
+                    @context.Item.Inicio.ToString("HH:mm")
+                </CellTemplate>
+            </TemplateColumn>
             <TemplateColumn Title="Fim">
                 <CellTemplate>
                     @context.Item.Fim.ToString("HH:mm")
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Aberto">
+                <CellTemplate >
+                    @if (@context.Item.IsOpen)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Warning"/>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Close"  Color="Color.Warning"/>
+                    }
                 </CellTemplate>
             </TemplateColumn>
 
@@ -75,16 +100,21 @@
             <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
                 <CellTemplate>
                     <MudIconButton Size="Size.Small"
+                                   Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Warning"
+                                   OnClick="@(() => ChangePageInfo(context.Item.Id))" />
+                    <MudIconButton Size="Size.Small"
                                    Icon="@Icons.Material.Filled.Delete"
                                    Color="Color.Error"
                                    OnClick="@(() => ConfirmarEliminacao(context.Item))" />
-                    <MudIconButton Size="Size.Small"
-                                   Icon="@Icons.Material.Filled.RemoveRedEye"
-                                   Color="Color.Primary"
-                                   OnClick="@(() => ChangePageInfo(context.Item.Id))" />
                     </CellTemplate>
             </TemplateColumn>
         </Columns>
+        <PagerContent >
+            <div class="bg-warning">
+            <MudDataGridPager Items="@listaAulas"/>
+            </div>
+        </PagerContent>
     </MudDataGrid>
 </MudContainer>
 
