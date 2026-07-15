@@ -1,11 +1,14 @@
 @page "/SocioPage"
+
 @using GinasioVitaFit.Shared.Models
 @using GinasioVitaFit.Shared.Services
-@using MudBlazor
+
+@rendermode InteractiveServer
+
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @inject IGinasioVitaFitService GinasioService
 @inject NavigationManager Navigation
-@inject ISnackbar Snackbar
-@rendermode InteractiveServer
 
 <MudThemeProvider />
 <MudSnackbarProvider />
@@ -69,7 +72,8 @@
                 <CellTemplate>
                     <MudIconButton Size="Size.Small"
                                    Icon="@Icons.Material.Filled.Delete"
-                                   Color="Color.Error" />
+                                   Color="Color.Error" 
+                                   OnClick="@(() => ConfirmarEliminacao(context.Item))" />
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
@@ -131,5 +135,75 @@
         if (socio.Email?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
         
         return false;
+    }
+    
+    private async Task ConfirmarEliminacao(Socio socio)
+    {
+        var parameters = new DialogParameters<MudMessageBox>();
+        
+        var mbox = new MudBlazor.MessageBoxOptions
+        {
+            Title = "Eliminar Sócio",
+            // Ajustado para .Modalidade.Name
+            Message = $"Tem a certeza que deseja eliminar o Socio, {socio.Name}?",
+            YesText = "Eliminar",
+            CancelText = "Cancelar"
+        };
+    
+        parameters.Add(x => x.MarkupMessage, new Microsoft.AspNetCore.Components.MarkupString(mbox.Message));
+        parameters.Add(x => x.YesText, mbox.YesText);
+        parameters.Add(x => x.CancelText, mbox.CancelText);
+        
+        var dialog = await DialogService.ShowAsync<MudMessageBox>(mbox.Title, parameters);
+        var result = await dialog.Result;
+        
+        if (!result.Canceled && result.Data is bool confirmar && confirmar)
+        { 
+            var aulas = await GinasioService.DeleteSocio_Soft(socio.Id);
+            
+            if (aulas.IsSuccessful)
+            {
+                Snackbar.Add("Socio eliminada com sucesso!", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Ocorreu um Erro na eliminação do Socio!", Severity.Error);
+            }
+            await CarregarAulas();
+        }
+        
+        await CarregarAulas();
+    }
+
+    private async Task CarregarAulas()
+    {
+        try
+        {
+            // Faz a chamada e armazena na variável genérica dynamic para o C# não reclamar do tipo
+            dynamic resposta = await GinasioService.GetSocios(); 
+            
+            if (resposta != null)
+            {
+                // Se o método devolver ApiResponse, extrai o .Content, senão usa os dados diretos
+                listaSocios = resposta.Content ?? resposta;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar socios: {ex.Message}", Severity.Error);
+            listaSocios = new List<Socio>(); 
+        }
+
+        // Filtra as aulas que não foram eliminadas
+        if (listaSocios != null)
+        {
+            listaSocios = listaSocios.Where(a => !a.IsDeleted).ToList();
+        }
+        else
+        {
+            listaSocios = new List<Socio>();
+        }
+        
+        StateHasChanged();
     }
 }

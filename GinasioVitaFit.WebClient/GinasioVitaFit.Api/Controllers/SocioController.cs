@@ -114,7 +114,7 @@ public class SocioController: Controller
     }
     
     [HttpDelete("socio_softdelete/{id}")]
-    public async Task<IResult> DeleteAula_Soft(int id)
+    public async Task<IResult> DeleteSocio_Soft(int id)
     {
         if (id == null)
             return Results.Empty;
