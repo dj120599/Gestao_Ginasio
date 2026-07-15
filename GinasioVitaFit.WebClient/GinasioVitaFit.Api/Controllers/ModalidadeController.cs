@@ -147,7 +147,7 @@ public class ModalidadeController: Controller
         return Ok("Aula actualizada com sucesso.");
     }
     
-    [HttpDelete("modalidade_softdelete/{id}")]
+    [HttpPut("modalidade_softdelete/{id}")]
     public async Task<IResult> DeleteModalidade_Soft(int id)
     {
         if (id == null)
@@ -155,13 +155,12 @@ public class ModalidadeController: Controller
         
         if (_context.Modalidades is not null)
         {
-            var modalidade = await _context.Aulas.FirstOrDefaultAsync(t => t.Id == id);
+            var modalidade = await _context.Modalidades.FirstOrDefaultAsync(t => t.Id == id);
 
             if(modalidade is null)
                 return Results.NotFound("Modalidade não foi encontrado");
             
             modalidade.IsDeleted = true;
-            
             
             await _context.SaveChangesAsync();
             
