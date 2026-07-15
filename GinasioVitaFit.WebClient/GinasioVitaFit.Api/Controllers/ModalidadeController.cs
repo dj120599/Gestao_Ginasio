@@ -105,7 +105,7 @@ public class ModalidadeController: Controller
             try
             {
                 await _context.SaveChangesAsync();
-                return Results.Ok("Products Added with Success.");
+                return Results.Ok("Modalidade Adicionada com Successo.");
             }
             catch (Exception e)
             {
@@ -128,7 +128,7 @@ public class ModalidadeController: Controller
         var oldmodalidade = await _context.Modalidades.FirstOrDefaultAsync(a => a.Id == modalidade.Id);
 
         if(oldmodalidade is null)
-            return NotFound("A Aula não foi encontrado");
+            return NotFound("A Modalidade não foi encontrado");
         
         modalidade.Adapt(oldmodalidade);
         
@@ -144,7 +144,7 @@ public class ModalidadeController: Controller
             return NotFound(e.Message);
         }
         
-        return Ok("Aula actualizada com sucesso.");
+        return Ok("Modalidade actualizada com sucesso.");
     }
     
     [HttpPut("modalidade_softdelete/{id}")]
