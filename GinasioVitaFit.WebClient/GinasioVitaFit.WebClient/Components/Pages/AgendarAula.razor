@@ -1,5 +1,6 @@
 @page "/AgendarAula"
 
+@using System.Diagnostics
 @using GinasioVitaFit.Shared.Models;
 @using GinasioVitaFit.Shared.Services;
 
@@ -37,12 +38,12 @@
             <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
             <TemplateColumn Title="Início">
                 <CellTemplate>
-                    @context.Item.AulaInicio.ToString("dd/MM/yyyy HH:mm")
+                    @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn Title="Fim">
                 <CellTemplate>
-                    @context.Item.AulaFim.ToString("HH:mm")
+                    @context.Item.Fim.ToString("HH:mm")
                 </CellTemplate>
             </TemplateColumn>
 
@@ -76,12 +77,12 @@
             <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
             <TemplateColumn Title="Início">
                 <CellTemplate>
-                    @context.Item.AulaInicio.ToString("dd/MM/yyyy HH:mm")
+                    @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn Title="Fim">
                 <CellTemplate>
-                    @context.Item.AulaFim.ToString("HH:mm")
+                    @context.Item.Fim.ToString("HH:mm")
                 </CellTemplate>
             </TemplateColumn>
 
@@ -122,7 +123,7 @@
         if (aulas.IsSuccessful)
         {
             _listaAulas1 = aulas.Content ?? new List<Aula>();
-        }
+        }      
         
         var socios = await VitaFitDbContext.GetSocios();
         _listaSocios = socios.Content ?? new List<Socio>();
@@ -185,8 +186,8 @@
         {
             Snackbar.Add("Ocorreu um Erro na Adição da Aula2!", Severity.Error);
         }
-
-        //await GetAllLists();
+        
+        UpdateLists();
         StateHasChanged();
     }
 
@@ -238,13 +239,18 @@
             Snackbar.Add("Ocorreu um Erro na desistencia da Aula!", Severity.Error);
         }
 
-        //await GetAllLists();
+        UpdateLists();
         StateHasChanged();
     }
 
     private async void OnValueChanged(Socio s)
     {
         Id = s.Id;
+        UpdateLists();
+    }
+
+    private async void UpdateLists()
+    {
         _listaAulas2.Clear();
         
         var aulas = await VitaFitDbContext.GetAulas();
@@ -259,7 +265,8 @@
             {
 
                 var aula1 = await VitaFitDbContext.GetAula(aulsoc.AulaId);
-                _listaAulas2.Add(aula1);
+                Aula _aula = aula1.Content ?? new Aula(); 
+                _listaAulas2.Add(_aula);
 
             }
 
@@ -279,5 +286,4 @@
         }
         StateHasChanged();
     }
-
 }

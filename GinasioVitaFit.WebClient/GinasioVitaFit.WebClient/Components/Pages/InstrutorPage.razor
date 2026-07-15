@@ -1,0 +1,186 @@
+@page "/InstrutorPage"
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using MudBlazor
+@inject IGinasioVitaFitService GinasioService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@rendermode InteractiveServer
+
+<MudThemeProvider />
+<MudSnackbarProvider />
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    <div class="d-flex justify-space-between align-center mb-4">
+        <MudText Typo="Typo.h4" Color="Color.Primary"><b>Gestão de Instrutores</b></MudText>
+        
+        <MudButton Variant="Variant.Filled" 
+                   Color="Color.Primary" 
+                   OnClick="IrParaCriarInstrutor"
+                   StartIcon="@Icons.Material.Filled.PersonAdd">
+            + NOVO INSTRUTOR
+        </MudButton>
+    </div>
+
+    <!-- CAIXA DE CONFIRMAÇÃO NATIVA: Controlada 100% por C# Puro -->
+    @if (exibirPopupConfirmacao)
+    {
+        <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 24px; border-radius: 8px; max-width: 400px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.2); text-align: center; color: black;">
+                <h3 style="margin-top: 0; font-weight: bold;">Eliminar Instrutor</h3>
+                <p style="margin: 16px 0;">Tem a certeza que deseja eliminar o(a) instrutor(a) <b>@instrutorSelecionado?.Name</b>?</p>
+                <div style="display: flex; justify-content: space-between; margin-top: 24px;">
+                    <button @onclick="FecharPopup" style="background: #e0e0e0; color: black; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">CANCELAR</button>
+                    <button @onclick="ExecutarEliminacaoReal" style="background: #f44336; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">ELIMINAR</button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <MudDataGrid Items="@listaInstrutores" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Instrutores do Ginásio</MudText>
+            <MudSpacer />
+            
+            <MudTextField @bind-Value="pesquisa" 
+                          Placeholder="Pesquisar por nome ou email..." 
+                          Adornment="Adornment.Start" 
+                          AdornmentIcon="@Icons.Material.Filled.Search" 
+                          Class="mt-0"
+                          Clearable="true" />
+        </ToolBarContent>
+        
+        <Columns>
+            <TemplateColumn Title="Foto" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudAvatar Image="@context.Item.ImageUrl" Alt="Foto" Size="Size.Medium" />
+                </CellTemplate>
+            </TemplateColumn>
+
+            <PropertyColumn Property="x => x.Name" Title="Nome Completo" />
+            <PropertyColumn Property="x => x.Email" Title="Email" />
+            <PropertyColumn Property="x => x.Contacto" Title="Contacto" />
+
+            <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudIconButton Size="Size.Small"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   OnClick="@(() => ConfirmarEliminacao(context.Item))" />
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    private List<Instrutor> listaInstrutores = new List<Instrutor>();
+    private string pesquisa = "";
+    
+    private bool exibirPopupConfirmacao = false;
+    private Instrutor? instrutorSelecionado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarInstrutores();
+    }
+
+    private async Task CarregarInstrutores()
+    {
+        try
+        {
+            dynamic resposta = await GinasioService.GetAllInstrutores(); 
+            
+            if (resposta != null)
+            {
+                listaInstrutores = resposta.Content ?? resposta;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Aviso de ligação: {ex.Message}. A carregar salvaguarda...", Severity.Info);
+            
+            listaInstrutores = new List<Instrutor>
+            {
+                new() { Id = 1, Name = "Carlos Neves", Email = "carlos@ginasio.com", Contacto = "911222333", ImageUrl = "default.png", IsDeleted = false },
+                new() { Id = 2, Name = "Mariana Silva", Email = "mariana@ginasio.com", Contacto = "966555444", ImageUrl = "default.png", IsDeleted = false }
+            };
+        }
+
+        if (listaInstrutores != null)
+        {
+            listaInstrutores = listaInstrutores.Where(i => !i.IsDeleted).ToList();
+        }
+        else
+        {
+            listaInstrutores = new List<Instrutor>();
+        }
+
+        StateHasChanged();
+    }
+
+    private void IrParaCriarInstrutor()
+    {
+        Navigation.NavigateTo("/AddInstrutor");
+    }
+
+    private void ConfirmarEliminacao(Instrutor instrutor)
+    {
+        instrutorSelecionado = instrutor;
+        exibirPopupConfirmacao = true;
+        StateHasChanged();
+    }
+
+    private void FecharPopup()
+    {
+        exibirPopupConfirmacao = false;
+        instrutorSelecionado = null;
+        StateHasChanged();
+    }
+
+    private async Task ExecutarEliminacaoReal()
+    {
+        if (instrutorSelecionado == null) return;
+
+        var idParaEliminar = instrutorSelecionado.Id;
+
+        exibirPopupConfirmacao = false;
+        StateHasChanged();
+
+        try
+        {
+            var resposta = await GinasioService.DeleteInstrutorSoft(idParaEliminar);
+
+            if (resposta != null && resposta.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Instrutor eliminado com sucesso!", Severity.Success);
+                await CarregarInstrutores(); 
+            }
+            else
+            {
+                var erroTexto = resposta?.ReasonPhrase ?? "Erro desconhecido na API";
+                Snackbar.Add($"Erro ao desativar: {erroTexto}", Severity.Error);
+                await CarregarInstrutores(); 
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro de ligação: {ex.Message}", Severity.Error);
+            await CarregarInstrutores();
+        }
+        finally
+        {
+            instrutorSelecionado = null;
+        }
+    }
+
+    private bool FiltroGlobal(Instrutor instrutor)
+    {
+        if (string.IsNullOrWhiteSpace(pesquisa)) return true;
+        
+        if (instrutor.Name?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (instrutor.Email?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        
+        return false;
+    }
+}

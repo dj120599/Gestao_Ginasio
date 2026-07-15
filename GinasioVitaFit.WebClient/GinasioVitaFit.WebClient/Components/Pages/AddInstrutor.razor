@@ -1,0 +1,140 @@
+@page "/AddInstrutor"
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using MudBlazor
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IGinasioVitaFitService GinasioService
+@rendermode InteractiveServer
+
+<h3>AddInstrutor</h3>
+
+<MudThemeProvider />
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudCard Elevation="3" Class="pa-4">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h5" Color="Color.Primary" Align="Align.Center">
+                    <b>Registar Novo Instrutor</b>
+                </MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+            <MudForm @ref="form">
+                <MudGrid>
+                    
+                    <!-- Campo do Nome -->
+                    <MudItem xs="12">
+                        <MudTextField T="string" 
+                                      Label="Nome do Instrutor" 
+                                      Required="true" 
+                                      RequiredError="O nome é obrigatório!" 
+                                      @bind-Value="novoInstrutor.Name" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Person" />
+                    </MudItem>
+
+                    <!-- Campo do Email -->
+                    <MudItem xs="12">
+                        <MudTextField T="string" 
+                                      Label="Email" 
+                                      Required="true" 
+                                      RequiredError="O email é obrigatório!" 
+                                      @bind-Value="novoInstrutor.Email" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Email" />
+                    </MudItem>
+
+                    <!-- Campo do Contacto -->
+                    <MudItem xs="12">
+                        <MudTextField T="string" 
+                                      Label="Contacto Telefónico" 
+                                      Required="true" 
+                                      RequiredError="O contacto é obrigatório!" 
+                                      @bind-Value="novoInstrutor.Contacto" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Phone" />
+                    </MudItem>
+
+                    <!-- Campo da Imagem -->
+                    <MudItem xs="12">
+                        <MudTextField T="string" 
+                                      Label="URL da Imagem de Perfil" 
+                                      Required="true" 
+                                      RequiredError="O URL da imagem é obrigatório!" 
+                                      @bind-Value="novoInstrutor.ImageUrl" 
+                                      Adornment="Adornment.Start" 
+                                      AdornmentIcon="@Icons.Material.Filled.Image" />
+                    </MudItem>
+
+                </MudGrid>
+            </MudForm>
+        </MudCardContent>
+
+        <MudCardActions Class="d-flex justify-center mt-4">
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       Size="Size.Large" 
+                       OnClick="SubmeterFormulario">
+                Gravar Instrutor
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private MudForm form = default!;
+    
+    // Mantemos o objeto original para o vosso HTML não dar erro nas linhas com "novoInstrutor"
+    private Instrutor novoInstrutor = new Instrutor 
+    { 
+        ImageUrl = "default.png" 
+    }; 
+
+    private async Task SubmeterFormulario()
+    {
+        if (form == null) return;
+        
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            try
+            {
+                // Garante que o email vai limpo e com o '@' capturado pelo MudTextField
+                var instrutorParaEnviar = new Instrutor
+                {
+                    Name = novoInstrutor.Name,
+                    Email = novoInstrutor.Email,
+                    Contacto = novoInstrutor.Contacto,
+                    ImageUrl = novoInstrutor.ImageUrl
+                };
+
+                // Envia para o serviço Refit
+                var resposta = await GinasioService.AddInstrutor(instrutorParaEnviar);
+
+                if (resposta.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Instrutor registado com sucesso!", Severity.Success);
+                    
+                    // Limpa o formulário instanciando um novo objeto
+                    novoInstrutor = new Instrutor { ImageUrl = "default.png" };
+                    
+                    if (form != null) await form.ResetValidationAsync();
+                    Navigation.NavigateTo("/InstrutorPage");
+                }
+                else
+                {
+                    var erroTexto = resposta.ReasonPhrase ?? "Erro desconhecido";
+                    Snackbar.Add($"Erro da API ({resposta.StatusCode}): {erroTexto}", Severity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Erro de ligação à API: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+}

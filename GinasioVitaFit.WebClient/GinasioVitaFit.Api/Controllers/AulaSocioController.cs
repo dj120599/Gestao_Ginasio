@@ -84,17 +84,34 @@ public class AulaSocioController : Controller
 
         if (aulasocios is not null)
         {
-            aulasocios.Add(mapper);
+            var oldsocios = await _context.AulaSocios.FirstOrDefaultAsync(
+                a => a.AulaId == mapper.AulaId && a.SocioId == mapper.SocioId && a.IsDeleted.Equals(true));
 
-            try
+            if (oldsocios != null)
             {
+                aulasocio.UpdatedDate = DateTime.UtcNow;
+                aulasocio.IsDeleted = false;
+                aulasocio.Adapt(oldsocios);
+            
                 await _context.SaveChangesAsync();
+            
                 return Results.Ok("Socio adicionado á aula com Successo.");
             }
-            catch (Exception e)
+            else
             {
-                return Results.NotFound(e.Message);
+                aulasocios.Add(mapper);
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    return Results.Ok("Socio adicionado á aula com Successo.");
+                }
+                catch (Exception e)
+                {
+                    return Results.NotFound(e.Message);
+                }
             }
+            
         }
         
         return Results.Empty;
