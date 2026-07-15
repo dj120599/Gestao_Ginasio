@@ -15,11 +15,11 @@
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
     <div class="d-flex justify-space-between align-center mb-4">
-        <MudText Typo="Typo.h4" Color="Color.Primary"><b>Gestão de Sócios</b></MudText>
+        <MudText Typo="Typo.h4" Color="Color.Warning"><b>Gestão de Sócios</b></MudText>
         
         <!-- Botão para abrir o formulário que acabámos de criar -->
         <MudButton Variant="Variant.Filled" 
-                   Color="Color.Primary" 
+                   Color="Color.Warning" 
                    OnClick="IrParaCriarSocio"
                    StartIcon="@Icons.Material.Filled.PersonAdd">
             + NOVO SÓCIO
@@ -77,6 +77,11 @@
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
+        <PagerContent >
+            <div class="bg-warning">
+                <MudDataGridPager Items="@listaSocios"/>
+            </div>
+        </PagerContent>
     </MudDataGrid>
 </MudContainer>
 
