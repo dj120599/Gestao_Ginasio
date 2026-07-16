@@ -48,14 +48,6 @@
                     @context.Item.Inicio.ToString("HH:mm")
                 </CellTemplate>
             </TemplateColumn>
-            <!--
-            
-            <TemplateColumn Title="Início">
-                <CellTemplate>
-                    @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
-                </CellTemplate>
-            </TemplateColumn>
-            -->
             <TemplateColumn Title="Fim">
                 <CellTemplate>
                     @context.Item.Fim.ToString("HH:mm")
@@ -80,6 +72,7 @@
                     <MudIconButton Size="Size.Small"
                                    Icon="@Icons.Material.Filled.Add"
                                    Color="Color.Success"
+                                   Disabled="@(!context.Item.IsOpen)"
                                    OnClick="@(() => AdicionarAula(context.Item))" />
                 </CellTemplate>
             </TemplateColumn>
@@ -118,13 +111,6 @@
                     @context.Item.Inicio.ToString("HH:mm")
                 </CellTemplate>
             </TemplateColumn>
-            <!--
-            <TemplateColumn Title="Início">
-                <CellTemplate>
-                    @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
-                </CellTemplate>
-            </TemplateColumn>
-            -->
             <TemplateColumn Title="Fim">
                 <CellTemplate>
                     @context.Item.Fim.ToString("HH:mm")
