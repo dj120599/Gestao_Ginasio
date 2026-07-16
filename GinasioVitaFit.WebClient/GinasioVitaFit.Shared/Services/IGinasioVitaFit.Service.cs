@@ -48,7 +48,7 @@ public interface IGinasioVitaFitService
     [Get("/dificuldades")]
     Task<ApiResponse<List<Dificuldade>>> GetAllDificuldades();
     
-    //Aulasocio e Instrutormod
+    //Aulasocio
     [Get("//sociosaula/{id}")]
     Task<ApiResponse<List<AulaSocios>>> GetAllSociosFromAula(int id);
 
@@ -64,7 +64,7 @@ public interface IGinasioVitaFitService
     [Put("/aulasocio_softdelete")]
     Task<ApiResponse<string>> DeleteSocio_Soft([Body] AulaSocios aulasocio);
     
-
+    //Instrutormod
     [Get("/modalidadesinstr/{id}")]
     Task<ApiResponse<List<InstrutorMod>>> GetAllModalidadesFromInstrutor(int id);
 
@@ -92,6 +92,14 @@ public interface IGinasioVitaFitService
     [Get("/socio/{id}")]
     Task<ApiResponse<Socio>> GetSocio(int id);
 
+    [Put("/socio")]
+    Task<ApiResponse<Socio>> UpdateSocio([Body] Socio socio);
+
     [Delete("/socio_softdelete/{id}")]
     Task<ApiResponse<string>> DeleteSocio_Soft(int id);
+    
+    //Plano
+
+    [Get("/plano")]
+    Task<ApiResponse<List<Plano>>> GetPlanos();
 }

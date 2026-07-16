@@ -71,6 +71,10 @@
             <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
                 <CellTemplate>
                     <MudIconButton Size="Size.Small"
+                                   Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Warning"
+                                   OnClick="@(() => ChangePageInfo(context.Item.Id))" />
+                    <MudIconButton Size="Size.Small"
                                    Icon="@Icons.Material.Filled.Delete"
                                    Color="Color.Error" 
                                    OnClick="@(() => ConfirmarEliminacao(context.Item))" />
@@ -210,5 +214,10 @@
         }
         
         StateHasChanged();
+    }
+
+    private void ChangePageInfo(int id)
+    {
+        Navigation.NavigateTo($"/AddSocio/{(int)id}");
     }
 }
