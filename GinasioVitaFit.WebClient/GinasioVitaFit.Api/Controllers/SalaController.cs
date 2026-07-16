@@ -20,7 +20,7 @@ public class SalaController: Controller
         
     }
     
-    [HttpGet("/sala")]
+    [HttpGet("/salas")]
     public async Task<IActionResult> GetSalas()
     {
         if (_context.Planos is not null)

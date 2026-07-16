@@ -1,1 +1,21 @@
 @import "tailwindcss";
+
+.bg-verde-claro {
+    @apply bg-white;
+}
+
+.paragraph {
+    all: revert;
+}
+
+.link-nav {
+    @apply flex flex-row flex-1 items-center gap-5 px-3 rounded transition-all duration-300 ease-in-out;
+}
+
+.link-nav.active {
+    @apply bg-amber-300/10;
+
+    & .paragraph, & i, & svg {
+        @apply text-amber-600;
+    }
+}
