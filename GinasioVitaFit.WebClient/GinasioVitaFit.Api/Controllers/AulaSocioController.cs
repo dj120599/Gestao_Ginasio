@@ -95,7 +95,7 @@ public class AulaSocioController : Controller
             
                 await _context.SaveChangesAsync();
             
-                return Results.Ok("Socio adicionado á aula com Successo.");
+                return Results.Ok("Socio adicionado á Aula com Successo.");
             }
             else
             {
@@ -104,7 +104,7 @@ public class AulaSocioController : Controller
                 try
                 {
                     await _context.SaveChangesAsync();
-                    return Results.Ok("Socio adicionado á aula com Successo.");
+                    return Results.Ok("Socio adicionado á Aula com Successo.");
                 }
                 catch (Exception e)
                 {
@@ -139,7 +139,7 @@ public class AulaSocioController : Controller
             
             await _context.SaveChangesAsync();
             
-            return Results.Ok("Socio apagado com Successo.");
+            return Results.Ok("Aula desistida com Successo.");
         }
         return Results.Empty;
     }

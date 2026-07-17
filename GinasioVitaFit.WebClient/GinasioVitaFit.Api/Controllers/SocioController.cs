@@ -23,7 +23,7 @@ public class SocioController: Controller
     [HttpGet("/socios")]
     public async Task<IActionResult> GetSocios()
     {
-        if (_context.Aulas is not null)
+        if (_context.Socios is not null)
         {
             var socios = await _context.Socios.
                 Where(a => a.IsDeleted.Equals(false)).
@@ -94,7 +94,7 @@ public class SocioController: Controller
         var oldproduct = await _context.Socios.FirstOrDefaultAsync(a => a.Id == socio.Id);
 
         if(oldproduct is null)
-            return NotFound("A Aula não foi encontrado");
+            return NotFound("O Socio não foi encontrado");
         
         socio.Adapt(oldproduct);
         
@@ -114,7 +114,7 @@ public class SocioController: Controller
     }
     
     [HttpDelete("socio_softdelete/{id}")]
-    public async Task<IResult> DeleteAula_Soft(int id)
+    public async Task<IResult> DeleteSocio_Soft(int id)
     {
         if (id == null)
             return Results.Empty;

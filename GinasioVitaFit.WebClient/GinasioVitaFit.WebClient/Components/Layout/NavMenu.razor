@@ -1,52 +1,66 @@
-﻿<div class="nav-scrollable">
-    <nav class="flex-column">
-        <!-- 1. Link para a Home / Dashboard -->
-        <div class="nav-item px-3">
-            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
-                Início / Dashboard
-            </MudNavLink>
+﻿<div class="nav-scrollable bg-verde-claro min-vh-100 py-3" onclick="ToggleNavMenu">
+    <nav class="flex flex-col flex-1 px-2">
+        <div class="link-nav text-amber-400 py-2">
+            <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" class="text-3xl!"/>
+            <p class="font-bold! text-2xl! m-0">VitaFit</p>
         </div>
 
-        <!-- 2. Link para o Horário / Listagem -->
-        <div class="nav-item px-3">
-            <MudNavLink Href="/AulasPage" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.CalendarMonth">
-                Horário de Aulas
-            </MudNavLink>
+        <span class="h-px bg-gray-200 my-4"/>
+
+        <div class="">
+            <NavLink href="" class="link-nav hover:bg-amber-300/10 group" Match="NavLinkMatch.All">
+                <MudIcon Icon="@Icons.Material.Outlined.Dashboard" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Dashboard</p>
+            </NavLink>
+
+            <!-- 1. Link para o Horário / Listagem (Aponta para AulasPage) -->
+            <NavLink href="/AulasPage" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Horário de Aulas</p>
+            </NavLink>
+
+            <!-- 2. Link para Adicionar Aula (Aponta para AddAula) -->
+            <NavLink href="/AddAula" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Registar Aula</p>
+            </NavLink>
+
+            <!-- 3. Link para Adicionar Instrutor (Aponta para AddInstrutor) -->
+            <NavLink href="/AddInstrutor" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Filled.PersonAddAlt1" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Adicionar Instrutor</p>
+            </NavLink>
+
+            <!-- 4. Link para a Lista de Instrutores () -->
+            <NavLink href="/InstrutorPage" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Filled.PeopleAlt" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Lista de Instrutores</p>
+            </NavLink>
+
+            <!-- 5. Link para Agendar Aula () -->
+            <NavLink href="/AgendarAula" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Filled.EditCalendar" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Agendar Aula</p>
+            </NavLink>
+
+            <!-- 6. Link para a Lista de Instrutores () -->
+            <NavLink href="/AddSocio" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Filled.PersonAddAlt1" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Registar Sócio</p>
+            </NavLink>
+
+            <!-- 7. Link para a Lista de Instrutores () -->
+            <NavLink href="/SocioPage" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Filled.PeopleAlt" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Lista de Sócios</p>
+            </NavLink>
+
+            <!-- 7. Link para a Lista de Modalidades () -->
+            <NavLink href="/modalidades" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Rounded.SportsTennis" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Modalidades</p>
+            </NavLink>
         </div>
 
-        <!-- 3. Link para Adicionar Aula -->
-        <div class="nav-item px-3">
-            <MudNavLink Href="/AddAula" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FitnessCenter">
-                Registar Aula
-            </MudNavLink>
-        </div>
-
-        <!-- 4. Link para Adicionar Instrutor (COMENTADO / DESATIVADO)
-       <div class="nav-item px-3">
-       <MudNavLink Href="/AddInstrutor" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PersonAdd">
-        Registar Instrutor
-       </MudNavLink>
-       </div>
-        -->
-        <!-- 5. Link para a Lista de Instrutores -->
-        <div class="nav-item px-3">
-            <MudNavLink Href="/InstrutorPage" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.People">
-                Lista de Instrutores
-            </MudNavLink>
-        </div>
-
-        <!-- 6. Link para Registar Sócio -->
-        <div class="nav-item px-3">
-            <MudNavLink Href="/AddSocio" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PersonAddAlt1">
-                Registar Sócio
-            </MudNavLink>
-        </div>
-
-        <!-- 7. Link para a Lista de Sócios -->
-        <div class="nav-item px-3">
-            <MudNavLink Href="/SocioPage" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PeopleAlt">
-                Lista de Sócios
-            </MudNavLink>
-        </div>
     </nav>
 </div>

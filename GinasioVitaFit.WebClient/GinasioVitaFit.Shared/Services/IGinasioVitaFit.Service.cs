@@ -91,6 +91,10 @@ public interface IGinasioVitaFitService
     
     [Get("/socios")]
     Task<ApiResponse<List<Socio>>> GetSocios();
+    
+    [Get("/socio/{id}")]
+    Task<ApiResponse<Socio>> GetSocio(int id);
 
-   
+    [Delete("/socio_softdelete/{id}")]
+    Task<ApiResponse<string>> DeleteSocio_Soft(int id);
 }

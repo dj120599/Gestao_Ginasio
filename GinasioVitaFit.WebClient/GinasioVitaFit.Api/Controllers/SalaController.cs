@@ -20,7 +20,7 @@ public class SalaController: Controller
         
     }
     
-    [HttpGet("/sala")]
+    [HttpGet("/salas")]
     public async Task<IActionResult> GetSalas()
     {
         if (_context.Planos is not null)
@@ -33,5 +33,29 @@ public class SalaController: Controller
         }
 
         return NotFound();
+    }
+    
+    
+    [HttpDelete("sala_softdelete/{id}")]
+    public async Task<IResult> DeleteSala_Soft(int id)
+    {
+        if (id == null)
+            return Results.Empty;
+        
+        if (_context.Socios is not null)
+        {
+            var sala = await _context.Salas.FirstOrDefaultAsync(t => t.Id == id);
+
+            if(sala is null)
+                return Results.NotFound("Sala não foi encontrado");
+            
+            sala.IsDeleted = true;
+            
+            
+            await _context.SaveChangesAsync();
+            
+            return Results.Ok("Sala apagado com Successo.");
+        }
+        return Results.Empty;
     }
 }
