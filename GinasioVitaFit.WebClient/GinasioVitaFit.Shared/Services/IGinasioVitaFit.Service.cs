@@ -31,7 +31,7 @@ public interface IGinasioVitaFitService
     [Put("/Instrutor")]
     Task<HttpResponseMessage> UpdateInstrutor([Body] Instrutor instrutor);
     
-    [Delete("/instrutor_softdelete/{id}")]
+    [Delete("/instrutorsoftdelete/{id}")]
     Task<HttpResponseMessage> DeleteInstrutorSoft(int id);
 
     

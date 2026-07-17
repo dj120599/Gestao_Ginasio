@@ -6,66 +6,68 @@
 
 @if (_isOpen)
 {
-    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-in-out;">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 overflow-hidden" style="border-top: 6px solid #FF6B00; color: black;" @onclick:stopPropagation>
-            
-            @if (_isLoading)
-            {
-                <div class="flex flex-col items-center justify-center py-16">
-                    <div style="width: 48px; height: 48px; border: 4px solid #FF6B00; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                    <p class="mt-4 text-gray-500 font-bold">@(_isEdicao ? "A atualizar dados..." : "A gravar instrutor...")</p>
-                </div>
-            }
-            else
-            {
-                <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                    <h3 class="text-xl font-bold text-gray-800">
-                        <MudIcon Icon="@(_isEdicao ? Icons.Material.Filled.Edit : Icons.Material.Filled.PersonAdd)" Class="mr-2" Style="color: #FF6B00;" />
-                        @(_isEdicao ? "Editar Dados do Instrutor" : "Adicionar Instrutor")
-                    </h3>
-                    <button @onclick="Hide" class="p-2 text-gray-400 hover:text-gray-600 transition cursor-pointer">
-                        <MudIcon Icon="@Icons.Material.Filled.Close" />
-                    </button>
-                </div>
+<div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-in-out;">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 overflow-hidden" style="border-top: 6px solid #FF6B00; color: black;" @onclick:stopPropagation>
 
-                <div class="px-6 py-4" style="max-height: 70vh; overflow-y: auto;">
-                    <MudForm @ref="form">
-                        <MudGrid>
-                            <MudItem xs="12">
-                                <MudTextField T="string" Label="Nome Completo" Required="true" RequiredError="Nome obrigatório!" @bind-Value="novoInstrutor.Name" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" />
-                            </MudItem>
-                            <MudItem xs="12" sm="6">
-                                <MudTextField T="string" Label="Email" Required="true" RequiredError="Email obrigatório!" @bind-Value="novoInstrutor.Email" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Email" />
-                            </MudItem>
-                            <MudItem xs="12" sm="6">
-                                <MudTextField T="string" Label="Contacto" Required="true" RequiredError="Contacto obrigatório!" @bind-Value="novoInstrutor.Contacto" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Phone" />
-                            </MudItem>
-                        </MudGrid>
-                    </MudForm>
-                </div>
-
-                <div class="flex justify-end gap-4 px-6 py-4 border-t border-gray-100 bg-gray-50">
-                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Hide" Style="border-radius: 6px; font-weight: bold;">Cancelar</MudButton>
-                    <MudButton Variant="Variant.Filled" Style="background-color: #FF6B00; color: white; font-weight: bold; border-radius: 6px;" OnClick="SubmeterFormulario" StartIcon="@Icons.Material.Filled.Save">
-                        @(_isEdicao ? "Atualizar" : "Gravar")
-                    </MudButton>
-                </div>
-            }
+        @if (_isLoading)
+        {
+        <div class="flex flex-col items-center justify-center py-16">
+            <div style="width: 48px; height: 48px; border: 4px solid #FF6B00; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <p class="mt-4 text-gray-500 font-bold">@(_isEdicao ? "A atualizar dados..." : "A gravar instrutor...")</p>
         </div>
+        }
+        else
+        {
+        <!-- IMPLEMENTAÇÃO DO REQUISITO: EditForm nativo com validação de C# DataAnnotations -->
+        <EditForm Model="@novoInstrutor" OnValidSubmit="SubmeterFormulario">
+            <DataAnnotationsValidator />
+
+            <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                <h3 class="text-xl font-bold text-gray-800">
+                    <MudIcon Icon="@(_isEdicao ? Icons.Material.Filled.Edit : Icons.Material.Filled.PersonAdd)" Class="mr-2" Style="color: #FF6B00;" />
+                    @(_isEdicao ? "Editar Dados do Instrutor" : "Adicionar Instrutor")
+                </h3>
+                <button type="button" @onclick="Hide" class="p-2 text-gray-400 hover:text-gray-600 transition cursor-pointer">
+                    <MudIcon Icon="@Icons.Material.Filled.Close" />
+                </button>
+            </div>
+
+            <div class="px-6 py-4" style="max-height: 70vh; overflow-y: auto;">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudTextField T="string" Label="Nome Completo" @bind-Value="novoInstrutor.Name" For="@(() => novoInstrutor.Name)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" Label="Email" @bind-Value="novoInstrutor.Email" For="@(() => novoInstrutor.Email)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Email" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" Label="Contacto" @bind-Value="novoInstrutor.Contacto" For="@(() => novoInstrutor.Contacto)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Phone" />
+                    </MudItem>
+                </MudGrid>
+            </div>
+
+            <div class="flex justify-end gap-4 px-6 py-4 border-t border-gray-100 bg-gray-50">
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Hide" Style="border-radius: 6px; font-weight: bold;">Cancelar</MudButton>
+                <!-- O botão agora é do tipo submit para acionar o EditForm automaticamente -->
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Style="background-color: #FF6B00; color: white; font-weight: bold; border-radius: 6px;" StartIcon="@Icons.Material.Filled.Save">
+                    @(_isEdicao ? "Atualizar" : "Gravar")
+                </MudButton>
+            </div>
+        </EditForm>
+        }
     </div>
+</div>
 }
 
 @code {
-    private MudForm form = default!;
     private Instrutor novoInstrutor = new Instrutor { ImageUrl = "default.png" };
-    
+
     private bool _isOpen = false;
     private bool _isLoading = false;
-    private bool _isEdicao = false; // Controla se o ecrã está em modo de edição
+    private bool _isEdicao = false;
 
     [Parameter] public EventCallback OnSubmetido { get; set; }
 
-    // 1. Método original mantido para quando clicas em + Novo
     public void Show()
     {
         _isEdicao = false;
@@ -75,14 +77,12 @@
         StateHasChanged();
     }
 
-    // 2. NOVO MÉTODO DE EDICÃO: Carrega os dados do instrutor selecionado
     public void ShowEditar(Instrutor instrutorParaEditar)
     {
         _isEdicao = true;
         _isOpen = true;
         _isLoading = false;
-        
-        // Clona os dados para não alterar a tabela antes de salvar
+
         novoInstrutor = new Instrutor
         {
             Id = instrutorParaEditar.Id,
@@ -101,49 +101,41 @@
         StateHasChanged();
     }
 
+// Como o EditForm só dispara este método se o formulário for 100% válido, removemos a validação manual antiga!
     private async Task SubmeterFormulario()
     {
-        if (form == null) return;
-        await form.Validate();
+        _isLoading = true;
+        StateHasChanged();
 
-        if (form.IsValid)
+        try
         {
-            _isLoading = true;
-            StateHasChanged();
+            HttpResponseMessage? resposta;
 
-            try
+            if (_isEdicao)
+                resposta = await GinasioService.UpdateInstrutor(novoInstrutor);
+            else
+                resposta = await GinasioService.AddInstrutor(novoInstrutor);
+
+            if (resposta != null && resposta.IsSuccessStatusCode)
             {
-                HttpResponseMessage? resposta;
-
-                if (_isEdicao)
-                {
-                    // REQUISITO DA API: Dispara o método de Edição do vosso Service (Garante que se chama UpdateInstrutor ou EditInstrutor)
-                    resposta = await GinasioService.UpdateInstrutor(novoInstrutor);
-                }
-                else
-                {
-                    resposta = await GinasioService.AddInstrutor(novoInstrutor);
-                }
-
-                if (resposta != null && resposta.IsSuccessStatusCode)
-                {
-                    Snackbar.Add(_isEdicao ? "Dados atualizados com sucesso!" : "Instrutor registado com sucesso!", Severity.Success);
-                    await Task.Delay(500);
-                    _isOpen = false;
-                    await OnSubmetido.InvokeAsync(); 
-                }
-                else
-                {
-                    Snackbar.Add("Erro ao comunicar com a API", Severity.Error);
-                    _isLoading = false;
-                }
+                Snackbar.Add(_isEdicao ? "Dados atualizados com sucesso!" : "Instrutor registado com sucesso!", Severity.Success);
+                await Task.Delay(500);
+                _isOpen = false;
+                await OnSubmetido.InvokeAsync();
             }
-            catch (Exception ex)
+            else
             {
-                Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+                Snackbar.Add("Erro ao comunicar com a API", Severity.Error);
                 _isLoading = false;
             }
-            StateHasChanged();
         }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+            _isLoading = false;
+        }
+
+        StateHasChanged();
     }
+
 }
