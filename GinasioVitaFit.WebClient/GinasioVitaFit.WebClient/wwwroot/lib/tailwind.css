@@ -38,6 +38,8 @@
     --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
+    --container-3xs: 16rem;
+    --container-2xs: 18rem;
     --container-xl: 36rem;
     --container-3xl: 48rem;
     --text-xs: 0.75rem;
@@ -653,6 +655,9 @@
   .min-h-40 {
     min-height: calc(var(--spacing) * 40);
   }
+  .min-h-dvh {
+    min-height: 100dvh;
+  }
   .w-1\/3 {
     width: calc(1 / 3 * 100%);
   }
@@ -697,6 +702,9 @@
   }
   .max-w-xl {
     max-width: var(--container-xl);
+  }
+  .min-w-3xs {
+    min-width: var(--container-3xs);
   }
   .flex-1 {
     flex: 1;
