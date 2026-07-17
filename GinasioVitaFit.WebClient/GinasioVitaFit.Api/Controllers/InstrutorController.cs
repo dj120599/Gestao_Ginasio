@@ -113,40 +113,39 @@ public class InstrutorController: Controller
         return Ok("Instrutor actualizada com sucesso.");
     }
     
-    [HttpDelete("/instrutor_softdelete/{id}")]
-    public async Task<IResult> DeleteInstrutor_Soft(int id)
+    [HttpDelete("/Instrutorsoftdelete/{id}")]
+    public async Task<IResult> DeleteInstructor_Soft(int id)
     {
         if (id <= 0)
             return Results.BadRequest("ID inválido");
-
+    
         if (_context.Instrutores is not null)
         {
             var instrutor = await _context.Instrutores.FirstOrDefaultAsync(t => t.Id == id);
-
+    
             if (instrutor is null)
                 return Results.NotFound("Instrutor não foi encontrado");
-
-            // REGRA DO TRELLO: Faz o soft delete de todas as aulas deste instrutor
+    
+            // Regra em cascata para as aulas
             if (_context.Aulas is not null)
             {
                 var aulasDoInstrutor = await _context.Aulas
                     .Where(a => a.InstrutorId == id && !a.IsDeleted)
                     .ToListAsync();
-
+    
                 foreach (var aula in aulasDoInstrutor)
                 {
-                    aula.IsDeleted = true; 
+                    aula.IsDeleted = true;
                 }
             }
-
+    
             instrutor.IsDeleted = true;
-
             await _context.SaveChangesAsync();
-
-            return Results.Ok("Instrutor e aulas correspondentes apagados com sucesso.");
+    
+            return Results.Ok("Instrutor e aulas desativados.");
         }
-
-        return Results.NotFound("Tabela de instrutores não encontrada");
+    
+        return Results.NotFound("Erro no contexto");
     }
     
     //InstrutorMod

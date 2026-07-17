@@ -27,6 +27,9 @@ public interface IGinasioVitaFitService
     
     [Get("/instrutores")]
     Task<ApiResponse<List<Instrutor>>> GetAllInstrutores();
+
+    [Put("/Instrutor")]
+    Task<HttpResponseMessage> UpdateInstrutor([Body] Instrutor instrutor);
     
     [Delete("/instrutor_softdelete/{id}")]
     Task<HttpResponseMessage> DeleteInstrutorSoft(int id);
@@ -88,4 +91,6 @@ public interface IGinasioVitaFitService
     
     [Get("/socios")]
     Task<ApiResponse<List<Socio>>> GetSocios();
+
+   
 }
