@@ -241,7 +241,7 @@
     private Modalidade _modalidade = new();
     private List<Dificuldade> _dificuldades = new();
 
-    private string _previewUrl = "/images/Socio/Default-Socio.jpg";
+    private string _previewUrl = "/images/modalidade-placeholder.png";
     private bool _isUploading;
 
     private string OverlayClass =>
@@ -295,7 +295,7 @@
         _isOpen = false;
 
         _modalidade = new();
-        _previewUrl = "/images/Socio/Default-Socio.jpg";
+        _previewUrl = "/images/modalidade-placeholder.png";
 
         StateHasChanged();
     }
@@ -376,8 +376,8 @@
 
     private void LimparImagemManualmente()
     {
-        _previewUrl = "/images/-placeholder.png";
-        _modalidade.ImageUrl = "/images/Socio/Default-Socio.jpg";
+        _previewUrl = "/images/modalidade-placeholder.png";
+        _modalidade.ImageUrl = "/images/modalidade-placeholder.png";
     }
 
     private void SelecionarImagemExistente(string caminhoImagem)
