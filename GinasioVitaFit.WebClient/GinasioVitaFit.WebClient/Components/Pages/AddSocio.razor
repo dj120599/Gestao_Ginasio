@@ -169,21 +169,7 @@
                     novoSocio.SubFim = DateTime.Now.AddMonths(6);
                 else if(novoSocio.PlanoId == 3)
                     novoSocio.SubFim = DateTime.Now.AddMonths(4);
-                /*
-                var socioParaEnviar = new Socio
-                {
-                    Name = novoSocio.Name,
-                    Email = novoSocio.Email,
-                    Contacto = novoSocio.Contacto,
-                    Nascimento = dataOnly, // Atribui o DateOnly correto
-                    PlanoId = novoSocio.PlanoId,
-                    ImageUrl = novoSocio.ImageUrl,
-                    
-                    // Inicializações padrão para evitar nulos na API
-                    SubInicio = DateTime.Now,
-                    SubFim = DateTime.Now.AddMonths(1)
-                };
-                */
+                
                 if (Changebool)
                 {
                     var resposta = await GinasioService.UpdateSocio(novoSocio);

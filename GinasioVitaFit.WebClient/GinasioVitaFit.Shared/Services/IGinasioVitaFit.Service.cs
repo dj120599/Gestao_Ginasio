@@ -99,7 +99,7 @@ public interface IGinasioVitaFitService
     Task<ApiResponse<Socio>> GetSocio(int id);
 
     [Put("/socio")]
-    Task<ApiResponse<Socio>> UpdateSocio([Body] Socio socio);
+    Task<HttpResponseMessage> UpdateSocio([Body] Socio socio);
 
     [Delete("/socio_softdelete/{id}")]
     Task<ApiResponse<string>> DeleteSocio_Soft(int id);

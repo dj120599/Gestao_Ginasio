@@ -2,6 +2,7 @@
 
 @using GinasioVitaFit.Shared.Models
 @using GinasioVitaFit.Shared.Services
+@using GinasioVitaFit.WebClient.Components.Pages.Socios.Componentes
 
 @rendermode InteractiveServer
 
@@ -10,49 +11,60 @@
 @inject IGinasioVitaFitService GinasioService
 @inject NavigationManager Navigation
 
-<MudThemeProvider />
+<MudThemeProvider Theme="@temaLaranja" />
 <MudSnackbarProvider />
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
-    <div class="d-flex justify-space-between align-center mb-4">
-        <MudText Typo="Typo.h4" Color="Color.Warning"><b>Gestão de Sócios</b></MudText>
-        
-        <!-- Botão para abrir o formulário que acabámos de criar -->
-        <MudButton Variant="Variant.Filled" 
-                   Color="Color.Warning" 
-                   OnClick="IrParaCriarSocio"
-                   StartIcon="@Icons.Material.Filled.PersonAdd">
-            + NOVO SÓCIO
-        </MudButton>
+    <!-- CONTAINER SUPERIOR LARANJA -->
+    <div style="background: white; border-top: 6px solid #FF6B00; border-radius: 8px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 24px;">
+        <div class="d-flex justify-space-between align-center">
+            <div>
+                <MudText Typo="Typo.h4" Style="color: #FF6B00; font-weight: bold;">Gestão de Sócios</MudText>
+                <MudText Typo="Typo.subtitle2" Style="color: #333333; font-weight: 500;">Gerencie a equipa técnica e registe novos profissionais no mesmo ecrã</MudText>
+            </div>
+            
+            <!-- O botão agora dispara o método Show() dentro do componente -->
+            <MudButton Variant="Variant.Filled" 
+                       Style="background-color: #FF6B00; color: white; font-weight: bold; min-width: 180px;" 
+                       OnClick="AbrirModalSocio"
+                       StartIcon="@Icons.Material.Filled.PersonAdd">
+                + NOVO SÓCIO
+            </MudButton>
+        </div>
     </div>
-
+    
+    <!-- INJEÇÃO DO COMPONENTE FLUTUANTE COM REFERÊNCIA (Instanciação oculta que aguarda o Show) -->
+    <AddSocioComponente 
+        @ref="modalAdicionar" 
+        OnSubmetido="RecarregarTabelaAposGravar" />
+    
     <MudDataGrid Items="@listaSocios" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Sócios Registados</MudText>
-            <MudSpacer />
-            
+            <MudSpacer/>
+
             <!-- Barra de Pesquisa Rápida -->
-            <MudTextField @bind-Value="pesquisa" 
-                          Placeholder="Pesquisar por nome ou email..." 
-                          Adornment="Adornment.Start" 
-                          AdornmentIcon="@Icons.Material.Filled.Search" 
+            <MudTextField @bind-Value="pesquisa"
+                          Placeholder="Pesquisar por nome ou email..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
                           Class="mt-0"
-                          Clearable="true" />
+                          Clearable="true"/>
         </ToolBarContent>
-        
+
         <Columns>
             <!-- 1. Coluna Avatar -->
             <TemplateColumn Title="Foto" Sortable="false" Filterable="false">
                 <CellTemplate>
-                    <MudAvatar Image="@context.Item.ImageUrl" Alt="Foto" Size="Size.Medium" />
+                    <MudAvatar Image="@context.Item.ImageUrl" Alt="Foto" Size="Size.Medium"/>
                 </CellTemplate>
             </TemplateColumn>
 
             <!-- 2. Colunas de Propriedades Diretas -->
-            <PropertyColumn Property="x => x.Name" Title="Nome Completo" />
-            <PropertyColumn Property="x => x.Email" Title="Email" />
-            <PropertyColumn Property="x => x.Contacto" Title="Contacto" />
-            
+            <PropertyColumn Property="x => x.Name" Title="Nome Completo"/>
+            <PropertyColumn Property="x => x.Email" Title="Email"/>
+            <PropertyColumn Property="x => x.Contacto" Title="Contacto"/>
+
             <!-- 3. Coluna Data de Nascimento Formatada -->
             <TemplateColumn Title="Nascimento">
                 <CellTemplate>
@@ -60,12 +72,8 @@
                 </CellTemplate>
             </TemplateColumn>
 
-            <!-- 4. Coluna Plano (Mostra o nome se a API incluir, senão mostra o ID) -->
-            <TemplateColumn Title="Plano">
-                <CellTemplate>
-                    @(context.Item.Plano?.Name ?? $"ID Plano: {context.Item.PlanoId}")
-                </CellTemplate>
-            </TemplateColumn>
+            <!-- 4. Coluna Plano -->
+            <PropertyColumn Property="x => x.Plano.Name" Title="Plano"/>
 
             <!-- 5. Coluna de Ações -->
             <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
@@ -73,11 +81,11 @@
                     <MudIconButton Size="Size.Small"
                                    Icon="@Icons.Material.Filled.Edit"
                                    Color="Color.Warning"
-                                   OnClick="@(() => ChangePageInfo(context.Item.Id))" />
+                                   OnClick="@(() => modalAdicionar.ShowEditar(context.Item))"/>
                     <MudIconButton Size="Size.Small"
                                    Icon="@Icons.Material.Filled.Delete"
-                                   Color="Color.Error" 
-                                   OnClick="@(() => ConfirmarEliminacao(context.Item))" />
+                                   Color="Color.Error"
+                                   OnClick="@(() => ConfirmarEliminacao(context.Item))"/>
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
@@ -92,7 +100,22 @@
 @code {
     private List<Socio> listaSocios = new List<Socio>();
     private string pesquisa = "";
+    
+    private bool exibirPopupConfirmacao = false;
+    private Socio? SocioSelecionado;
+    
+    private GinasioVitaFit.WebClient.Components.Pages.Socios.Componentes.AddSocioComponente modalAdicionar = default!;
 
+    private MudTheme temaLaranja = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#FF6B00",
+            Success = "#4CAF50",
+            Error = "#FF6B00"
+        }
+    };
+    
     protected override async Task OnInitializedAsync()
     {
         await CarregarSocios();
@@ -122,18 +145,7 @@
             };
         }
 
-        // Filtro básico de segurança contra nulos (Aqui vais aplicar o .Where(!IsDeleted) assim que o teu colega criar o softdelete)
-        if (listaSocios == null)
-        {
-            listaSocios = new List<Socio>();
-        }
-
         StateHasChanged();
-    }
-
-    private void IrParaCriarSocio()
-    {
-        Navigation.NavigateTo("/AddSocio");
     }
 
     private bool FiltroGlobal(Socio socio)
@@ -178,46 +190,21 @@
             {
                 Snackbar.Add("Ocorreu um Erro na eliminação do Socio!", Severity.Error);
             }
-            await CarregarAulas();
+            await CarregarSocios();
         }
         
-        await CarregarAulas();
+        await CarregarSocios();
     }
 
-    private async Task CarregarAulas()
+    private void AbrirModalSocio()
     {
-        try
-        {
-            // Faz a chamada e armazena na variável genérica dynamic para o C# não reclamar do tipo
-            dynamic resposta = await GinasioService.GetSocios(); 
-            
-            if (resposta != null)
-            {
-                // Se o método devolver ApiResponse, extrai o .Content, senão usa os dados diretos
-                listaSocios = resposta.Content ?? resposta;
-            }
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"Erro ao carregar socios: {ex.Message}", Severity.Error);
-            listaSocios = new List<Socio>(); 
-        }
-
-        // Filtra as aulas que não foram eliminadas
-        if (listaSocios != null)
-        {
-            listaSocios = listaSocios.Where(a => !a.IsDeleted).ToList();
-        }
-        else
-        {
-            listaSocios = new List<Socio>();
-        }
-        
-        StateHasChanged();
+        modalAdicionar.Show();
     }
 
-    private void ChangePageInfo(int id)
+    private async Task RecarregarTabelaAposGravar()
     {
-        Navigation.NavigateTo($"/AddSocio/{(int)id}");
+        await Task.Delay(500);
+        await CarregarSocios();
     }
+
 }
