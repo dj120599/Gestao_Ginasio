@@ -28,11 +28,8 @@ public class AulaController: Controller
             
             var aulas = await _context.Aulas.
                 Where(a => a.IsDeleted.Equals(false)).
-                //Include(a => a.InstrutorId).
                 Include(a => a.Instrutor).
-                //Include(a => a.ModalidadeId).
                 Include(a => a.Modalidade).
-                //Include(a => a.SalaId).
                 Include(a => a.Sala).
                 ToListAsync();
             
@@ -81,7 +78,7 @@ public class AulaController: Controller
             try
             {
                 await _context.SaveChangesAsync();
-                return Results.Ok("Products Added with Success.");
+                return Results.Ok("Aula adicionada com Successo.");
             }
             catch (Exception e)
             {

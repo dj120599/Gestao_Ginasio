@@ -34,4 +34,28 @@ public class DificuldadeController: Controller
 
         return NotFound();
     }
+    
+    
+    [HttpDelete("dificuldade_softdelete/{id}")]
+    public async Task<IResult> DeleteDificuldade_Soft(int id)
+    {
+        if (id == null)
+            return Results.Empty;
+        
+        if (_context.Dificuldades is not null)
+        {
+            var dificuldade = await _context.Dificuldades.FirstOrDefaultAsync(t => t.Id == id);
+
+            if(dificuldade is null)
+                return Results.NotFound("Dificuldade não foi encontrado");
+            
+            dificuldade.IsDeleted = true;
+            
+            
+            await _context.SaveChangesAsync();
+            
+            return Results.Ok("Dificuldade apagado com Successo.");
+        }
+        return Results.Empty;
+    }
 }

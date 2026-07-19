@@ -68,52 +68,84 @@ public class AulaSocioController : Controller
 
         return NotFound();
     }
-    
-    
+
+
     [HttpPost("/aulasocio")]
     public async Task<IResult> AddSocioToAula([FromBody] AulaSociosDto? aulasocio)
     {
-        if (aulasocio is  null)
+        if (aulasocio is null)
             return Results.BadRequest();
 
-        var mapper = _mapper.Map<Models.AulaSociosDto,Entities.AulaSocios>(aulasocio);
-        mapper.CreatedDate = DateTime.UtcNow;
-        mapper.UpdatedDate = DateTime.UtcNow;
-
-        var aulasocios =  _context.AulaSocios;
+        var aulasocios = _context.AulaSocios;
 
         if (aulasocios is not null)
         {
-            var oldsocios = await _context.AulaSocios.FirstOrDefaultAsync(
-                a => a.AulaId == mapper.AulaId && a.SocioId == mapper.SocioId && a.IsDeleted.Equals(true));
+            var mapper = _mapper.Map<Models.AulaSociosDto, Entities.AulaSocios>(aulasocio);
+            mapper.UpdatedDate = DateTime.UtcNow;
 
-            if (oldsocios != null)
-            {
-                aulasocio.UpdatedDate = DateTime.UtcNow;
-                aulasocio.IsDeleted = false;
-                aulasocio.Adapt(oldsocios);
-            
-                await _context.SaveChangesAsync();
-            
-                return Results.Ok("Socio adicionado á aula com Successo.");
-            }
-            else
-            {
-                aulasocios.Add(mapper);
+            var oldsocios = await _context.AulaSocios.FirstOrDefaultAsync(a => a.AulaId == mapper.AulaId &&
+                                                                               a.SocioId == mapper.SocioId
+                                                                               && a.IsDeleted.Equals(true));
 
-                try
+            bool isopen = AulaIsOpen(mapper).Result;
+            
+            if (isopen)
+            {
+                if (oldsocios != null)
                 {
+                    aulasocio.UpdatedDate = DateTime.UtcNow;
+                    aulasocio.IsDeleted = false;
+                    aulasocio.Adapt(oldsocios);
+
                     await _context.SaveChangesAsync();
-                    return Results.Ok("Socio adicionado á aula com Successo.");
+                    
+                    isopen = AulaIsOpen(mapper).Result;
+
+                    if (isopen == false)
+                    {
+                        var aula = await _context.Aulas.FirstOrDefaultAsync(
+                            a => a.Id == aulasocio.AulaId
+                            && a.IsDeleted.Equals(false));
+                        
+                        aula.IsOpen = false;
+                        await _context.SaveChangesAsync();
+                    }
+                        
+                    
+                    return Results.Ok("Socio adicionado á Aula com Successo.");
+                
                 }
-                catch (Exception e)
+                else
                 {
-                    return Results.NotFound(e.Message);
+                    mapper.CreatedDate = DateTime.UtcNow;
+
+                    aulasocios.Add(mapper);
+
+                    try
+                    {
+                        await _context.SaveChangesAsync();
+                    
+                        isopen = AulaIsOpen(mapper).Result;
+
+                        if (isopen == false)
+                        {
+                            var aula = await _context.Aulas.FirstOrDefaultAsync(
+                                a => a.Id == mapper.AulaId
+                                     && a.IsDeleted.Equals(true));
+                        
+                            aula.IsOpen = false;
+                            await _context.SaveChangesAsync();
+                        }
+                        
+                        return Results.Ok("Socio adicionado á Aula com Successo.");
+                    }
+                    catch (Exception e)
+                    {
+                        return Results.NotFound(e.Message);
+                    }
                 }
             }
-            
         }
-        
         return Results.Empty;
     }
     
@@ -139,8 +171,31 @@ public class AulaSocioController : Controller
             
             await _context.SaveChangesAsync();
             
-            return Results.Ok("Socio apagado com Successo.");
+            return Results.Ok("Aula desistida com Successo.");
         }
         return Results.Empty;
+    }
+
+    private async Task<bool> AulaIsOpen(AulaSocios aulasocio)
+    {
+        bool result = false;
+        
+        var aula = await _context.Aulas.FirstOrDefaultAsync(
+            a => a.Id == aulasocio.AulaId && a.IsDeleted.Equals(false));
+
+        int capacidade = aula.Capacidade;
+            
+        var listasocios = await  _context.AulaSocios.Where(
+                a => a.AulaId == aulasocio.AulaId && a.IsDeleted.Equals(false)).
+            ToListAsync();
+            
+        int inscritos = listasocios.Count();
+
+        if (capacidade > inscritos)
+            result = true;
+        else if (capacidade == inscritos)
+            result = false;
+
+        return result;
     }
 }
