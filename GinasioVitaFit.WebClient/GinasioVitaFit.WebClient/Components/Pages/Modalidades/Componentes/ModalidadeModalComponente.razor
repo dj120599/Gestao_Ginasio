@@ -32,7 +32,7 @@
                     <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
 
                         <h3 class="text-2xl font-bold text-gray-800!">
-                            Adicionar Modalidade
+                            @(IsEdit ? "Editar Modalidade" : "Adicionar Modalidade")
                         </h3>
 
                         <button
@@ -45,7 +45,7 @@
 
                     </div>
                     <div class="p-6! overflow-y-auto max-h-[70vh]">
-                        <EditForm Model="_modalidade" FormName="modalidadeForm" OnValidSubmit="OnAddModalidade">
+                        <EditForm Model="_modalidade" FormName="modalidadeForm" OnValidSubmit="OnModalidade">
                             <DataAnnotationsValidator/>
 
                             <div class="flex flex-col gap-4 p-6">
@@ -163,7 +163,9 @@
                                                             <button type="button"
                                                                     @onclick="() => SelecionarImagemExistente(imgPath)"
                                                                     class="w-16 h-16 rounded-lg border-2 transition-all bg-white p-0.5 cursor-pointer shadow-xs focus:outline-none
-                                       @(isSelected ? "border-amber-500 ring-2 ring-amber-500/75 scale-105" : "border-gray-200 hover:border-amber-400 hover:scale-105")">
+                                                                       @(isSelected ? 
+                                                                           "border-amber-500 ring-2 ring-amber-500/75 scale-105" : 
+                                                                           "border-gray-200 hover:border-amber-400 hover:scale-105")">
 
                                                                 <img
                                                                     src="@(imgPath.StartsWith("/uploads") ? $"https://localhost:7134{imgPath}" : imgPath)"
@@ -190,7 +192,9 @@
 
                                     @if (_saveState == SaveState.Idle)
                                     {
-                                        <span>Adicionar</span>
+                                        <span>
+                                            @(IsEdit ? "Editar" : "Adicionar")
+                                        </span>
                                     }
                                     else if (_saveState == SaveState.Saving)
                                     {
@@ -222,7 +226,7 @@
 @code {
     [Parameter] public List<string> ImagensExistentes { get; set; } = new();
 
-    [Parameter] public EventCallback ModalidadeAdded { get; set; }
+    [Parameter] public EventCallback ModalidadeChanged { get; set; }
 
     private bool _isOpen;
     private bool _isAnimating;
@@ -239,6 +243,7 @@
     private SaveState _saveState = SaveState.Idle;
 
     private Modalidade _modalidade = new();
+    private bool IsEdit => _modalidade.Id > 0;
     private List<Dificuldade> _dificuldades = new();
 
     private string _previewUrl = "/images/modalidade-placeholder.png";
@@ -264,7 +269,7 @@
             ? "cursor-pointer"
             : "cursor-not-allowed";
 
-    public async Task Show()
+    public async Task OpenModal()
     {
         _saveState = SaveState.Idle;
 
@@ -283,6 +288,37 @@
         _isLoading = false;
 
         StateHasChanged();
+    }
+    
+    public async Task Show()
+    {
+        _modalidade = new();
+        _previewUrl = "/images/modalidade-placeholder.png";
+        _saveState = SaveState.Idle;
+
+        await OpenModal();
+    }
+    
+    public async Task Show(Modalidade modalidade)
+    {
+        _saveState = SaveState.Idle;
+
+        _modalidade = new Modalidade
+        {
+            Id = modalidade.Id,
+            Name = modalidade.Name,
+            Description = modalidade.Description,
+            DificuldadeId = modalidade.DificuldadeId,
+            ImageUrl = modalidade.ImageUrl,
+            CreatedDate = modalidade.CreatedDate,
+            UpdatedDate = modalidade.UpdatedDate
+        };
+
+        _previewUrl = modalidade.ImageUrl.StartsWith("/uploads")
+            ? $"https://localhost:7134{modalidade.ImageUrl}"
+            : modalidade.ImageUrl;
+
+        await OpenModal();
     }
 
     public async Task Hide()
@@ -308,23 +344,31 @@
             _dificuldades = dificuldades.Content ?? new List<Dificuldade>();
     }
 
-    private async Task OnAddModalidade()
+    private async Task OnModalidade()
     {
         try
         {
             _saveState = SaveState.Saving;
 
-            await GinasioVitaFitService.AddModalidade(_modalidade);
+            if (IsEdit)
+                await GinasioVitaFitService.UpdateModalidade(_modalidade);
+            else
+                await GinasioVitaFitService.AddModalidade(_modalidade);
 
             _saveState = SaveState.Saved;
 
-            Snackbar.Add("Modalidade guardada com sucesso!", Severity.Success, config =>
-            {
-                config.VisibleStateDuration = 1500;
-                config.HideTransitionDuration = 200;
-            });
+            Snackbar.Add(
+                IsEdit
+                    ? "Modalidade atualizada com sucesso!"
+                    : "Modalidade guardada com sucesso!",
+                Severity.Success,
+                config =>
+                {
+                    config.VisibleStateDuration = 1500;
+                    config.HideTransitionDuration = 200;
+                });
 
-            await ModalidadeAdded.InvokeAsync();
+            await ModalidadeChanged.InvokeAsync();
 
             await Task.Delay(1500);
 

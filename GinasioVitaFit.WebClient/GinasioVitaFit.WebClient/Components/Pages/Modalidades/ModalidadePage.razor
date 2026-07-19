@@ -15,7 +15,7 @@
         </h1>
 
         <button
-            @onclick="AbrirModal"
+            @onclick="AbrirModalAdd"
             class="flex items-center! justify-center! font-bold gap-2 bg-amber-500! hover:bg-amber-600!
                text-white px-5 py-3 rounded-lg shadow-md hover:shadow-lg
                transition-all duration-300">
@@ -98,7 +98,15 @@
                         </p>
                     </div>
 
-                    <div class="flex justify-end mt-auto">
+                    <div class="flex justify-end">
+                        <button
+                            @onclick="() => AbrirModalEdit(modalidade)"
+                            class="p-1 rounded-lg text-slate-700 hover:bg-gray-100!
+                                hover:text-blue-600! transition-colors">
+                            <MudIcon
+                                Icon="@Icons.Material.Outlined.Edit"
+                                class="text-amber-500"/>
+                        </button>
                         <button
                             @onclick="() => OnDeleteModalidade(modalidade.Id)"
                             class="p-1 rounded-lg text-slate-700 hover:bg-gray-100!
@@ -116,14 +124,14 @@
     </div>
 </div>
 
-<AddModalidadeComponente
+<ModalidadeModalComponente
     @ref="_modal"
     ImagensExistentes="_imagensExistentes"
-    ModalidadeAdded="CarregarDados"
+    ModalidadeChanged="CarregarDados"
 />
 
 @code {
-    private AddModalidadeComponente? _modal;
+    private ModalidadeModalComponente? _modal;
 
     private List<Modalidade> _modalidades = new();
     private List<string> _imagensExistentes = new();
@@ -158,9 +166,14 @@
         await CarregarDados();
     }
 
-    private async Task AbrirModal()
+    private async Task AbrirModalAdd()
     {
         await _modal!.Show();
+    }
+
+    private async Task AbrirModalEdit(Modalidade modalidade)
+    {
+        await _modal!.Show(modalidade);
     }
 
     private async Task OnDeleteModalidade(int id)
