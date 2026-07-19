@@ -21,7 +21,7 @@ public class PlanoController: Controller
     }
     
     [HttpGet("/plano")]
-    public async Task<IActionResult> GetCategories()
+    public async Task<IActionResult> GetPlanos()
     {
         if (_context.Planos is not null)
         {
@@ -33,5 +33,29 @@ public class PlanoController: Controller
         }
 
         return NotFound();
+    }
+    
+    
+    [HttpDelete("plano_softdelete/{id}")]
+    public async Task<IResult> DeletePlano_Soft(int id)
+    {
+        if (id == null)
+            return Results.Empty;
+        
+        if (_context.Planos is not null)
+        {
+            var plano = await _context.Planos.FirstOrDefaultAsync(t => t.Id == id);
+
+            if(plano is null)
+                return Results.NotFound("Plano não foi encontrado");
+            
+            plano.IsDeleted = true;
+            
+            
+            await _context.SaveChangesAsync();
+            
+            return Results.Ok("Plano apagado com Successo.");
+        }
+        return Results.Empty;
     }
 }

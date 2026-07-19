@@ -53,34 +53,34 @@ public class InstrutorController: Controller
     
     //Metodo POSt com mapeamento automatico
     [HttpPost("/instrutor")]
-    public async Task<IResult> AddInstrutor([FromBody] InstrutorDto? instrutor)
-    {
-        if (instrutor is  null)
-            return Results.BadRequest();
-        
-        var mapper = _mapper.Map<Models.InstrutorDto,Entities.Instrutor>(instrutor);
-        mapper.CreatedDate = DateTime.UtcNow;
-        mapper.UpdatedDate = DateTime.UtcNow;
-        
-        var instrutores =  _context.Instrutores;
-        
-        if (instrutores is not null)
-        {
-            instrutores.Add(mapper);
-            
-            try
-            {
-                await _context.SaveChangesAsync();
-                return Results.Ok("Instrutor adicionado com Successo.");
-            }
-            catch (Exception e)
-            {
-                return Results.NotFound(e.Message);
-            }
-        }
-        
-        return Results.Empty;
-    }
+       public async Task<IResult> AddInstrutor([FromBody] InstrutorDto? instrutor)
+       {
+           if (instrutor is  null)
+               return Results.BadRequest();
+           
+           var mapper = _mapper.Map<Models.InstrutorDto,Entities.Instrutor>(instrutor);
+           mapper.CreatedDate = DateTime.UtcNow;
+           mapper.UpdatedDate = DateTime.UtcNow;
+           
+           var instrutores =  _context.Instrutores;
+           
+           if (instrutores is not null)
+           {
+               instrutores.Add(mapper);
+               
+               try
+               {
+                   await _context.SaveChangesAsync();
+                   return Results.Ok("Instrutor adicionado com Successo.");
+               }
+               catch (Exception e)
+               {
+                   return Results.NotFound(e.Message);
+               }
+           }
+           
+           return Results.Empty;
+       }
     
     [HttpPut("/instrutor")]
     public async Task<IActionResult> UpdateInstrutor([FromBody] InstrutorDto? instrutor)
@@ -91,7 +91,7 @@ public class InstrutorController: Controller
         if(_context.Instrutores is null)
             return Empty;
 
-        var oldinstrutor = await _context.Aulas.FirstOrDefaultAsync(a => a.Id == instrutor.Id);
+        var oldinstrutor = await _context.Instrutores.FirstOrDefaultAsync(a => a.Id == instrutor.Id);
 
         if(oldinstrutor is null)
             return NotFound("O Instrutor não foi encontrado");
@@ -113,28 +113,38 @@ public class InstrutorController: Controller
         return Ok("Instrutor actualizada com sucesso.");
     }
     
-    [HttpDelete("instrutor_softdelete/{id}")]
-    public async Task<IResult> DeleteInstrutor_Soft(int id)
+    [HttpDelete("/Instrutorsoftdelete/{id}")]
+    public async Task<IResult> DeleteInstructor_Soft(int id)
     {
-        if (id == null)
-            return Results.Empty;
-        
+        if (id <= 0)
+            return Results.BadRequest("ID inválido");
+    
         if (_context.Instrutores is not null)
         {
             var instrutor = await _context.Instrutores.FirstOrDefaultAsync(t => t.Id == id);
-
-            if(instrutor is null)
+    
+            if (instrutor is null)
                 return Results.NotFound("Instrutor não foi encontrado");
-            
+    
+            // Regra em cascata para as aulas
+            if (_context.Aulas is not null)
+            {
+                var aulasDoInstrutor = await _context.Aulas
+                    .Where(a => a.InstrutorId == id && !a.IsDeleted)
+                    .ToListAsync();
+    
+                foreach (var aula in aulasDoInstrutor)
+                {
+                    aula.IsDeleted = true;
+                }
+            }
+    
             instrutor.IsDeleted = true;
-            
-            
             await _context.SaveChangesAsync();
-            
-            return Results.Ok("Instrutor apagado com Successo.");
+    
+            return Results.Ok("Instrutor e aulas desativados.");
         }
-        return Results.Empty;
+    
+        return Results.NotFound("Erro no contexto");
     }
-    
-    
 }

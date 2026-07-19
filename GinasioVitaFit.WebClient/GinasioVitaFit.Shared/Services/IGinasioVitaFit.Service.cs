@@ -5,8 +5,9 @@ namespace GinasioVitaFit.Shared.Services;
 
 public interface IGinasioVitaFitService
 {
+    //Aulas
     [Get("/aulas")]
-    Task<List<Aula>> GetAulas();
+    Task<ApiResponse<List<Aula>>> GetAulas();
     
     [Post("/aula")]
     Task<ApiResponse<Aula>> AddAula([Body] Aula aula);
@@ -15,8 +16,96 @@ public interface IGinasioVitaFitService
     Task<ApiResponse<Aula>> UpdateAula([Body] Aula aula);
     
     [Get("/aula/{id}")]
-    Task<Aula> GetAula(int id);
+    Task<ApiResponse<Aula>> GetAula(int id);
     
-    [Delete("/aula/{id}")]
+    [Delete("/aula_softdelete/{id}")]
     Task<ApiResponse<string>> DeleteAula(int id);
+    
+    //Instrutor
+    [Post("/Instrutor")]
+    Task<HttpResponseMessage> AddInstrutor([Body] Instrutor novoInstrutor);
+    
+    [Get("/instrutores")]
+    Task<ApiResponse<List<Instrutor>>> GetAllInstrutores();
+
+    [Put("/Instrutor")]
+    Task<HttpResponseMessage> UpdateInstrutor([Body] Instrutor instrutor);
+    
+    [Delete("/instrutorsoftdelete/{id}")]
+    Task<HttpResponseMessage> DeleteInstrutorSoft(int id);
+
+    
+    // Modalidade
+
+    [Post("/modalidade")]
+    Task<ApiResponse<string>> AddModalidade([Body] Modalidade modalidade);
+    
+    [Get("/modalidades")]
+    Task<ApiResponse<List<Modalidade>>> GetAllModalidades();
+
+    [Put("/modalidade")]
+    Task<ApiResponse<Modalidade>> UpdateModalidade([Body] Modalidade modalidade);
+    
+    [Put("/modalidade_softdelete/{id}")]
+    Task<ApiResponse<string>> DeleteModalidade_Soft(int id);
+    
+    // Dificuldade
+    
+    [Get("/dificuldades")]
+    Task<ApiResponse<List<Dificuldade>>> GetAllDificuldades();
+    
+    //Aulasocio
+    [Get("//sociosaula/{id}")]
+    Task<ApiResponse<List<AulaSocios>>> GetAllSociosFromAula(int id);
+
+    [Get("/aulassocio/{id}")]
+    Task<ApiResponse<List<AulaSocios>>> GetAllAulasFromSocio(int id);
+
+    [Get("/aulasocio")]
+    Task<ApiResponse<AulaSocios>> GetSocioFromAula(int id, int socio);
+
+    [Post("/aulasocio")]
+    Task<ApiResponse<string>> AddSocioToAula([Body] AulaSocios aulasocio);
+    
+    [Put("/aulasocio_softdelete")]
+    Task<ApiResponse<string>> DeleteSocio_Soft([Body] AulaSocios aulasocio);
+    
+    //Instrutormod
+    [Get("/modalidadesinstr/{id}")]
+    Task<ApiResponse<List<InstrutorMod>>> GetAllModalidadesFromInstrutor(int id);
+
+    [Get("/instrutormods/{id}")]
+    Task<ApiResponse<List<InstrutorMod>>> GetAllInstrutorFromModalidade(int id);
+
+    [Post("/instrutormod")]
+    Task<ApiResponse<InstrutorMod>> AddModalidadeToInstrutor([Body] InstrutorMod? instrutormod);
+
+    [Delete("/instrutormod_softdelete")]
+    Task<ApiResponse<string>> DeleteModalidadeToInstrutor_Soft([Body] InstrutorMod? instrutormod);
+    
+    //Sala
+    [Get("/salas")]
+    Task<ApiResponse<List<Sala>>> GetAllSalas();
+    
+    //Socios
+    
+    [Post("/socio")] 
+    Task<HttpResponseMessage> AddSocio([Body] Socio socio);
+    
+    [Get("/socios")]
+    Task<ApiResponse<List<Socio>>> GetSocios();
+    
+    [Get("/socio/{id}")]
+    Task<ApiResponse<Socio>> GetSocio(int id);
+
+    [Put("/socio")]
+    Task<ApiResponse<Socio>> UpdateSocio([Body] Socio socio);
+
+    [Delete("/socio_softdelete/{id}")]
+    Task<ApiResponse<string>> DeleteSocio_Soft(int id);
+    
+    //Plano
+
+    [Get("/plano")]
+    Task<ApiResponse<List<Plano>>> GetPlanos();
 }
