@@ -43,6 +43,7 @@ public class SocioController: Controller
         if (_context.Socios is not null)
         {
             var socio = await _context.Socios.
+                Include(s => s.Plano).
                 FirstOrDefaultAsync(s => s.Id == id && s.IsDeleted.Equals(false));
             
             if(socio is not null)
@@ -102,6 +103,7 @@ public class SocioController: Controller
         
         try
         {
+            return Ok("Sócio actualizada com sucesso.");
             if (result <= 0)
                 return NotFound("Não foi possivel guardar os dados.");
         }

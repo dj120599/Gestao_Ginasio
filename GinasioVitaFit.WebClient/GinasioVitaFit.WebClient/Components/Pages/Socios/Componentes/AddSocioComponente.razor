@@ -1,0 +1,302 @@
+@using System.ComponentModel.DataAnnotations
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+
+
+@inject IGinasioVitaFitService GinasioService
+@inject ISnackbar Snackbar
+
+@if (_isOpen)
+{
+    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-in-out;">
+        <div class="bg-white rounded-xl shadow-xl    max-w-2xl mx-4 overflow-hidden" style="border-top: 6px solid #FF6B00; color: black;" @onclick:stopPropagation>
+        
+        @if (_isLoading)
+        {
+            <div class="flex flex-col items-center justify-center py-20">
+
+                <div
+                    class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+
+                <p class="mt-4 text-gray-500">
+                    A carregar...
+                </p>
+
+            </div>
+        }
+        else
+        {
+
+            <MudContainer MaxWidth="MaxWidth.Medium" Class="border-none" Elevation="0">
+                    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                        <h3 class="text-xl font-bold text-gray-800">
+                            <MudIcon Icon="@(_isEdicao ? Icons.Material.Filled.Edit : Icons.Material.Filled.PersonAdd)" Class="mr-2" Style="color: #FF6B00;"/>
+                            @(_isEdicao ? "Editar" : "Registar Novo") Sócios
+                        </h3>
+
+                        <button type="button" @onclick="Hide" class="p-2 text-amber-400 over:text-amber-700 transition cursor-pointer">
+                            <MudIcon Icon="@Icons.Material.Filled.Close"/>
+                        </button>
+                    </div>
+                    <MudCardContent>
+                        <MudForm @ref="form">
+                            <MudGrid>
+
+                                <!-- 1. Nome Completo -->
+                                <MudItem xs="12">
+                                    <MudTextField T="string"
+                                                  Label="Nome Completo"
+                                                  Required="true"
+                                                  RequiredError="O nome do sócio é obrigatório!"
+                                                  @bind-Value="novoSocio.Name"
+                                                  Adornment="Adornment.Start"
+                                                  AdornmentIcon="@Icons.Material.Filled.Person"/>
+                                </MudItem>
+
+                                <!-- 2. Email com Validação -->
+                                <MudItem xs="12" sm="6">
+                                    <MudTextField T="string"
+                                                  Label="Email"
+                                                  Validation="@(new EmailAddressAttribute { ErrorMessage = @"The email address is invalid" })"
+                                                  Required="true"
+                                                  RequiredError="O email é obrigatório!"
+                                                  @bind-Value="novoSocio.Email"
+                                                  Adornment="Adornment.Start"
+                                                  AdornmentIcon="@Icons.Material.Filled.Email"/>
+                                </MudItem>
+
+                                <!-- 3. Contacto Telefónico -->
+                                <MudItem xs="12" sm="6">
+                                    <MudTextField T="string"
+                                                  Label="Contacto Telefónico"
+                                                  Required="true"
+                                                  RequiredError="O contacto é obrigatório!"
+                                                  @bind-Value="novoSocio.Contacto"
+                                                  Adornment="Adornment.Start"
+                                                  AdornmentIcon="@Icons.Material.Filled.Phone"/>
+                                </MudItem>
+
+                                <!-- 4. Data de Nascimento -->
+                                <MudItem xs="12" sm="6">
+                                    <MudDatePicker Label="Data de Nascimento"
+                                                   Required="true"
+                                                   RequiredError="A data de nascimento é obrigatória!"
+                                                   @bind-Date="dataNascimentoAux"
+                                                   Adornment="Adornment.Start"
+                                                   AdornmentIcon="@Icons.Material.Filled.Cake"/>
+                                </MudItem>
+
+                                <!-- 5. Dropdown para selecionar o ID do Plano -->
+                                <MudItem xs="12" sm="6">
+                                    <MudSelect T="Plano"
+                                               Label="Plano"
+                                               Required="true"
+                                               RequiredError="Selecione um plano!"
+                                               @bind-Value="_plan"
+                                               Text="@_plantext"
+                                               Adornment="Adornment.Start"
+                                               AdornmentIcon="@Icons.Material.Filled.CardMembership">
+                                        @foreach (var pl in _planos)
+                                        {
+                                            <MudSelectItem Value="@pl">@pl.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+
+                            </MudGrid>
+                        </MudForm>
+                    </MudCardContent>
+
+
+                    <MudCardActions Class="d-flex justify-center mt-4">
+                        <MudButton Variant="Variant.Filled"
+                                   Align="Align.Right"
+                                   Style="background-color: #FF6B00; color: white; font-weight: bold; border-radius: 6px;"
+                                   Size="Size.Large"
+                                   StartIcon="@Icons.Material.Filled.Save"
+                                   OnClick="SubmeterFormulario">
+                            Gravar Sócio
+                        </MudButton>
+                    </MudCardActions>
+            </MudContainer>
+        }
+    </div>
+    </div>
+}
+
+@code {
+    private MudForm form = default!;
+    private Socio novoSocio = new Socio { ImageUrl = "default.png" };
+    private List<Plano> _planos = new List<Plano>();
+
+    private string _plantext;
+    private Plano _plan = new Plano();
+    
+    // Variável auxiliar porque o MudDatePicker trabalha com DateTime? e o vosso modelo usa DateOnly
+    private DateTime? dataNascimentoAux;
+
+    private bool _isOpen = false;
+    private bool _isLoading = false;
+    private bool _loaded = false;
+    private bool _isEdicao = false;
+    private bool _isAnimating = false;
+
+    private enum SaveState
+    {
+        Idle,
+        Saving,
+        Saved
+    }
+
+    private SaveState _saveState = SaveState.Idle;
+
+    private string OverlayClass =>
+        $"fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 " +
+        $"{(_isAnimating ? "opacity-100" : "opacity-0")}";
+
+    private string ModalClass =>
+        $"transition-all duration-300 ease-out " +
+        $"{(_isAnimating
+            ? "opacity-100 scale-100 translate-y-0"
+            : "opacity-0 scale-95 translate-y-6")}";
+
+    private string LoadingSave =>
+        $"{(_saveState == SaveState.Idle ? "bg-amber-500! hover:bg-amber-600!" : "")}" +
+        $"{(_saveState == SaveState.Saving ? "bg-amber-300!" : "")}" +
+        $"{(_saveState == SaveState.Saved ? "bg-emerald-400!" : "")}";
+
+    private string ButtonCursor =>
+        _saveState == SaveState.Idle
+            ? "cursor-pointer"
+            : "cursor-not-allowed";
+    
+    [Parameter] public EventCallback OnSubmetido { get; set; }
+
+    private async Task CarregarDados()
+    {
+        var planos = await GinasioService.GetPlanos();
+
+        if (planos.IsSuccessStatusCode)
+            _planos = planos.Content ?? new List<Plano>();
+        
+            
+    }
+
+    public async Task Show()
+    {
+        _saveState = SaveState.Idle;
+
+        _isOpen = true;
+        _isLoading = true;
+        _isAnimating = true;
+        _isEdicao = false;
+
+        StateHasChanged();
+
+        if (!_loaded)
+        {
+            await CarregarDados();
+            _loaded = true;
+        }
+
+        novoSocio = new Socio() { ImageUrl = "default.png" };
+        dataNascimentoAux = DateTime.Now;
+        
+        _plantext = "Anual";
+        novoSocio.PlanoId = 1;
+        _isLoading = false;
+        
+        StateHasChanged();
+    }
+    
+
+    public  async Task ShowEditar(Socio EditSocio)
+    {
+        _saveState = SaveState.Idle;
+        
+        _isEdicao = true;
+        _isOpen = true;
+        _isLoading = true;
+        _isAnimating = true;
+        
+        novoSocio = EditSocio;
+       
+        if (!_loaded)
+        {
+            await CarregarDados();
+            _loaded = true;
+        }
+    
+        if(_isEdicao)
+            dataNascimentoAux = novoSocio.Nascimento.ToDateTime(TimeOnly.MinValue);
+
+        _plantext = novoSocio.Plano.Name;
+        _plan = novoSocio.Plano;
+        
+        StateHasChanged();
+    }
+
+    public async Task Hide()
+    {
+        _isAnimating = false;
+        StateHasChanged();
+
+        await Task.Delay(300);
+
+        _isOpen = false;
+
+        novoSocio = new();
+        StateHasChanged();
+    }
+
+// Como o EditForm só dispara este método se o formulário for 100% válido, removemos a validação manual antiga!
+    private async Task SubmeterFormulario()
+    {
+            
+        _isLoading = true;
+        StateHasChanged();
+        
+        Socio resultsocio = novoSocio;
+        resultsocio.Nascimento = DateOnly.FromDateTime(dataNascimentoAux.Value);
+        resultsocio.PlanoId = _plan.Id;
+        
+        if (resultsocio.Plano != null)
+        {
+            resultsocio.Plano = null;
+        }
+
+        try
+        {
+            HttpResponseMessage? resposta;
+            
+            if (_isEdicao)
+            {
+                resposta = await GinasioService.UpdateSocio(resultsocio);
+            }
+            else
+            {
+                resposta = await GinasioService.AddSocio(resultsocio);
+            }      
+                            
+            if (resposta != null && resposta.IsSuccessStatusCode)
+            {
+                Snackbar.Add(_isEdicao ? "Dados atualizados com sucesso!" : "Socio registado com sucesso!", Severity.Success);
+                await Task.Delay(500);
+                _isOpen = false;
+                await OnSubmetido.InvokeAsync();
+            }
+            else
+            {
+                Snackbar.Add("Erro ao comunicar com a API", Severity.Error);
+                _isLoading = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+            _isLoading = false;
+        }
+
+        StateHasChanged();
+    }
+}
