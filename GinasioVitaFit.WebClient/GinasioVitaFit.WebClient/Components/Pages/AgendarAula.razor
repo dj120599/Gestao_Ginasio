@@ -13,7 +13,7 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8 mb-5" >
     <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Warning"><b>Agendar Aulas</b></MudText>
     <MudItem xs="12" sm="4" Class="mb-5">
-        <MudSelect T="Socio" ValueChanged="OnValueChanged"  Label="Socios" Placeholder="Escolha um Sócio." Required="true">
+        <MudSelect T="Socio" ValueChanged="OnValueChanged" AdornmentColor="Color.Warning"  Label="Socios"  Placeholder="Escolha um Sócio." Required="true">
             @foreach (Socio selectItem in _listaSocios)
             {
                 <MudSelectItem T="Socio" Value="@(selectItem)">@selectItem.Name</MudSelectItem>
@@ -48,14 +48,6 @@
                     @context.Item.Inicio.ToString("HH:mm")
                 </CellTemplate>
             </TemplateColumn>
-            <!--
-            
-            <TemplateColumn Title="Início">
-                <CellTemplate>
-                    @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
-                </CellTemplate>
-            </TemplateColumn>
-            -->
             <TemplateColumn Title="Fim">
                 <CellTemplate>
                     @context.Item.Fim.ToString("HH:mm")
@@ -80,6 +72,7 @@
                     <MudIconButton Size="Size.Small"
                                    Icon="@Icons.Material.Filled.Add"
                                    Color="Color.Success"
+                                   Disabled="@OpenAula(context.Item)"
                                    OnClick="@(() => AdicionarAula(context.Item))" />
                 </CellTemplate>
             </TemplateColumn>
@@ -118,28 +111,9 @@
                     @context.Item.Inicio.ToString("HH:mm")
                 </CellTemplate>
             </TemplateColumn>
-            <!--
-            <TemplateColumn Title="Início">
-                <CellTemplate>
-                    @context.Item.Inicio.ToString("dd/MM/yyyy HH:mm")
-                </CellTemplate>
-            </TemplateColumn>
-            -->
             <TemplateColumn Title="Fim">
                 <CellTemplate>
                     @context.Item.Fim.ToString("HH:mm")
-                </CellTemplate>
-            </TemplateColumn>
-            <TemplateColumn Title="Aberto">
-                <CellTemplate >
-                    @if (@context.Item.IsOpen)
-                    {
-                        <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Warning"/>
-                    }
-                    else
-                    {
-                        <MudIcon Icon="@Icons.Material.Filled.Close"  Color="Color.Warning"/>
-                    }
                 </CellTemplate>
             </TemplateColumn>
 
@@ -163,7 +137,9 @@
 </MudContainer>
 
 @code {
-    public int Id { get; set; }
+    
+    [Parameter]
+    public int? Id { get; set; }
 
     private List<Aula> _listaAulas1 = new List<Aula>();
     private List<Aula> _listaAulas2 = new List<Aula>();
@@ -172,6 +148,8 @@
     private Socio _socio;
     private string _pesquisa = "";
     private string _pesquisa2 = "";
+    
+    private List<bool> _listabool = new List<bool>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -235,7 +213,7 @@
             AulaSocios aulaSocios = new AulaSocios
             {
                 AulaId = aula.Id,
-                SocioId = Id,
+                SocioId = Id.Value,
                 IsDeleted = false,
                 CreatedDate = DateTime.UtcNow,
                 UpdatedDate = DateTime.UtcNow
@@ -291,7 +269,7 @@
             AulaSocios aulaSocios = new AulaSocios
             {
                 AulaId = aula.Id,
-                SocioId = Id,
+                SocioId = Id.Value,
                 IsDeleted = false
             };
 
@@ -325,11 +303,12 @@
     private async void UpdateLists()
     {
         _listaAulas2.Clear();
+        _listabool.Clear();
         
         var aulas = await VitaFitDbContext.GetAulas();
         _listaAulas1 = aulas.Content ?? new List<Aula>();
         
-        var aulas2 = await VitaFitDbContext.GetAllAulasFromSocio(Id);
+        var aulas2 = await VitaFitDbContext.GetAllAulasFromSocio(Id.Value);
         var aulsocios = aulas2.Content ?? new List<AulaSocios>();
 
         if (aulsocios != null)
@@ -352,11 +331,35 @@
                         (_listaAulas1[i].Sala.Name == aul.Sala.Name))
                     {
                         _listaAulas1.RemoveAt(i);
+
                     }
                 }
             }
-                
         }
         StateHasChanged();
+    }
+
+    private bool OpenAula(Aula aula)
+    {
+        bool result = false;
+            
+            if (Id.HasValue && aula.IsOpen)
+            {
+                result = false;
+            }
+            else if (Id.HasValue)
+            {
+                result = true;
+            }
+            else if (aula.IsOpen)
+            {
+                result = true;
+            }
+            else
+            {
+                result = true;
+            }
+
+        return result;
     }
 }
