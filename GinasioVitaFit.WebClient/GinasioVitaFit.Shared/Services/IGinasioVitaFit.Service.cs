@@ -9,11 +9,11 @@ public interface IGinasioVitaFitService
     [Get("/aulas")]
     Task<ApiResponse<List<Aula>>> GetAulas();
     
-    [Post("/aula")]
-    Task<ApiResponse<Aula>> AddAula([Body] Aula aula);
+    [Post("/Aula")]
+    Task<HttpResponseMessage> AddAula([Body] Aula aula);
     
-    [Put("/aula")]
-    Task<ApiResponse<Aula>> UpdateAula([Body] Aula aula);
+    [Put("/Aula")]
+    Task<HttpResponseMessage> UpdateAula([Body] Aula aula);
     
     [Get("/aula/{id}")]
     Task<ApiResponse<Aula>> GetAula(int id);
