@@ -1,0 +1,170 @@
+@page "/AulasPage"
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using MudBlazor
+@inject IGinasioVitaFitService GinasioService
+@inject ISnackbar Snackbar
+@rendermode InteractiveServer
+
+<MudThemeProvider Theme="@temaLaranja" />
+<MudSnackbarProvider />
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    
+    <!-- CABEÇALHO SUPERIOR LARANJA -->
+    <div style="background: white; border-top: 6px solid #FF6B00; border-radius: 8px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 24px;">
+        <div class="d-flex justify-space-between align-center">
+            <div>
+                <MudText Typo="Typo.h4" Style="color: #FF6B00; font-weight: bold;">Horário de Aulas</MudText>
+                <MudText Typo="Typo.subtitle2" Style="color: #333333; font-weight: 500;">Planeie o mapa de aulas e faça a gestão das vagas disponíveis</MudText>
+            </div>
+            
+            <MudButton Variant="Variant.Filled" 
+                       Style="background-color: #FF6B00; color: white; font-weight: bold; min-width: 180px;" 
+                       OnClick="AbrirModalAgendamento"
+                       StartIcon="@Icons.Material.Filled.CalendarMonth">
+                + AGENDAR AULA
+            </MudButton>
+        </div>
+    </div>
+
+    <!-- INJEÇÃO DO COMPONENTE ARTESANAL COM CAMINHO TRANCADO -->
+    <GinasioVitaFit.WebClient.Components.Pages.Aulas.Componentes.AddAulasComponente 
+        @ref="modalAgendar" 
+        OnSubmetido="RecarregarGradeHorario" />
+
+    <!-- TABELA MAPA DE HORÁRIOS -->
+    <div style="background: white; border-radius: 8px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <MudDataGrid Items="@listaAulas" Filterable="true" SortMode="SortMode.Multiple">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6" Style="color: #333; font-weight: bold;">Aulas Agendadas</MudText>
+                <MudSpacer />
+            </ToolBarContent>
+            <Columns>
+                <!-- 1. Data da Aula -->
+                <TemplateColumn Title="Data">
+                    <CellTemplate>
+                        @context.Item.Inicio.ToString("dd/MM/yyyy")
+                    </CellTemplate>
+                </TemplateColumn>
+
+                <!-- 2. Horário de Início e Fim -->
+                <TemplateColumn Title="Horário">
+                    <CellTemplate>
+                        @($"{context.Item.Inicio.ToString("HH:mm")} - {context.Item.Fim.ToString("HH:mm")}")
+                    </CellTemplate>
+                </TemplateColumn>
+
+                <!-- 3. CORREÇÃO: Nova Coluna da Modalidade (Usa a propriedade estrangeira que o teu colega criou) -->
+                <TemplateColumn Title="Modalidade">
+                    <CellTemplate>
+                        @(context.Item.Modalidade != null ? context.Item.Modalidade.Name : $"Cód. {context.Item.ModalidadeId}")
+                    </CellTemplate>
+                </TemplateColumn>
+
+                <!-- 4. CORREÇÃO: Nova Coluna do Instrutor (Usa a propriedade estrangeira Name ou Nome do instrutor) -->
+                <TemplateColumn Title="Instrutor">
+                    <CellTemplate>
+                        @(context.Item.Instrutor != null ? context.Item.Instrutor.Name : $"Cód. {context.Item.InstrutorId}")
+                    </CellTemplate>
+                </TemplateColumn>
+
+                <!-- 5. Vagas Totais -->
+                <PropertyColumn Property="x => x.Capacidade" Title="Vagas Totais" />
+
+                <!-- 6. Ações (Editar e Apagar) -->
+                <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
+                    <CellTemplate>
+                        <div class="d-flex gap-2">
+                            <MudIconButton Size="Size.Small"
+                                           Icon="@Icons.Material.Filled.Edit"
+                                           Style="color: #FF6B00;"
+                                           OnClick="@(() => modalAgendar.ShowEditar(context.Item))" />
+
+                            <MudIconButton Size="Size.Small"
+                                           Icon="@Icons.Material.Filled.Delete"
+                                           Style="color: #666666;"
+                                           OnClick="@(() => ExecutarEliminacaoReal(context.Item.Id))" />
+                        </div>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </div>
+</MudContainer>
+
+@code {
+    private List<Aula> listaAulas = new();
+    private GinasioVitaFit.WebClient.Components.Pages.Aulas.Componentes.AddAulasComponente modalAgendar = default!;
+
+    private MudTheme temaLaranja = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#FF6B00",
+            Success = "#4CAF50",
+            Error = "#FF6B00"
+        }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarAulas();
+    }
+
+    private async Task CarregarAulas()
+    {
+        try
+        {
+            var resposta = await GinasioService.GetAulas();
+            if (resposta != null && resposta.IsSuccessStatusCode)
+            {
+                listaAulas = resposta.Content?.Where(a => !a.IsDeleted).ToList() ?? new();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Aviso de rede: {ex.Message}", Severity.Info);
+        }
+    }
+
+    private async Task AbrirModalAgendamento()
+    {
+        await modalAgendar.Show();
+    }
+
+    private async Task RecarregarGradeHorario()
+    {
+        await Task.Delay(500);
+        await CarregarAulas();
+    }
+
+    private async Task ExecutarEliminacaoReal(int idAula)
+    {
+        try
+        {
+            // 1. CHAMA O SERVICE REAL: Usa o método exato de apagar que está no teu IGinasioVitaFitService (ex: DeleteAula)
+            var resposta = await GinasioService.DeleteAula(idAula);
+            
+            if (resposta != null && resposta.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Aula cancelada com sucesso!", Severity.Success);
+                
+               
+                await Task.Delay(500); 
+                await CarregarAulas();
+            }
+            else
+            {
+                var erroTexto = resposta?.ReasonPhrase ?? "Erro desconhecido";
+                Snackbar.Add($"Erro ao cancelar: {erroTexto}", Severity.Error);
+                await CarregarAulas();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro na eliminação: {ex.Message}", Severity.Error);
+            await CarregarAulas();
+        }
+    }
+}
