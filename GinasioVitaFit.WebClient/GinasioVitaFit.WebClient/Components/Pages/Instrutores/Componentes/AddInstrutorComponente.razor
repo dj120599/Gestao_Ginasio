@@ -43,11 +43,23 @@
                     <MudItem xs="12" sm="6">
                         <MudTextField T="string" Label="Contacto" @bind-Value="novoInstrutor.Contacto" For="@(() => novoInstrutor.Contacto)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Phone" />
                     </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="Modalidade" Label="Modalidades"
+                                   MultiSelection="true"
+                                   SelectedValues="_chosenMods"
+                                   ToStringFunc="modalidade => modalidade.Name"
+                                   Adornment="Adornment.Start"
+                                   AdornmentIcon="@Icons.Material.Filled.Phone">
+                            @foreach (Modalidade mod in _listMod)
+                            {
+                                <MudSelectItem T="Modalidade" Value="@mod">@mod.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
                 </MudGrid>
             </div>
 
             <div class="flex justify-end gap-4 px-6 py-4 border-t border-gray-100 bg-gray-50">
-                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Hide" Style="border-radius: 6px; font-weight: bold;">Cancelar</MudButton>
                 <!-- O botão agora é do tipo submit para acionar o EditForm automaticamente -->
                 <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Style="background-color: #FF6B00; color: white; font-weight: bold; border-radius: 6px;" StartIcon="@Icons.Material.Filled.Save">
                     @(_isEdicao ? "Atualizar" : "Gravar")
@@ -66,33 +78,58 @@
     private bool _isLoading = false;
     private bool _isEdicao = false;
 
-    [Parameter] public EventCallback OnSubmetido { get; set; }
+    private List<Modalidade> _listMod = new List<Modalidade>();
+    private List<Modalidade> _chosenMods = new List<Modalidade>();
 
+    [Parameter] public EventCallback OnSubmetido { get; set; }
+    
     public void Show()
     {
         _isEdicao = false;
         _isOpen = true;
         _isLoading = false;
         novoInstrutor = new Instrutor { ImageUrl = "default.png" };
+        CarregarDados();
         StateHasChanged();
     }
 
-    public void ShowEditar(Instrutor instrutorParaEditar)
+    public async Task ShowEditar(Instrutor instrutorParaEditar)
     {
         _isEdicao = true;
         _isOpen = true;
         _isLoading = false;
 
-        novoInstrutor = new Instrutor
+        novoInstrutor = instrutorParaEditar;
+        
+
+        if (_isEdicao)
         {
-            Id = instrutorParaEditar.Id,
-            Name = instrutorParaEditar.Name,
-            Email = instrutorParaEditar.Email,
-            Contacto = instrutorParaEditar.Contacto,
-            ImageUrl = instrutorParaEditar.ImageUrl,
-            IsDeleted = instrutorParaEditar.IsDeleted
-        };
+            var mods = await GinasioService.GetAllModalidadesFromInstrutor(novoInstrutor.Id);
+
+            if (mods.IsSuccessStatusCode)
+            {
+                List<InstrutorMod> instMods = mods.Content ?? new List<InstrutorMod>();
+                foreach (var im in instMods)
+                {
+                    var mod = await GinasioService.GetModalidade(im.ModalidadeId);
+                    Modalidade resultmod = mod.Content ?? new Modalidade();
+                    
+                    _chosenMods.Add(resultmod);
+                }
+            }
+        }
+        
+        await CarregarDados();
         StateHasChanged();
+    }
+
+    private async Task CarregarDados()
+    {
+        var mods = await GinasioService.GetAllModalidades();
+
+        if (mods.IsSuccessStatusCode)
+            _listMod = mods.Content ?? new List<Modalidade>();
+            
     }
 
     public void Hide()
@@ -104,6 +141,8 @@
 // Como o EditForm só dispara este método se o formulário for 100% válido, removemos a validação manual antiga!
     private async Task SubmeterFormulario()
     {
+        List<InstrutorMod> ModalidadesToSend = new List<InstrutorMod>();
+        
         _isLoading = true;
         StateHasChanged();
 
@@ -112,13 +151,31 @@
             HttpResponseMessage? resposta;
 
             if (_isEdicao)
+            {
                 resposta = await GinasioService.UpdateInstrutor(novoInstrutor);
+            }
             else
+            {
                 resposta = await GinasioService.AddInstrutor(novoInstrutor);
+                
+                /*
+                foreach (Modalidade cm in _chosenMods)
+                {
+                    InstrutorMod im = new InstrutorMod()
+                    {
+                    
+                    };
+                    
+                    ModalidadesToSend.Add(im);
+                }
+                */
+            }
 
             if (resposta != null && resposta.IsSuccessStatusCode)
             {
                 Snackbar.Add(_isEdicao ? "Dados atualizados com sucesso!" : "Instrutor registado com sucesso!", Severity.Success);
+
+                
                 await Task.Delay(500);
                 _isOpen = false;
                 await OnSubmetido.InvokeAsync();
@@ -137,5 +194,4 @@
 
         StateHasChanged();
     }
-
 }
