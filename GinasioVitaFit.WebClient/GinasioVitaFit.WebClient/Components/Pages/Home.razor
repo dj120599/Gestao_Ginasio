@@ -1,88 +1,141 @@
 ﻿@page "/"
 @using MudBlazor
 @rendermode InteractiveServer
+@inject NavigationManager Navigation
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
-    <MudText Typo="Typo.h4" Class="mb-6" Color="Color.Primary"><b>Dashboard Geral VitaFit</b></MudText>
-
-    <!-- 1. Linha de Indicadores Rápidos (KPIs) -->
-    <MudGrid Class="mb-6">
-        <MudItem xs="12" sm="6" md="4">
-            <MudPaper Class="pa-4 d-flex align-center justify-space-between rounded-lg" Elevation="3" Style="background: linear-gradient(135deg, #1E88E5, #1565C0); color: white;">
-                <div>
-                    <MudText Typo="Typo.subtitle1">Sócios Ativos</MudText>
-                    <MudText Typo="Typo.h3"><b>@totalSociosAtivos</b></MudText>
-                </div>
-                <MudIcon Icon="@Icons.Material.Filled.CardMembership" Style="font-size: 3rem; opacity: 0.5;" />
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4">
-            <MudPaper Class="pa-4 d-flex align-center justify-space-between rounded-lg" Elevation="3" Style="background: linear-gradient(135deg, #4CAF50, #2E7D32); color: white;">
-                <div>
-                    <MudText Typo="Typo.subtitle1">Total de Aulas</MudText>
-                    <MudText Typo="Typo.h3"><b>@totalAulas</b></MudText>
-                </div>
-                <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Style="font-size: 3rem; opacity: 0.5;" />
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4">
-            <MudPaper Class="pa-4 d-flex align-center justify-space-between rounded-lg" Elevation="3" Style="background: linear-gradient(135deg, #FF9800, #E65100); color: white;">
-                <div>
-                    <MudText Typo="Typo.subtitle1">Ocupação Média</MudText>
-                    <MudText Typo="Typo.h3"><b>@taxaOcupacaoMedia%</b></MudText>
-                </div>
-                <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Style="font-size: 3rem; opacity: 0.5;" />
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-6 mb-8">
+    
+    <div class="d-flex align-center justify-space-between mb-6">
+        <div>
+            <MudText Typo="Typo.h4" Class="font-weight-bold" Style="color: #212121; font-family: 'Poppins', sans-serif;">
+                Dashboard Geral <span style="color: #FF6B00;">VitaFit</span>
+            </MudText>
+            <MudText Typo="Typo.body2" Style="color: #666666;">
+                Métricas em tempo real e controlo de inscrições.
+            </MudText>
+        </div>
+        <div class="d-flex align-center">
+            <MudIcon Icon="@Icons.Material.Filled.Notifications" Class="mr-4" Style="color: #00B0FF;" />
+            <MudAvatar Color="Color.Primary" Size="Size.Medium" Class="mr-2">VF</MudAvatar>
+            <MudText Typo="Typo.body2" Class="font-weight-bold" Style="color: #212121;">
+                Gestor VitaFit
+            </MudText>
+        </div>
+    </div>
 
     <MudGrid>
-        <!-- Top 5 Aulas - Maior Ocupação -->
-        <MudItem xs="12" md="6">
-            <MudPaper Class="pa-4 rounded-lg" Elevation="3">
-                <MudText Typo="Typo.h6" Class="mb-3" Color="Color.Primary"><b>Top 5 Aulas - Maior Ocupação</b></MudText>
-                <MudSimpleTable Style="overflow-x: auto;">
-                    <thead>
-                    <tr>
-                        <th>Modalidade</th>
-                        <th>Inscrições / Vagas</th>
-                        <th>Taxa %</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var aula in topAulas)
-                    {
-                    <tr>
-                        <td>@aula.Nome</td>
-                        <td>@aula.Inscritos / @aula.Capacidade</td>
-                        <td>
-                            <MudProgressLinear Color="@aula.Cor" Value="@aula.Percentagem" Class="my-2" Size="Size.Medium" />
-                            <MudText Typo="Typo.caption"><b>@aula.Percentagem%</b></MudText>
-                        </td>
-                    </tr>
-                    }
-                    </tbody>
-                </MudSimpleTable>
-            </MudPaper>
+        <MudItem xs="12" md="8">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Class="pa-6 rounded-xl d-flex align-center justify-space-between" Style="background: linear-gradient(135deg, #FFF0E6 0%, #E6F8FF 100%); border: 1px solid #FFE0CC; position: relative; overflow: hidden; height: 180px;" Elevation="2">
+                        <div style="z-index: 2; max-width: 65%; margin-top: 25px;">
+                            <MudText Typo="Typo.h5" Class="font-weight-bold mb-2" Style="color: #212121;">Área Administrativa VitaFit</MudText>
+                            <MudButton Variant="Variant.Filled" Style="background-color: #FF6B00; color: #FFFFFF;" Class="rounded-pill px-5 mt-1 font-weight-bold" Size="Size.Medium" OnClick="IrParaModalidades">
+                                Ver Detalhes
+                            </MudButton>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Style="position: absolute; right: 20px; top: 20px; font-size: 140px; color: #FF6B00; opacity: 0.15;" />
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudPaper Class="pa-4 rounded-xl d-flex align-center justify-space-between" Style="background-color: #FFFFFF; border: 1px solid #E0E0E0;" Elevation="2">
+                        <div>
+                            <MudText Typo="Typo.caption" Style="color: #666666;" Class="font-weight-medium">Sócios Ativos</MudText>
+                            <MudText Typo="Typo.h5" Class="font-weight-bold mt-1" Style="color: #FF6B00;">@totalSociosAtivos</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.People" Style="color: #00B0FF;" Size="Size.Large" />
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudPaper Class="pa-4 rounded-xl d-flex align-center justify-space-between" Style="background-color: #FFFFFF; border: 1px solid #E0E0E0;" Elevation="2">
+                        <div>
+                            <MudText Typo="Typo.caption" Style="color: #666666;" Class="font-weight-medium">Total Aulas Hoje</MudText>
+                            <MudText Typo="Typo.h5" Class="font-weight-bold mt-1" Style="color: #212121;">@totalAulas</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Style="color: #FF6B00;" Size="Size.Large" />
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudPaper Class="pa-4 rounded-xl d-flex align-center justify-space-between" Style="background-color: #FFFFFF; border: 1px solid #E0E0E0;" Elevation="2">
+                        <div>
+                            <MudText Typo="Typo.caption" Style="color: #666666;" Class="font-weight-medium">Ocupação Geral</MudText>
+                            <MudText Typo="Typo.h5" Class="font-weight-bold mt-1" Style="color: #00B0FF;">@taxaOcupacaoMedia%</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.Analytics" Style="color: #FF6B00;" Size="Size.Large" />
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" Class="mt-2">
+                    <div class="d-flex align-center justify-space-between mb-3">
+                        <MudText Typo="Typo.subtitle1" Class="font-weight-bold" Style="color: #212121;">🔥 Top 5 Aulas - Maior Ocupação</MudText>
+                        <MudText Typo="Typo.caption" Style="color: #00B0FF;" Class="font-weight-bold">Tempo Real</MudText>
+                    </div>
+                    <MudGrid>
+                        @foreach (AulaOcupacao aula in topAulas)
+                        {
+                            <MudItem xs="12" sm="6" md="4">
+                                <MudPaper Class="rounded-xl overflow-hidden" Style="background-color: #FFFFFF; border: 1px solid #E2E8F0; height: 100%; min-height: 230px;" Elevation="2">
+                                    <div class="d-flex align-center justify-center" style="width: 100%; height: 100px; background-color: #F8F9FA; position: relative; border-bottom: 1px solid #E2E8F0;">
+                                        <MudIcon Icon="@aula.IconeModalidade" Size="Size.Large" Style="@($"color: {GetColorHex(aula.Cor)}; opacity: 0.7; font-size: 40px;")" />
+                                        <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.65); padding: 2px 10px; border-radius: 20px;">
+                                            <MudText Typo="Typo.caption" Style="color: #00E5FF;" Class="font-weight-bold">@aula.Percentagem% Lotação</MudText>
+                                        </div>
+                                    </div>
+                                    <div class="pa-4">
+                                        <MudText Typo="Typo.body1" Class="font-weight-bold text-truncate" Style="color: #212121;">@aula.Nome</MudText>
+                                        <MudText Typo="Typo.caption" Style="color: #666666;" Class="d-block mb-3">👤 @aula.Instrutor</MudText>
+                                        <MudProgressLinear Color="@aula.Cor" Value="@aula.Percentagem" Class="rounded-pill" Size="Size.Small" />
+                                    </div>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                    </MudGrid>
+                </MudItem>
+            </MudGrid>
         </MudItem>
 
-        <!-- Inscrições por Modalidade (Gráfico Donut) -->
-        <MudItem xs="12" md="6">
-            <MudPaper Class="pa-4 rounded-lg" Elevation="3">
-                <MudText Typo="Typo.h6" Class="mb-3" Color="Color.Primary"><b>Inscrições por Modalidade</b></MudText>
-                <MudChart T="double"
-                          ChartType="ChartType.Donut"
-                          Width="300px"
-                          Height="300px"
-                          InputData="@graficoDados"
-                          InputLabels="@graficoEtiquetas">
-                    <CustomGraphics>
-                        <text class="donut-title" x="40%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" style="font-size: 14px; font-weight: bold;">Total</text>
-                        <text class="donut-sub" x="40%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="gray" style="font-size: 18px; font-weight: bold;">@VerObterSoma()</text>
-                    </CustomGraphics>
-                </MudChart>
+        <MudItem xs="12" md="4">
+            <MudPaper Class="pa-5 rounded-xl d-flex flex-column justify-space-between" Style="background-color: #FFFFFF; border: 1px solid #E2E8F0; min-height: 495px; height: 100%;" Elevation="2">
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="font-weight-bold mb-1" Style="color: #212121;">📊 Inscrições por Modalidade</MudText>
+                    <MudText Typo="Typo.caption" Style="color: #666666;">As modalidades com mais inscrições no sistema.</MudText>
+                </div>
+
+                <div class="d-flex justify-center align-center my-auto position-relative" style="height: 250px;">
+                    <MudChart T="double" ChartType="ChartType.Donut" Width="210px" Height="210px" InputData="@graficoDados" InputLabels="@graficoEtiquetas">
+                        <CustomGraphics>
+                            <text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="#666666" style="font-size: 11px; font-weight: 600; font-family: sans-serif; letter-spacing: 1px;">INSCRITOS</text>
+                            <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="#FF6B00" style="font-size: 28px; font-weight: 900; font-family: sans-serif;">@VerObterSoma()</text>
+                        </CustomGraphics>
+                    </MudChart>
+                </div>
+
+                <div class="d-flex justify-space-around pt-4 border-top" style="border-color: #E2E8F0;">
+                    <div class="text-center">
+                        <div class="d-flex align-center justify-center mb-1">
+                            <span style="width: 8px; height: 8px; background-color: #FF6B00; border-radius: 50%; display: inline-block; margin-right: 6px;"></span>
+                            <MudText Typo="Typo.caption" Style="color: #666666;">Musculação</MudText>
+                        </div>
+                        <MudText Typo="Typo.body2" Class="font-weight-bold" Style="color: #212121;">120</MudText>
+                    </div>
+                    <div class="text-center">
+                        <div class="d-flex align-center justify-center mb-1">
+                            <span style="width: 8px; height: 8px; background-color: #00B0FF; border-radius: 50%; display: inline-block; margin-right: 6px;"></span>
+                            <MudText Typo="Typo.caption" Style="color: #666666;">Crossfit</MudText>
+                        </div>
+                        <MudText Typo="Typo.body2" Class="font-weight-bold" Style="color: #212121;">95</MudText>
+                    </div>
+                    <div class="text-center">
+                        <div class="d-flex align-center justify-center mb-1">
+                            <span style="width: 8px; height: 8px; background-color: #9E9E9E; border-radius: 50%; display: inline-block; margin-right: 6px;"></span>
+                            <MudText Typo="Typo.caption" Style="color: #666666;">Outros</MudText>
+                        </div>
+                        <MudText Typo="Typo.body2" Class="font-weight-bold" Style="color: #666666;">175</MudText>
+                    </div>
+                </div>
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -90,33 +143,91 @@
 
 @code {
     private int totalSociosAtivos = 142;
+
     private int totalAulas = 40;
+
     private int taxaOcupacaoMedia = 68;
 
     private double[] graficoDados = { 120, 95, 80, 55, 40 };
+
     private string[] graficoEtiquetas = { "Musculação", "Crossfit", "Zumba", "Pilates", "Ciclismo" };
 
-    private List<AulaOcupacao> topAulas = new()
+    private List<AulaOcupacao> topAulas = new List<AulaOcupacao>()
     {
-        new() { Nome = "Crossfit (Seg 11:00)", Inscritos = 14, Capacidade = 15, Percentagem = 93, Cor = Color.Error },
-        new() { Nome = "Musculação (Ter 09:00)", Inscritos = 18, Capacidade = 20, Percentagem = 90, Cor = Color.Success },
-        new() { Nome = "Zumba (Qua 15:00)", Inscritos = 26, Capacidade = 30, Percentagem = 86, Cor = Color.Info },
-        new() { Nome = "Ciclismo (Sex 19:00)", Inscritos = 21, Capacidade = 25, Percentagem = 84, Cor = Color.Warning },
-        new() { Nome = "Pilates (Qui 17:00)", Inscritos = 9, Capacidade = 12, Percentagem = 75, Cor = Color.Primary }
+        new AulaOcupacao() 
+        { 
+            Nome = "Crossfit", 
+            Instrutor = "Marco Silva", 
+            IconeModalidade = Icons.Material.Filled.FitnessCenter, 
+            Percentagem = 93, 
+            Cor = Color.Error 
+        },
+        new AulaOcupacao() 
+        { 
+            Nome = "Musculação", 
+            Instrutor = "Carla Costa", 
+            IconeModalidade = Icons.Material.Filled.AccessibilityNew, 
+            Percentagem = 90, 
+            Cor = Color.Primary 
+        },
+        new AulaOcupacao() 
+        { 
+            Nome = "Zumba", 
+            Instrutor = "Ricardo Dias", 
+            IconeModalidade = Icons.Material.Filled.MusicNote, 
+            Percentagem = 86, 
+            Cor = Color.Info 
+        },
+        new AulaOcupacao() 
+        { 
+            Nome = "Ciclismo", 
+            Instrutor = "Sofia Santos", 
+            IconeModalidade = Icons.Material.Filled.DirectionsBike, 
+            Percentagem = 84, 
+            Cor = Color.Primary 
+        },
+        new AulaOcupacao() 
+        { 
+            Nome = "Pilates", 
+            Instrutor = "Inês Rocha", 
+            IconeModalidade = Icons.Material.Filled.SelfImprovement, 
+            Percentagem = 75, 
+            Cor = Color.Info 
+        }
     };
 
-    private string VerObterSoma()
+    private void IrParaModalidades()
     {
-        return "390";
+        Navigation.NavigateTo("/Modalidades");
     }
 
+    private string VerObterSoma() 
+    {
+        return graficoDados.Sum().ToString();
+    }
+
+    // Este método resolve o erro vermelho do GetColorHex
+    private string GetColorHex(Color color) 
+    {
+        return color switch 
+        {
+            Color.Error => "#F44336",
+            Color.Info => "#00B0FF",
+            _ => "#FF6B00"
+        };
+    }
+
+    // Esta classe estruturada resolve o erro do IconeModalidade
     public class AulaOcupacao
     {
         public string Nome { get; set; } = "";
-        public int Inscritos { get; set; }
-        public int Capacidade { get; set; }
+
+        public string Instrutor { get; set; } = "";
+
+        public string IconeModalidade { get; set; } = "";
+
         public int Percentagem { get; set; }
+
         public Color Cor { get; set; }
     }
-
 }
