@@ -19,6 +19,23 @@ public class InstrutorModalidadeController : Controller
         _mapper = mapper;
         
     }
+    [HttpGet("/modalidadesinstr")]
+    public async Task<IActionResult> GetAllModalidadesAndInstrutor()
+    {
+        if (_context.InstrutorMods is not null)
+        {
+            var modalidades = await _context.InstrutorMods.
+                Include(a => a.Instrutor).
+                Include(a => a.Modalidade).
+                Where(a => a.IsDeleted.Equals(false)).
+                ToListAsync();
+            
+            if(modalidades.Any())
+                return Ok(modalidades);
+        }
+
+        return NotFound();
+    }
     
     [HttpGet("/modalidadesinstr/{id}")]
     public async Task<IActionResult> GetAllModalidadesFromInstrutor(int id)
@@ -26,6 +43,8 @@ public class InstrutorModalidadeController : Controller
         if (_context.InstrutorMods is not null)
         {
             var modalidades = await _context.InstrutorMods.
+                Include(a => a.Instrutor).
+                Include(a => a.Modalidade).
                 Where(a => a.InstrutorId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
             

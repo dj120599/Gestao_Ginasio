@@ -43,6 +43,9 @@ public interface IGinasioVitaFitService
     [Get("/modalidades")]
     Task<ApiResponse<List<Modalidade>>> GetAllModalidades();
 
+    [Get("/modalidade/{id}")]
+    Task<ApiResponse<Modalidade>> GetModalidade(int id);
+
     [Put("/modalidade")]
     Task<ApiResponse<Modalidade>> UpdateModalidade([Body] Modalidade modalidade);
     
