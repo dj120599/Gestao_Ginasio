@@ -1,0 +1,170 @@
+@using GinasioVitaFit.Shared.Services
+@using GinasioVitaFit.Shared.Models
+@inject IGinasioVitaFitService GinasioVitaFitService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
+@if (_isOpen)
+{
+    <div class="@OverlayClass">
+
+        <div class="@ModalClass bg-white rounded-xl shadow-xl w-full max-w-3xl mx-4 overflow-hidden"
+             @onclick:stopPropagation>
+
+            @if (_isLoading)
+            {
+                <div class="flex flex-col items-center justify-center py-20">
+
+                    <div
+                        class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+
+                    <p class="mt-4 text-gray-500">
+                        A carregar...
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                <div class="max-h-[90vh] overflow-y-auto">
+
+                    <div class="p-6! overflow-y-auto max-h-[70vh]">
+                        <div class="flex items-center justify-between py-4">
+                            <div class="flex flex-row items-center gap-x-4">
+                                <span class="w-12 h-12 bg-amber-400 rounded-full
+                                         flex items-center justify-center">
+                                    <MudIcon 
+                                        Icon="@Icons.Material.Filled.Class"
+                                        class="text-white w-8! h-8!"
+                                        />
+                                </span>
+                                
+                                <h3 class="text-2xl font-bold text-gray-800! m-0">
+                                    Aula de @(_aula?.Modalidade.Name)
+                                </h3>
+                            </div>
+
+                            <button
+                                @onclick="Hide"
+                                class="p-2 text-amber-500! rounded-lg hover:bg-gray-100! hover:text-amber-700! transition cursor-pointer">
+
+                                <MudIcon Icon="@Icons.Material.Filled.Close" class="text-xl!"/>
+                            </button>
+                        </div>
+                        <div class="space-y-3">
+                            @foreach (var socio in _socios)
+                            {
+                                <div class="flex items-center justify-between p-3 border rounded-lg">
+                                    <div class="flex items-center gap-3">
+                                        <img src="@socio.ImageUrl"
+                                             class="w-10 h-10 rounded-full object-cover"/>
+
+                                        <div>
+                                            <p class="font-semibold">@socio.Name</p>
+                                            <p class="text-sm text-gray-500">@socio.Email</p>
+                                        </div>
+                                    </div>
+
+                                    <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
+                                        Inscrito
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-gray-200 px-6 py-4">
+                        
+                    </div>
+                    
+                </div>
+            }
+        </div>
+
+    </div>
+}
+
+@code {
+    private bool _isOpen;
+    private bool _isAnimating;
+    private bool _isLoading;
+    private bool _loaded;
+    
+    private Aula? _aula = new();
+    private List<Socio> _socios = new();
+    private List<AulaSocios> _inscritos = new();
+    
+    private string OverlayClass =>
+        $"fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 " +
+        $"{(_isAnimating ? "opacity-100" : "opacity-0")}";
+
+    private string ModalClass =>
+        $"transition-all duration-300 ease-out " +
+        $"{(_isAnimating
+            ? "opacity-100 scale-100 translate-y-0"
+            : "opacity-0 scale-95 translate-y-6")}";
+    
+    public async Task OpenModal()
+    {
+        _isOpen = true;
+        _isLoading = true;
+        _isAnimating = true;
+
+        StateHasChanged();
+
+        if (!_loaded)
+        {
+            await CarregarDados();
+            _loaded = true;
+        }
+
+        _isLoading = false;
+
+        StateHasChanged();
+    }
+    
+    public async Task Show(Aula aula)
+    {
+        _aula = aula;
+
+        await OpenModal();
+    }
+
+    public async Task Hide()
+    {
+        _isAnimating = false;
+        StateHasChanged();
+
+        await Task.Delay(300);
+
+        _isOpen = false;
+
+        _aula = null;
+
+        StateHasChanged();
+    }
+
+    private async Task CarregarDados()
+    {
+        if (_aula is null)
+            return;
+
+        try
+        {
+            var socios = await GinasioVitaFitService.GetAllSociosFromAula(_aula.Id);
+            
+            if (socios.IsSuccessStatusCode)
+                _socios = socios.Content ?? new List<Socio>();
+            
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar os Sócios: {ex.Message}",
+                Severity.Error);
+        }
+    }
+
+    private void ChangePageInfo(int id)
+    {
+        NavigationManager.NavigateTo($"/AddAula/{id}");
+    }
+}
