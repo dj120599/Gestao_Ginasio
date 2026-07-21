@@ -58,6 +58,7 @@ public class InstrutorController: Controller
            if (instrutor is  null)
                return Results.BadRequest();
            
+           //var instrutormapped
            var mapper = _mapper.Map<Models.InstrutorDto,Entities.Instrutor>(instrutor);
            mapper.CreatedDate = DateTime.UtcNow;
            mapper.UpdatedDate = DateTime.UtcNow;

@@ -1,3 +1,4 @@
+@using System.Diagnostics
 @using GinasioVitaFit.Shared.Models
 @using GinasioVitaFit.Shared.Services
 @using MudBlazor
@@ -44,15 +45,15 @@
                         <MudTextField T="string" Label="Contacto" @bind-Value="novoInstrutor.Contacto" For="@(() => novoInstrutor.Contacto)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Phone" />
                     </MudItem>
                     <MudItem xs="12" sm="6">
-                        <MudSelect T="Modalidade" Label="Modalidades"
+                        <MudSelect T="MultiSelectItem" Label="Modalidades"
                                    MultiSelection="true"
-                                   SelectedValues="_chosenMods"
-                                   ToStringFunc="modalidade => modalidade.Name"
+                                   SelectedValues="@SelectedMods"
+                                   ToStringFunc="@ToString"
                                    Adornment="Adornment.Start"
                                    AdornmentIcon="@Icons.Material.Filled.Phone">
-                            @foreach (Modalidade mod in _listMod)
+                            @foreach (MultiSelectItem item in _listMod)
                             {
-                                <MudSelectItem T="Modalidade" Value="@mod">@mod.Name</MudSelectItem>
+                                <MudSelectItem Value="@item"/>
                             }
                         </MudSelect>
                     </MudItem>
@@ -77,45 +78,77 @@
     private bool _isOpen = false;
     private bool _isLoading = false;
     private bool _isEdicao = false;
-
-    private List<Modalidade> _listMod = new List<Modalidade>();
-    private List<Modalidade> _chosenMods = new List<Modalidade>();
-
-    [Parameter] public EventCallback OnSubmetido { get; set; }
     
-    public void Show()
+    private List<MultiSelectItem> _listMod = new();
+    private List<MultiSelectItem> SelectedMods = new();
+    
+    private List<InstrutorMod> _ModsFromInst = new List<InstrutorMod>();
+    
+    [Parameter] public EventCallback OnSubmetido { get; set; }
+
+    private string ToString(MultiSelectItem x)
+        => x is null ? string.Empty : $"{x.Name}";
+
+    public class MultiSelectItem
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int DificuldadeId { get; set; }
+        public string ImageUrl { get; set; }
+        public bool IsDeleted { get; set; }
+        public override bool Equals(object o) {
+            var other = o as MultiSelectItem;
+            return other?.Id==Id;
+        }
+        public override int GetHashCode() => Id.GetHashCode();
+    }
+    
+    public async Task Show()
     {
         _isEdicao = false;
         _isOpen = true;
         _isLoading = false;
         novoInstrutor = new Instrutor { ImageUrl = "default.png" };
-        CarregarDados();
+        
+        await CarregarDados();
         StateHasChanged();
     }
 
     public async Task ShowEditar(Instrutor instrutorParaEditar)
     {
+        //_chosenMods.Clear();
+        
         _isEdicao = true;
         _isOpen = true;
         _isLoading = false;
 
         novoInstrutor = instrutorParaEditar;
-        
+            
+        var mods = await GinasioService.GetAllModalidadesFromInstrutor(novoInstrutor.Id);
 
-        if (_isEdicao)
+        if (mods.IsSuccessStatusCode)
         {
-            var mods = await GinasioService.GetAllModalidadesFromInstrutor(novoInstrutor.Id);
-
-            if (mods.IsSuccessStatusCode)
+            List<InstrutorMod> templist = mods.Content ?? new List<InstrutorMod>();
+            foreach (var tl in templist)
             {
-                List<InstrutorMod> instMods = mods.Content ?? new List<InstrutorMod>();
-                foreach (var im in instMods)
+                InstrutorMod im = new InstrutorMod()
                 {
-                    var mod = await GinasioService.GetModalidade(im.ModalidadeId);
-                    Modalidade resultmod = mod.Content ?? new Modalidade();
+                    InstrutorId = tl.InstrutorId,
+                    ModalidadeId = tl.ModalidadeId
+                };
                     
-                    _chosenMods.Add(resultmod);
-                }
+                _ModsFromInst.Add(im);
+            }
+            
+            foreach (var im in _ModsFromInst)
+            {
+                var mod = await GinasioService.GetModalidade(im.ModalidadeId);
+                Modalidade resultmod = mod.Content ?? new Modalidade();
+                    
+                //_chosenMods.Add(resultmod);
+                MultiSelectItem m2 = From1To2(resultmod);
+                SelectedMods.Add(m2);
             }
         }
         
@@ -123,13 +156,36 @@
         StateHasChanged();
     }
 
+    MultiSelectItem From1To2(Modalidade resultmod)
+    {
+        MultiSelectItem m2 = new MultiSelectItem()
+        {
+            Id = resultmod.Id,
+            Name = resultmod.Name,
+            Description = resultmod.Description,
+            DificuldadeId = resultmod.DificuldadeId,
+            ImageUrl = resultmod.ImageUrl,
+            IsDeleted = resultmod.IsDeleted
+        };
+
+        return m2;
+    }
+
     private async Task CarregarDados()
     {
+        _listMod.Clear();
+        List<Modalidade> interModList = new();
+        
         var mods = await GinasioService.GetAllModalidades();
 
         if (mods.IsSuccessStatusCode)
-            _listMod = mods.Content ?? new List<Modalidade>();
-            
+            interModList = mods.Content ?? new List<Modalidade>();
+
+        foreach (Modalidade _mod in interModList)
+        {
+            _listMod.Add(From1To2(_mod));
+        }
+        
     }
 
     public void Hide()
@@ -137,11 +193,14 @@
         _isOpen = false;
         StateHasChanged();
     }
-
+    
 // Como o EditForm só dispara este método se o formulário for 100% válido, removemos a validação manual antiga!
     private async Task SubmeterFormulario()
     {
         List<InstrutorMod> ModalidadesToSend = new List<InstrutorMod>();
+                    
+        List<InstrutorMod> ModstoDelete = new List<InstrutorMod>();
+        List<InstrutorMod> ModsToAdd = new List<InstrutorMod>();
         
         _isLoading = true;
         StateHasChanged();
@@ -150,41 +209,82 @@
         {
             HttpResponseMessage? resposta;
 
+            foreach (MultiSelectItem sm in SelectedMods)
+            {
+                InstrutorMod im = new InstrutorMod()
+                {
+                    InstrutorId = novoInstrutor.Id,
+                    ModalidadeId = sm.Id
+                };
+                    
+                ModalidadesToSend.Add(im);
+            }
+            
+            Console.WriteLine(_ModsFromInst.Count);
+            Console.WriteLine(ModalidadesToSend.Count);
+            
+            /*
             if (_isEdicao)
             {
                 resposta = await GinasioService.UpdateInstrutor(novoInstrutor);
+            
+                if (resposta != null && resposta.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Dados atualizados com sucesso!", Severity.Success);
+
+                    foreach (InstrutorMod mtd in ModstoDelete)
+                    {
+                        var response = await GinasioService.DeleteModalidadeToInstrutor_Soft(mtd);
+                    }
+                    
+                    foreach (InstrutorMod mta in ModsToAdd)
+                    {
+                        var response = await GinasioService.AddModalidadeToInstrutor(mta);
+                    }
+                    
+                    await Task.Delay(500);
+                    _isOpen = false;
+                    await OnSubmetido.InvokeAsync();
+                }
+                else
+                {
+                    Snackbar.Add("Erro ao comunicar com a API", Severity.Error);
+                    _isLoading = false;
+                }
             }
             else
             {
                 resposta = await GinasioService.AddInstrutor(novoInstrutor);
-                
-                /*
-                foreach (Modalidade cm in _chosenMods)
+            
+                if (resposta != null && resposta.IsSuccessStatusCode)
                 {
-                    InstrutorMod im = new InstrutorMod()
+                    Snackbar.Add("Instrutor registado com sucesso!", Severity.Success);
+
+                    foreach (InstrutorMod mts in ModalidadesToSend)
                     {
-                    
-                    };
-                    
-                    ModalidadesToSend.Add(im);
-                }
-                */
-            }
+                        var response = await GinasioService.AddModalidadeToInstrutor(mts);
 
-            if (resposta != null && resposta.IsSuccessStatusCode)
-            {
-                Snackbar.Add(_isEdicao ? "Dados atualizados com sucesso!" : "Instrutor registado com sucesso!", Severity.Success);
-
+                        if (response != null && response.IsSuccessStatusCode)
+                        {
+                            Snackbar.Add("Modalidade adicionada com sucesso!", Severity.Success);
+                        }
+                        else
+                        {
+                            Snackbar.Add("Erro ao comunicar com a API", Severity.Error);
+                        }
+                    }
                 
-                await Task.Delay(500);
-                _isOpen = false;
-                await OnSubmetido.InvokeAsync();
-            }
-            else
-            {
-                Snackbar.Add("Erro ao comunicar com a API", Severity.Error);
-                _isLoading = false;
-            }
+                    await Task.Delay(500);
+                    _isOpen = false;
+                    await OnSubmetido.InvokeAsync();
+                }
+                else
+                {
+                    Snackbar.Add("Erro ao comunicar com a API", Severity.Error);
+                    _isLoading = false;
+                }
+            }       
+            */         
         }
         catch (Exception ex)
         {
