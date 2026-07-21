@@ -40,7 +40,7 @@
                                 </span>
                                 
                                 <h3 class="text-2xl font-bold text-gray-800! m-0">
-                                    Aula de @(_aula?.Modalidade.Name)
+                                    Aula de @_aula!.Modalidade.Name
                                 </h3>
                             </div>
 
@@ -87,7 +87,6 @@
     private bool _isOpen;
     private bool _isAnimating;
     private bool _isLoading;
-    private bool _loaded;
     
     private Aula? _aula = new();
     private List<Socio> _socios = new();
@@ -110,12 +109,8 @@
         _isAnimating = true;
 
         StateHasChanged();
-
-        if (!_loaded)
-        {
-            await CarregarDados();
-            _loaded = true;
-        }
+        
+        await CarregarDados();
 
         _isLoading = false;
 

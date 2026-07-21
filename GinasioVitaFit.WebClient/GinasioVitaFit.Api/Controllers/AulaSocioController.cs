@@ -26,13 +26,11 @@ public class AulaSocioController : Controller
     {
         if (_context.AulaSocios is not null)
         {
-            var sociosIds = await _context.AulaSocios
+            var socios = await _context.AulaSocios
                 .Where(a => a.AulaId == id && !a.IsDeleted)
-                .Select(a => a.SocioId)
-                .ToListAsync();
-            
-            var socios = await _context.Socios
-                .Where(s => sociosIds.Contains(s.Id) && !s.IsDeleted)
+                .Include(a => a.Socio)
+                .Select(a => a.Socio)
+                .Where(s => !s.IsDeleted)
                 .ToListAsync();
             
             return Ok(socios);
