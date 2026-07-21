@@ -21,17 +21,21 @@ public class AulaSocioController : Controller
     }
     
     
-    [HttpGet("/sociosaula/{id}")]
+    [HttpGet("/aulasocios/{id}")]
     public async Task<IActionResult> GetAllSociosFromAula(int id)
     {
         if (_context.AulaSocios is not null)
         {
-            var socios = await _context.AulaSocios.
-                Where(a => a.AulaId == id && a.IsDeleted.Equals(false)).
-                ToListAsync();
+            var sociosIds = await _context.AulaSocios
+                .Where(a => a.AulaId == id && !a.IsDeleted)
+                .Select(a => a.SocioId)
+                .ToListAsync();
             
-            if(socios.Any())
-                return Ok(socios);
+            var socios = await _context.Socios
+                .Where(s => sociosIds.Contains(s.Id) && !s.IsDeleted)
+                .ToListAsync();
+            
+            return Ok(socios);
         }
 
         return NotFound();

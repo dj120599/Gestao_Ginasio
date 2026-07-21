@@ -53,7 +53,7 @@
 @if (_isLoading)
 {
     <div class="flex justify-center items-center py-20">
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-2 items-center">
             <div class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
             <p class="mt-4 text-gray-500">
                 A carregar...
@@ -88,7 +88,7 @@ else
                                     Icon="@Icons.Material.TwoTone.CalendarMonth"
                                     class="text-amber-500"/>
                                 <p class="m-0 text-slate-400">
-                                    @modalidade.CreatedDate.ToString("dd MMM yyyy", new System.Globalization.CultureInfo("pt-PT"))
+                                    @modalidade.UpdatedDate.ToString("dd MMM yyyy", new System.Globalization.CultureInfo("pt-PT"))
                                 </p>
                             </span>
                             <span
@@ -137,6 +137,7 @@ else
         </div>
     </div>
 }
+
 <ModalidadeModalComponente
     @ref="_modal"
     ImagensExistentes="_imagensExistentes"
