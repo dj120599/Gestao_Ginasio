@@ -48,7 +48,7 @@
                                                   Label="Nome Completo"
                                                   Required="true"
                                                   RequiredError="O nome do sócio é obrigatório!"
-                                                  @bind-Value="novoSocio.Name"
+                                                  @bind-Value="_novoSocioDto.Name"
                                                   Adornment="Adornment.Start"
                                                   AdornmentIcon="@Icons.Material.Filled.Person"/>
                                 </MudItem>
@@ -57,10 +57,10 @@
                                 <MudItem xs="12" sm="6">
                                     <MudTextField T="string"
                                                   Label="Email"
-                                                  Validation="@(new EmailAddressAttribute { ErrorMessage = @"The email address is invalid" })"
+                                                  Validation="@(new EmailAddressAttribute { ErrorMessage = @"O email inserido é invalido" })"
                                                   Required="true"
                                                   RequiredError="O email é obrigatório!"
-                                                  @bind-Value="novoSocio.Email"
+                                                  @bind-Value="_novoSocioDto.Email"
                                                   Adornment="Adornment.Start"
                                                   AdornmentIcon="@Icons.Material.Filled.Email"/>
                                 </MudItem>
@@ -71,7 +71,7 @@
                                                   Label="Contacto Telefónico"
                                                   Required="true"
                                                   RequiredError="O contacto é obrigatório!"
-                                                  @bind-Value="novoSocio.Contacto"
+                                                  @bind-Value="_novoSocioDto.Contacto"
                                                   Adornment="Adornment.Start"
                                                   AdornmentIcon="@Icons.Material.Filled.Phone"/>
                                 </MudItem>
@@ -86,9 +86,9 @@
                                                    AdornmentIcon="@Icons.Material.Filled.Cake"/>
                                 </MudItem>
 
-                                <!-- 5. Dropdown para selecionar o ID do Plano -->
+                                <!-- 5. Dropdown para selecionar o ID do PlanoDto -->
                                 <MudItem xs="12" sm="6">
-                                    <MudSelect T="Plano"
+                                    <MudSelect T="PlanoDto"
                                                Label="Plano"
                                                Required="true"
                                                RequiredError="Selecione um plano!"
@@ -126,11 +126,11 @@
 
 @code {
     private MudForm form = default!;
-    private Socio novoSocio = new Socio { ImageUrl = "default.png" };
-    private List<Plano> _planos = new List<Plano>();
+    private SocioDto _novoSocioDto = new SocioDto { ImageUrl = "default.png" };
+    private List<PlanoDto> _planos = new List<PlanoDto>();
 
     private string _plantext;
-    private Plano _plan = new Plano();
+    private PlanoDto _plan = new PlanoDto();
     
     // Variável auxiliar porque o MudDatePicker trabalha com DateTime? e o vosso modelo usa DateOnly
     private DateTime? dataNascimentoAux;
@@ -177,7 +177,7 @@
         var planos = await GinasioService.GetPlanos();
 
         if (planos.IsSuccessStatusCode)
-            _planos = planos.Content ?? new List<Plano>();
+            _planos = planos.Content ?? new List<PlanoDto>();
     }
 
     public async Task Show()
@@ -197,18 +197,18 @@
             _loaded = true;
         }
 
-        novoSocio = new Socio() { ImageUrl = "default.png" };
+        _novoSocioDto = new SocioDto() { ImageUrl = "default.png" };
         dataNascimentoAux = DateTime.Now;
         
         _plantext = "Anual";
-        novoSocio.PlanoId = 1;
+        _novoSocioDto.PlanoId = 1;
         _isLoading = false;
         
         StateHasChanged();
     }
     
 
-    public  async Task ShowEditar(Socio EditSocio)
+    public  async Task ShowEditar(SocioDto editSocioDto)
     {
         _saveState = SaveState.Idle;
         
@@ -217,7 +217,7 @@
         _isLoading = true;
         _isAnimating = true;
         
-        novoSocio = EditSocio;
+        _novoSocioDto = editSocioDto;
        
         if (!_loaded)
         {
@@ -225,11 +225,13 @@
             _loaded = true;
         }
     
+        _isLoading = false;
+        
         if(_isEdicao)
-            dataNascimentoAux = novoSocio.Nascimento.ToDateTime(TimeOnly.MinValue);
+            dataNascimentoAux = _novoSocioDto.Nascimento.ToDateTime(TimeOnly.MinValue);
 
-        _plantext = novoSocio.Plano.Name;
-        _plan = novoSocio.Plano;
+        _plantext = _novoSocioDto.Plano.Name;
+        _plan = _novoSocioDto.Plano;
         
         StateHasChanged();
     }
@@ -243,7 +245,7 @@
 
         _isOpen = false;
 
-        novoSocio = new();
+        _novoSocioDto = new();
         StateHasChanged();
     }
 
@@ -254,7 +256,7 @@
         _isLoading = true;
         StateHasChanged();
         
-        Socio resultsocio = novoSocio;
+        SocioDto resultsocio = _novoSocioDto;
         resultsocio.Nascimento = DateOnly.FromDateTime(dataNascimentoAux.Value);
         resultsocio.PlanoId = _plan.Id;
         
@@ -278,7 +280,7 @@
                             
             if (resposta != null && resposta.IsSuccessStatusCode)
             {
-                Snackbar.Add(_isEdicao ? "Dados atualizados com sucesso!" : "Socio registado com sucesso!", Severity.Success);
+                Snackbar.Add(_isEdicao ? "Dados atualizados com sucesso!" : "SocioDto registado com sucesso!", Severity.Success);
                 await Task.Delay(500);
                 _isOpen = false;
                 await OnSubmetido.InvokeAsync();

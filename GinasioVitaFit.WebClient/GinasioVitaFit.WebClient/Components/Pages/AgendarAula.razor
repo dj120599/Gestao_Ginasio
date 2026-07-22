@@ -13,10 +13,10 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8 mb-5" >
     <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Warning"><b>Agendar Aulas</b></MudText>
     <MudItem xs="12" sm="4" Class="mb-5">
-        <MudSelect T="Socio" ValueChanged="OnValueChanged" AdornmentColor="Color.Warning"  Label="Socios"  Placeholder="Escolha um Sócio." Required="true">
-            @foreach (Socio selectItem in _listaSocios)
+        <MudSelect T="SocioDto" ValueChanged="OnValueChanged" AdornmentColor="Color.Warning"  Label="SocioDtos"  Placeholder="Escolha um Sócio." Required="true">
+            @foreach (SocioDto selectItem in _listaSocios)
             {
-                <MudSelectItem T="Socio" Value="@(selectItem)">@selectItem.Name</MudSelectItem>
+                <MudSelectItem T="SocioDto" Value="@(selectItem)">@selectItem.Name</MudSelectItem>
             }
         </MudSelect>
     </MudItem>
@@ -31,9 +31,9 @@
                           Clearable="true"/>
         </ToolBarContent>
         <Columns>
-            <PropertyColumn Property="x => x.Modalidade.Name" Title="Modalidade" />
-            <PropertyColumn Property="x => x.Instrutor.Name" Title="Instrutor" />
-            <PropertyColumn Property="x => x.Sala.Name" Title="Sala / Espaço" />
+            <PropertyColumn Property="x => x.Modalidade.Name" Title="Modalidades" />
+            <PropertyColumn Property="x => x.Instrutor.Name" Title="Instrutores" />
+            <PropertyColumn Property="x => x.Sala.Name" Title="Salas / Espaço" />
             <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Máz." Filterable="false"/>
 
             <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
@@ -87,17 +87,17 @@
 
     <MudDataGrid Items="@_listaAulas2" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobalAgendadas">
         <ToolBarContent>
-            <MudText Typo="Typo.h6">Horário de Aulas Agendadas</MudText>
+            <MudText Typo="Typo.h6">Horário de AulaDtos Agendadas</MudText>
             <MudSpacer />
             <!-- Campo de Pesquisa Rápida -->
-            <MudTextField @bind-Value="_pesquisa2" Placeholder="Pesquisar por modalidade, instrutor ou sala..." 
+            <MudTextField @bind-Value="_pesquisa2" Placeholder="Pesquisar por modalidadeDto, instrutorDto ou sala..." 
                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0"
                           Clearable="true" />
         </ToolBarContent>
         <Columns>
-            <PropertyColumn Property="x => x.Modalidade.Name" Title="Modalidade" />
-            <PropertyColumn Property="x => x.Instrutor.Name" Title="Instrutor" />
-            <PropertyColumn Property="x => x.Sala.Name" Title="Sala / Espaço" />
+            <PropertyColumn Property="x => x.Modalidade.Name" Title="ModalidadeDto" />
+            <PropertyColumn Property="x => x.Instrutor.Name" Title="InstrutorDto" />
+            <PropertyColumn Property="x => x.Sala.Name" Title="SalaDto / Espaço" />
             <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Máz." />
 
             <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
@@ -141,11 +141,11 @@
     [Parameter]
     public int? Id { get; set; }
 
-    private List<Aula> _listaAulas1 = new List<Aula>();
-    private List<Aula> _listaAulas2 = new List<Aula>();
+    private List<AulaDto> _listaAulas1 = new List<AulaDto>();
+    private List<AulaDto> _listaAulas2 = new List<AulaDto>();
     
-    private List<Socio> _listaSocios = new List<Socio>();
-    private Socio _socio;
+    private List<SocioDto> _listaSocios = new List<SocioDto>();
+    private SocioDto _socioDto;
     private string _pesquisa = "";
     private string _pesquisa2 = "";
     
@@ -164,39 +164,39 @@
         
         if (aulas.IsSuccessful)
         {
-            _listaAulas1 = aulas.Content ?? new List<Aula>();
+            _listaAulas1 = aulas.Content ?? new List<AulaDto>();
         }      
         
         var socios = await VitaFitDbContext.GetSocios();
-        _listaSocios = socios.Content ?? new List<Socio>();
+        _listaSocios = socios.Content ?? new List<SocioDto>();
     }
 
-    private bool FiltroGlobalTotal(Aula aula)
+    private bool FiltroGlobalTotal(AulaDto aulaDto)
     {
         if (string.IsNullOrWhiteSpace(_pesquisa)) return true;
-        if (aula.Modalidade?.Name.Contains(_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
-        if (aula.Instrutor?.Name.Contains(_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
-        if (aula.Sala?.Name.Contains(_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aulaDto.Modalidade?.Name.Contains(_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aulaDto.Instrutor?.Name.Contains(_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aulaDto.Sala?.Name.Contains(_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
         return false;
     }
     
-    private bool FiltroGlobalAgendadas(Aula aula)
+    private bool FiltroGlobalAgendadas(AulaDto aulaDto)
     {
         if (string.IsNullOrWhiteSpace(_pesquisa2)) return true;
-        if (aula.Modalidade?.Name.Contains(_pesquisa2, StringComparison.OrdinalIgnoreCase) ?? false) return true;
-        if (aula.Instrutor?.Name.Contains(_pesquisa2, StringComparison.OrdinalIgnoreCase) ?? false) return true;
-        if (aula.Sala?.Name.Contains(_pesquisa2, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aulaDto.Modalidade?.Name.Contains(_pesquisa2, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aulaDto.Instrutor?.Name.Contains(_pesquisa2, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aulaDto.Sala?.Name.Contains(_pesquisa2, StringComparison.OrdinalIgnoreCase) ?? false) return true;
         return false;
     }
 
-    private async Task AdicionarAula(Aula aula)
+    private async Task AdicionarAula(AulaDto aulaDto)
     {
         var parameters = new DialogParameters<MudMessageBox>();
 
         var mbox = new MessageBoxOptions
         {
-            Title = "Adicionar Aula",
-            Message = $"Tem a certeza que deseja adicionar a aula de {aula.Modalidade.Name} á sua agenda?",
+            Title = "Adicionar AulaDto",
+            Message = $"Tem a certeza que deseja adicionar a aulaDto de {aulaDto.Modalidade.Name} á sua agenda?",
             YesText = "Sim",
             CancelText = "Cancelar"
         };
@@ -210,22 +210,19 @@
 
         if (!result.Canceled && result.Data is bool confirmar && confirmar)
         {
-            AulaSocios aulaSocios = new AulaSocios
+            AulaSociosDto aulaSociosDto = new AulaSociosDto
             {
-                AulaId = aula.Id,
-                SocioId = Id.Value,
-                IsDeleted = false,
-                CreatedDate = DateTime.UtcNow,
-                UpdatedDate = DateTime.UtcNow
+                AulaId = aulaDto.Id,
+                SocioId = Id.Value
             };
 
 
-            var aulas = await VitaFitDbContext.AddSocioToAula(aulaSocios);
+            var aulas = await VitaFitDbContext.AddSocioToAula(aulaSociosDto);
 
             
             if (aulas.IsSuccessful)
             {
-                Snackbar.Add("Aula Adicionada com sucesso!", Severity.Success);
+                Snackbar.Add("AulaDto Adicionada com sucesso!", Severity.Success);
             }
             else
             {
@@ -244,14 +241,14 @@
 
 
 
-    private async Task DesistirAula(Aula aula)
+    private async Task DesistirAula(AulaDto aulaDto)
     {
         var parameters = new DialogParameters<MudMessageBox>();
 
         var mbox = new MessageBoxOptions
         {
-            Title = "Desistir Aula",
-            Message = $"Tem a certeza que deseja desistir da aula de {aula.Modalidade.Name}?",
+            Title = "Desistir AulaDto",
+            Message = $"Tem a certeza que deseja desistir da aulaDto de {aulaDto.Modalidade.Name}?",
             YesText = "Sim",
             CancelText = "Não"
         };
@@ -266,35 +263,34 @@
         if (!result.Canceled && result.Data is bool confirmar && confirmar)
         {
 
-            AulaSocios aulaSocios = new AulaSocios
+            AulaSociosDto aulaSociosDto = new AulaSociosDto
             {
-                AulaId = aula.Id,
-                SocioId = Id.Value,
-                IsDeleted = false
+                AulaId = aulaDto.Id,
+                SocioId = Id.Value
             };
 
-            var aulas = await VitaFitDbContext.DeleteSocio_Soft(aulaSocios);
+            var aulas = await VitaFitDbContext.DeleteSocio_Soft(aulaSociosDto);
 
             if (aulas.IsSuccessful)
             {
-                Snackbar.Add("Aula Desistida com sucesso!", Severity.Success);
+                Snackbar.Add("AulaDto Desistida com sucesso!", Severity.Success);
             }
             else
             {
-                Snackbar.Add("Ocorreu um Erro na desistencia da Aula!", Severity.Error);
+                Snackbar.Add("Ocorreu um Erro na desistencia da AulaDto!", Severity.Error);
             }
 
         }
         else
         {
-            Snackbar.Add("Ocorreu um Erro na desistencia da Aula!", Severity.Error);
+            Snackbar.Add("Ocorreu um Erro na desistencia da AulaDto!", Severity.Error);
         }
 
         UpdateLists();
         StateHasChanged();
     }
 
-    private async void OnValueChanged(Socio s)
+    private async void OnValueChanged(SocioDto s)
     {
         Id = s.Id;
         UpdateLists();
@@ -306,23 +302,23 @@
         _listabool.Clear();
         
         var aulas = await VitaFitDbContext.GetAulas();
-        _listaAulas1 = aulas.Content ?? new List<Aula>();
+        _listaAulas1 = aulas.Content ?? new List<AulaDto>();
         
         var aulas2 = await VitaFitDbContext.GetAllAulasFromSocio(Id.Value);
-        var aulsocios = aulas2.Content ?? new List<AulaSocios>();
+        var aulsocios = aulas2.Content ?? new List<AulaSociosDto>();
 
         if (aulsocios != null)
         {
-            foreach (AulaSocios aulsoc in aulsocios)
+            foreach (AulaSociosDto aulsoc in aulsocios)
             {
 
                 var aula1 = await VitaFitDbContext.GetAula(aulsoc.AulaId);
-                Aula _aula = aula1.Content ?? new Aula(); 
-                _listaAulas2.Add(_aula);
+                AulaDto aulaDto = aula1.Content ?? new AulaDto(); 
+                _listaAulas2.Add(aulaDto);
 
             }
 
-            foreach (Aula aul in _listaAulas2)
+            foreach (AulaDto aul in _listaAulas2)
             {
                 for (int i = 0; i < _listaAulas1.Count; i++)
                 {
@@ -339,11 +335,11 @@
         StateHasChanged();
     }
 
-    private bool OpenAula(Aula aula)
+    private bool OpenAula(AulaDto aulaDto)
     {
         bool result = false;
             
-            if (Id.HasValue && aula.IsOpen)
+            if (Id.HasValue && aulaDto.IsOpen)
             {
                 result = false;
             }
@@ -351,7 +347,7 @@
             {
                 result = true;
             }
-            else if (aula.IsOpen)
+            else if (aulaDto.IsOpen)
             {
                 result = true;
             }

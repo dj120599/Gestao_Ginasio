@@ -27,11 +27,11 @@ public class VitaFitDbContext: DbContext, IVitaFitDbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Resolve o erro do AulaSocios definindo a chave composta
+        // Resolve o erro do AulaSociosDto definindo a chave composta
         modelBuilder.Entity<AulaSocios>()
             .HasKey(asoc => new { asoc.AulaId, asoc.SocioId });
 
-        // Resolve o provável erro do InstrutorMod (ajuste os nomes das propriedades se forem diferentes)
+        // Resolve o provável erro do InstrutorModDto (ajuste os nomes das propriedades se forem diferentes)
         modelBuilder.Entity<InstrutorMod>()
             .HasKey(imod => new { imod.InstrutorId, imod.ModalidadeId });
     }

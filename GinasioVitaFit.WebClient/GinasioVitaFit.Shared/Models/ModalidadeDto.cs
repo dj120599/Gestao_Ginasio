@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace GinasioVitaFit.Shared.Models;
 
-public class Modalidade
+public class ModalidadeDto
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }
@@ -21,18 +21,12 @@ public class Modalidade
     public int DificuldadeId { get; set; }
     
     [JsonPropertyName("dificuldade")]
-    public Dificuldade Dificuldade { get; set; }
+    public DificuldadeDto Dificuldade { get; set; }
     
     [JsonPropertyName("imageUrl")]
     public string ImageUrl { get; set; } = "/images/modalidade-placeholder.png";
     
     [JsonPropertyName("createdDate")]
-    public DateTime CreatedDate { get; set; }
-    
-    [JsonPropertyName("updatedDate")]
-    public DateTime UpdatedDate { get; set; }
-    
-    [JsonPropertyName("isDeleted")]
-    public bool IsDeleted { get; set;  }
+    public DateTime CreatedDate { get; set;}
     
 }

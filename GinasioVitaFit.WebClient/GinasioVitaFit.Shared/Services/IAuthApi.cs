@@ -5,8 +5,8 @@ namespace GinasioVitaFit.Shared.Services;
 public interface IAuthApi
 {
     [Get("/aulas")]
-    Task<List<Aula>> GetAulas();
+    Task<List<AulaDto>> GetAulas();
     
-    [Post("/aula")]
-    Task<ApiResponse<Aula>> AddAula([Body] Aula aula);
+    [Post("/aulaDto")]
+    Task<ApiResponse<AulaDto>> AddAula([Body] AulaDto aulaDto);
 }

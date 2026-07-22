@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GinasioVitaFit.Api.Data;
 using GinasioVitaFit.Api.Entities;
-using GinasioVitaFit.Api.Models;
+using GinasioVitaFit.Shared.Models;
 
 namespace GinasioVitaFit.Api.Controllers;
 
@@ -19,7 +19,7 @@ public class ModalidadeController : Controller
         _mapper = mapper;
     }
 
-    [HttpGet("/modalidades")]
+    [HttpGet("/Modalidades")]
     public async Task<IActionResult> GetAllModalidades()
     {
         if (_context.Modalidades is not null)
@@ -29,14 +29,16 @@ public class ModalidadeController : Controller
                 .Include(m => m.Dificuldade)
                 .ToListAsync();
 
-            if (modalidades.Any())
-                return Ok(modalidades);
+            List<ModalidadeDto> Modalidadesmapped = _mapper.Map<List<ModalidadeDto>>(modalidades);
+            
+            if (Modalidadesmapped.Any())
+                return Ok(Modalidadesmapped);
         }
 
         return NotFound();
     }
 
-    [HttpGet("/modalidade/{id}")]
+    [HttpGet("/Modalidade/{id}")]
     public async Task<IActionResult> GetModalidade(int id)
     {
         if (_context.Modalidades is not null)
@@ -44,8 +46,10 @@ public class ModalidadeController : Controller
             var modalidade = await _context.Modalidades
                 .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
 
-            if (modalidade is not null)
-                return Ok(modalidade);
+            var ModalidadeMapped = _mapper.Map<Modalidade,ModalidadeDto>(modalidade);
+            
+            if (ModalidadeMapped is not null)
+                return Ok(ModalidadeMapped);
         }
 
         return NotFound();
@@ -80,14 +84,14 @@ public class ModalidadeController : Controller
         return $"/uploads/{originalFileName}";
     }
 
-    [HttpPost("/modalidade")]
+    [HttpPost("/Modalidade")]
     public async Task<IResult> AddModalidade([FromBody] ModalidadeDto? modalidade,
         [FromServices] IWebHostEnvironment env)
     {
         if (modalidade is null)
             return Results.BadRequest("Dados inválidos.");
 
-        var mapper = _mapper.Map<Models.ModalidadeDto, Entities.Modalidade>(modalidade);
+        var mapper = _mapper.Map<ModalidadeDto, Modalidade>(modalidade);
         mapper.CreatedDate = DateTime.UtcNow;
         mapper.UpdatedDate = DateTime.UtcNow;
 
@@ -112,7 +116,7 @@ public class ModalidadeController : Controller
             try
             {
                 await _context.SaveChangesAsync();
-                return Results.Ok("Modalidade Adicionada com Successo.");
+                return Results.Ok("ModalidadeDto Adicionada com Successo.");
             }
             catch (Exception e)
             {
@@ -123,7 +127,7 @@ public class ModalidadeController : Controller
         return Results.Empty;
     }
 
-    [HttpPut("/modalidade")]
+    [HttpPut("/Modalidade")]
     public async Task<IActionResult> UpdateModalidade([FromBody] ModalidadeDto? modalidade,
         [FromServices] IWebHostEnvironment env)
     {
@@ -133,16 +137,21 @@ public class ModalidadeController : Controller
         if (_context.Modalidades is null)
             return Empty;
 
-        var oldmodalidade = await _context.Modalidades.FirstOrDefaultAsync(a => a.Id == modalidade.Id);
+        var ModalidadeMapped = _mapper.Map<ModalidadeDto,Modalidade>(modalidade);
+        ModalidadeMapped.UpdatedDate = DateTime.UtcNow;
+        
+        var oldmodalidade = await _context.Modalidades.
+            FirstOrDefaultAsync(a => a.Id == ModalidadeMapped.Id);
 
+        
         if (oldmodalidade is null)
-            return NotFound("A Modalidade não foi encontrado");
+            return NotFound("A ModalidadeDto não foi encontrado");
 
-        if (!string.IsNullOrEmpty(modalidade.ImageUrl) && modalidade.ImageUrl.Contains("|"))
+        if (!string.IsNullOrEmpty(ModalidadeMapped.ImageUrl) && ModalidadeMapped.ImageUrl.Contains("|"))
         {
             try
             {
-                modalidade.ImageUrl = await ProcessarImagem(modalidade.ImageUrl, env);
+                ModalidadeMapped.ImageUrl = await ProcessarImagem(ModalidadeMapped.ImageUrl, env);
             }
             catch (Exception ex)
             {
@@ -150,9 +159,7 @@ public class ModalidadeController : Controller
             }
         }
 
-        modalidade.Adapt(oldmodalidade);
-
-        oldmodalidade.UpdatedDate = DateTime.UtcNow;
+        ModalidadeMapped.Adapt(oldmodalidade);
         
         var result = await _context.SaveChangesAsync();
 
@@ -166,10 +173,10 @@ public class ModalidadeController : Controller
             return NotFound(e.Message);
         }
 
-        return Ok("Modalidade actualizada com sucesso.");
+        return Ok("ModalidadeDto actualizada com sucesso.");
     }
 
-    [HttpPut("modalidade_softdelete/{id}")]
+    [HttpPut("Modalidadesoftdelete/{id}")]
     public async Task<IResult> DeleteModalidade_Soft(int id)
     {
         if (id == null)
@@ -180,7 +187,7 @@ public class ModalidadeController : Controller
             var modalidade = await _context.Modalidades.FirstOrDefaultAsync(t => t.Id == id);
 
             if (modalidade is null)
-                return Results.NotFound("Modalidade não foi encontrado");
+                return Results.NotFound("ModalidadeDto não foi encontrado");
 
             modalidade.IsDeleted = true;
             modalidade.UpdatedDate = DateTime.UtcNow;
@@ -217,7 +224,7 @@ public class ModalidadeController : Controller
 
             await _context.SaveChangesAsync();
 
-            return Results.Ok("Modalidade apagada com Successo.");
+            return Results.Ok("ModalidadeDto apagada com Successo.");
         }
 
         return Results.Empty;
