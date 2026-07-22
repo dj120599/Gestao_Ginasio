@@ -11,7 +11,7 @@ namespace GinasioVitaFit.Api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Sala",
+                name: "SalaDto",
                 table: "Aulas");
 
             migrationBuilder.AddColumn<int>(
@@ -51,7 +51,7 @@ namespace GinasioVitaFit.Api.Migrations
                 table: "Aulas");
 
             migrationBuilder.AddColumn<string>(
-                name: "Sala",
+                name: "SalaDto",
                 table: "Aulas",
                 type: "nvarchar(max)",
                 nullable: false,

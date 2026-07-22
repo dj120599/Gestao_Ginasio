@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GinasioVitaFit.Api.Data;
 using GinasioVitaFit.Api.Entities;
-using GinasioVitaFit.Api.Models;
+using GinasioVitaFit.Shared.Models;
 
 namespace GinasioVitaFit.Api.Controllers;
 
@@ -21,7 +21,7 @@ public class AulaSocioController : Controller
     }
     
     
-    [HttpGet("/sociosaula/{id}")]
+    [HttpGet("/Sociosaula/{id}")]
     public async Task<IActionResult> GetAllSociosFromAula(int id)
     {
         if (_context.AulaSocios is not null)
@@ -30,14 +30,16 @@ public class AulaSocioController : Controller
                 Where(a => a.AulaId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
-            if(socios.Any())
-                return Ok(socios);
+            List<AulaSociosDto> Sociosmapped = _mapper.Map<List<AulaSociosDto>>(socios);
+            
+            if(Sociosmapped.Any())
+                return Ok(Sociosmapped);
         }
 
         return NotFound();
     }
     
-    [HttpGet("/aulassocio/{id}")]
+    [HttpGet("/Aulassocio/{id}")]
     public async Task<IActionResult> GetAllAulasFromSocio(int id)
     {
         if (_context.AulaSocios is not null)
@@ -47,14 +49,16 @@ public class AulaSocioController : Controller
                 Where(a => a.SocioId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
 
-            if(socios.Any())
-                return Ok(socios);
+            List<AulaSociosDto> Aulasmapped = _mapper.Map<List<AulaSociosDto>>(socios);
+            
+            if(Aulasmapped.Any())
+                return Ok(Aulasmapped);
         }
 
         return NotFound();
     }
     
-    [HttpGet("/aulasocio/{id,socio}")]
+    [HttpGet("/Aulasocio")]
     public async Task<IActionResult> GetSocioFromAula([FromBody] AulaSociosDto? aulasocio)
     {
         if (_context.AulaSocios is not null)
@@ -62,15 +66,17 @@ public class AulaSocioController : Controller
             var socios = await _context.AulaSocios.FirstOrDefaultAsync(
                 a => a.AulaId == aulasocio.AulaId && a.SocioId == aulasocio.SocioId && a.IsDeleted.Equals(false));
             
-            if(socios != null)
-                return Ok(socios);
+            var sociomapped = _mapper.Map<AulaSocios,AulaSociosDto>(socios);
+            
+            if(sociomapped != null)
+                return Ok(sociomapped);
         }
 
         return NotFound();
     }
 
 
-    [HttpPost("/aulasocio")]
+    [HttpPost("/Aulasocio")]
     public async Task<IResult> AddSocioToAula([FromBody] AulaSociosDto? aulasocio)
     {
         if (aulasocio is null)
@@ -80,31 +86,32 @@ public class AulaSocioController : Controller
 
         if (aulasocios is not null)
         {
-            var mapper = _mapper.Map<Models.AulaSociosDto, Entities.AulaSocios>(aulasocio);
-            mapper.UpdatedDate = DateTime.UtcNow;
+            var sociomapped = _mapper.Map<AulaSociosDto, AulaSocios>(aulasocio);
+            sociomapped.UpdatedDate = DateTime.UtcNow;
 
-            var oldsocios = await _context.AulaSocios.FirstOrDefaultAsync(a => a.AulaId == mapper.AulaId &&
-                                                                               a.SocioId == mapper.SocioId
-                                                                               && a.IsDeleted.Equals(true));
+            var oldsocios = await _context.AulaSocios.
+                FirstOrDefaultAsync(a => a.AulaId == sociomapped.AulaId 
+                                         && a.SocioId == sociomapped.SocioId 
+                                         && a.IsDeleted.Equals(true));
 
-            bool isopen = AulaIsOpen(mapper).Result;
+            bool isopen = AulaIsOpen(sociomapped).Result;
             
             if (isopen)
             {
                 if (oldsocios != null)
                 {
-                    aulasocio.UpdatedDate = DateTime.UtcNow;
-                    aulasocio.IsDeleted = false;
-                    aulasocio.Adapt(oldsocios);
+                    sociomapped.UpdatedDate = DateTime.UtcNow;
+                    sociomapped.IsDeleted = false;
+                    sociomapped.Adapt(oldsocios);
 
                     await _context.SaveChangesAsync();
                     
-                    isopen = AulaIsOpen(mapper).Result;
+                    isopen = AulaIsOpen(sociomapped).Result;
 
                     if (isopen == false)
                     {
                         var aula = await _context.Aulas.FirstOrDefaultAsync(
-                            a => a.Id == aulasocio.AulaId
+                            a => a.Id == sociomapped.AulaId
                             && a.IsDeleted.Equals(false));
                         
                         aula.IsOpen = false;
@@ -112,32 +119,32 @@ public class AulaSocioController : Controller
                     }
                         
                     
-                    return Results.Ok("Socio adicionado á Aula com Successo.");
+                    return Results.Ok("SocioDto adicionado á AulaDto com Successo.");
                 
                 }
                 else
                 {
-                    mapper.CreatedDate = DateTime.UtcNow;
+                    sociomapped.CreatedDate = DateTime.UtcNow;
 
-                    aulasocios.Add(mapper);
+                    aulasocios.Add(sociomapped);
 
                     try
                     {
                         await _context.SaveChangesAsync();
                     
-                        isopen = AulaIsOpen(mapper).Result;
+                        isopen = AulaIsOpen(sociomapped).Result;
 
                         if (isopen == false)
                         {
                             var aula = await _context.Aulas.FirstOrDefaultAsync(
-                                a => a.Id == mapper.AulaId
+                                a => a.Id == sociomapped.AulaId
                                      && a.IsDeleted.Equals(true));
                         
                             aula.IsOpen = false;
                             await _context.SaveChangesAsync();
                         }
                         
-                        return Results.Ok("Socio adicionado á Aula com Successo.");
+                        return Results.Ok("SocioDto adicionado á AulaDto com Successo.");
                     }
                     catch (Exception e)
                     {
@@ -149,7 +156,7 @@ public class AulaSocioController : Controller
         return Results.Empty;
     }
     
-    [HttpPut("aulasocio_softdelete")]
+    [HttpPut("Aulasociosoftdelete")]
     public async Task<IResult> DeleteSocio_Soft([FromBody] AulaSociosDto? aulasocio)
     {
         if (aulasocio.AulaId == null)
@@ -158,20 +165,24 @@ public class AulaSocioController : Controller
         if (aulasocio.SocioId == null)
             return Results.Empty;
         
+        var sociomapped = _mapper.Map<AulaSociosDto, AulaSocios>(aulasocio);
+        
         if (_context.AulaSocios is not null)
         {
-            var oldAulaSocios = await _context.AulaSocios.FirstOrDefaultAsync(t => t.AulaId == aulasocio.AulaId && t.SocioId == aulasocio.SocioId);
+            var oldAulaSocios = await _context.AulaSocios.
+                FirstOrDefaultAsync(t => t.AulaId == sociomapped.AulaId 
+                                         && t.SocioId == sociomapped.SocioId);
             
             if(oldAulaSocios is null)
-                return Results.NotFound("Aula Agendada não foi encontrado");
+                return Results.NotFound("AulaDto Agendada não foi encontrado");
             
-            aulasocio.UpdatedDate = DateTime.UtcNow;
-            aulasocio.IsDeleted = true;
-            aulasocio.Adapt(oldAulaSocios);
+            sociomapped.UpdatedDate = DateTime.UtcNow;
+            sociomapped.IsDeleted = true;
+            sociomapped.Adapt(oldAulaSocios);
             
             await _context.SaveChangesAsync();
             
-            return Results.Ok("Aula desistida com Successo.");
+            return Results.Ok("AulaDto desistida com Successo.");
         }
         return Results.Empty;
     }

@@ -41,8 +41,8 @@
         <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 9999; display: flex; align-items: center; justify-content: center;">
             <div style="background: white; border-top: 6px solid #FF6B00; padding: 24px; border-radius: 8px; max-width: 420px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.25); text-align: center; color: black;">
                 <MudIcon Icon="@Icons.Material.Filled.Warning" Style="color: #FF6B00; font-size: 3rem;" Class="mb-2" />
-                <h3 style="margin-top: 0; font-weight: bold; color: #333;">Eliminar Instrutor</h3>
-                <p style="margin: 16px 0; color: #666; font-size: 15px;">Tem a certeza que deseja eliminar o(a) instrutor(a) <b style="color: #FF6B00;">@instrutorSelecionado?.Name</b>? Isto irá remover todas as suas aulas agendadas.</p>
+                <h3 style="margin-top: 0; font-weight: bold; color: #333;">Eliminar InstrutorDto</h3>
+                <p style="margin: 16px 0; color: #666; font-size: 15px;">Tem a certeza que deseja eliminar o(a) instrutorDto(a) <b style="color: #FF6B00;">@instrutorSelecionado?.Name</b>? Isto irá remover todas as suas aulaDtos agendadas.</p>
                 <div style="display: flex; justify-space-between; margin-top: 24px; gap: 12px;">
                     <button @onclick="FecharPopup" style="flex: 1; background: #eeeeee; color: #333; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">CANCELAR</button>
                     <button @onclick="ExecutarEliminacaoReal" style="flex: 1; background: #FF6B00; color: white; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">ELIMINAR</button>
@@ -98,10 +98,10 @@
 </MudContainer>
 
 @code {
-    private List<Instrutor> listaInstrutores = new List<Instrutor>();
+    private List<InstrutorDto> listaInstrutores = new List<InstrutorDto>();
     private string pesquisa = "";
     private bool exibirPopupConfirmacao = false;
-    private Instrutor? instrutorSelecionado;
+    private InstrutorDto? instrutorSelecionado;
 
     // Referência direta para o componente flutuante
     private GinasioVitaFit.WebClient.Components.Pages.Instrutores.Componentes.AddInstrutorComponente modalAdicionar = default!;
@@ -138,11 +138,11 @@
 
         if (listaInstrutores != null)
         {
-            listaInstrutores = listaInstrutores.Where(i => !i.IsDeleted).ToList();
+            listaInstrutores = listaInstrutores.ToList();
         }
         else
         {
-            listaInstrutores = new List<Instrutor>();
+            listaInstrutores = new List<InstrutorDto>();
         }
         StateHasChanged();
     }
@@ -159,9 +159,9 @@
         await CarregarInstrutores();
     }
 
-    private void ConfirmarEliminacao(Instrutor instrutor)
+    private void ConfirmarEliminacao(InstrutorDto instrutorDto)
     {
-        instrutorSelecionado = instrutor;
+        instrutorSelecionado = instrutorDto;
         exibirPopupConfirmacao = true;
         StateHasChanged();
     }
@@ -194,7 +194,7 @@
 
             if (respostaNativa.IsSuccessStatusCode)
             {
-                Snackbar.Add("Instrutor e as suas aulas associadas foram desativados!", Severity.Success);
+                Snackbar.Add("InstrutorDto e as suas aulas associadas foram desativados!", Severity.Success);
 
 // Dá 500ms para a BDオンライン processar as alterações
                 await Task.Delay(500);
@@ -219,11 +219,11 @@
         }
 }
 
-    private bool FiltroGlobal(Instrutor instrutor)
+    private bool FiltroGlobal(InstrutorDto instrutorDto)
     {
         if (string.IsNullOrWhiteSpace(pesquisa)) return true;
-        if (instrutor.Name?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
-        if (instrutor.Email?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (instrutorDto.Name?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (instrutorDto.Email?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
         return false;
     }
 }

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace GinasioVitaFit.Shared.Models;
 
-public class Socio
+public class SocioDto
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }
@@ -34,20 +34,11 @@ public class Socio
     public int PlanoId { get; set; }
 
     [JsonPropertyName("plano")]
-    public Plano Plano { get; set; }
+    public PlanoDto Plano { get; set; }
     
     [JsonPropertyName("subInicio")]
     public DateTime SubInicio { get; set; }
     
     [JsonPropertyName("subFim")]
     public DateTime SubFim { get; set; }
-    
-    [JsonPropertyName("createdDate")]
-    public DateTime CreatedDate { get; set; }
-    
-    [JsonPropertyName("updatedDate")]
-    public DateTime UpdatedDate { get; set; }
-    
-    [JsonPropertyName("isDeleted")]
-    public bool IsDeleted { get; set; }
 }

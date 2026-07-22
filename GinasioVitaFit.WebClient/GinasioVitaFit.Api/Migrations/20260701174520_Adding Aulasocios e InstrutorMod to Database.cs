@@ -12,7 +12,7 @@ namespace GinasioVitaFit.Api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AulaSocios",
+                name: "AulaSociosDto",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -50,7 +50,7 @@ namespace GinasioVitaFit.Api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AulaSocios");
+                name: "AulaSociosDto");
 
             migrationBuilder.DropTable(
                 name: "InstrutorMods");
