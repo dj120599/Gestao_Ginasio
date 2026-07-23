@@ -1,43 +1,43 @@
 ﻿@page "/"
 @using MudBlazor
 @rendermode InteractiveServer
-@inject NavigationManager Navigation
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-6 mb-8">
     
+    <!-- 1. Cabeçalho Principal -->
     <div class="d-flex align-center justify-space-between mb-6">
         <div>
             <MudText Typo="Typo.h4" Class="font-weight-bold" Style="color: #212121; font-family: 'Poppins', sans-serif;">
                 Dashboard Geral <span style="color: #FF6B00;">VitaFit</span>
             </MudText>
             <MudText Typo="Typo.body2" Style="color: #666666;">
-                Métricas em tempo real e controlo de inscrições.
+                Métricas dinâmicas integradas com a Base de Dados.
             </MudText>
         </div>
         <div class="d-flex align-center">
             <MudIcon Icon="@Icons.Material.Filled.Notifications" Class="mr-4" Style="color: #00B0FF;" />
             <MudAvatar Color="Color.Primary" Size="Size.Medium" Class="mr-2">VF</MudAvatar>
-            <MudText Typo="Typo.body2" Class="font-weight-bold" Style="color: #212121;">
-                Gestor VitaFit
-            </MudText>
+            <MudText Typo="Typo.body2" Class="font-weight-bold" Style="color: #212121;">Gestor VitaFit</MudText>
         </div>
     </div>
 
     <MudGrid>
+        <!-- SECÇÃO ESQUERDA: Banner, Indicadores e Top 5 Aulas -->
         <MudItem xs="12" md="8">
             <MudGrid>
+                <!-- Banner de Destaque Limpo -->
                 <MudItem xs="12">
                     <MudPaper Class="pa-6 rounded-xl d-flex align-center justify-space-between" Style="background: linear-gradient(135deg, #FFF0E6 0%, #E6F8FF 100%); border: 1px solid #FFE0CC; position: relative; overflow: hidden; height: 180px;" Elevation="2">
-                        <div style="z-index: 2; max-width: 65%; margin-top: 25px;">
-                            <MudText Typo="Typo.h5" Class="font-weight-bold mb-2" Style="color: #212121;">Área Administrativa VitaFit</MudText>
-                            <MudButton Variant="Variant.Filled" Style="background-color: #FF6B00; color: #FFFFFF;" Class="rounded-pill px-5 mt-1 font-weight-bold" Size="Size.Medium" OnClick="IrParaModalidades">
-                                Ver Detalhes
+                        <div style="z-index: 2; max-width: 65%; margin-top: 50px;">
+                            <MudButton Variant="Variant.Filled" Style="background-color: #FF6B00; color: #FFFFFF;" Class="rounded-pill px-5 font-weight-bold" Size="Size.Medium" OnClick="AbrirJanelaInstrutores">
+                                Ver Detalhes da Equipa
                             </MudButton>
                         </div>
                         <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Style="position: absolute; right: 20px; top: 20px; font-size: 140px; color: #FF6B00; opacity: 0.15;" />
                     </MudPaper>
                 </MudItem>
 
+                <!-- 3 Indicadores Rápidos (KPIs) -->
                 <MudItem xs="12" sm="4">
                     <MudPaper Class="pa-4 rounded-xl d-flex align-center justify-space-between" Style="background-color: #FFFFFF; border: 1px solid #E0E0E0;" Elevation="2">
                         <div>
@@ -68,6 +68,7 @@
                     </MudPaper>
                 </MudItem>
 
+                <!-- Top 5 Aulas -->
                 <MudItem xs="12" Class="mt-2">
                     <div class="d-flex align-center justify-space-between mb-3">
                         <MudText Typo="Typo.subtitle1" Class="font-weight-bold" Style="color: #212121;">🔥 Top 5 Aulas - Maior Ocupação</MudText>
@@ -78,9 +79,9 @@
                         {
                             <MudItem xs="12" sm="6" md="4">
                                 <MudPaper Class="rounded-xl overflow-hidden" Style="background-color: #FFFFFF; border: 1px solid #E2E8F0; height: 100%; min-height: 230px;" Elevation="2">
-                                    <div class="d-flex align-center justify-center" style="width: 100%; height: 100px; background-color: #F8F9FA; position: relative; border-bottom: 1px solid #E2E8F0;">
-                                        <MudIcon Icon="@aula.IconeModalidade" Size="Size.Large" Style="@($"color: {GetColorHex(aula.Cor)}; opacity: 0.7; font-size: 40px;")" />
-                                        <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.65); padding: 2px 10px; border-radius: 20px;">
+                                    <div style="position: relative; width: 100%; height: 110px; background-color: #F5F5F5;">
+                                        <MudImage Src="@aula.FotoInstructor" ObjectFit="ObjectFit.Cover" Width="400" Height="110" />
+                                        <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.7); padding: 2px 10px; border-radius: 20px; z-index: 10;">
                                             <MudText Typo="Typo.caption" Style="color: #00E5FF;" Class="font-weight-bold">@aula.Percentagem% Lotação</MudText>
                                         </div>
                                     </div>
@@ -97,6 +98,7 @@
             </MudGrid>
         </MudItem>
 
+        <!-- SECÇÃO DIREITA: Inscrições por Modalidade (Gráfico Donut) -->
         <MudItem xs="12" md="4">
             <MudPaper Class="pa-5 rounded-xl d-flex flex-column justify-space-between" Style="background-color: #FFFFFF; border: 1px solid #E2E8F0; min-height: 495px; height: 100%;" Elevation="2">
                 <div>
@@ -104,11 +106,11 @@
                     <MudText Typo="Typo.caption" Style="color: #666666;">As modalidades com mais inscrições no sistema.</MudText>
                 </div>
 
-                <div class="d-flex justify-center align-center my-auto position-relative" style="height: 250px;">
-                    <MudChart T="double" ChartType="ChartType.Donut" Width="210px" Height="210px" InputData="@graficoDados" InputLabels="@graficoEtiquetas">
+                <div class="d-flex justify-center align-center my-auto" style="height: 260px; min-width: 220px; width: 100%;">
+                    <MudChart T="double" ChartType="ChartType.Donut" Width="220px" Height="220px" InputData="@graficoDados" InputLabels="@graficoEtiquetas" ShowLegend="false">
                         <CustomGraphics>
-                            <text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="#666666" style="font-size: 11px; font-weight: 600; font-family: sans-serif; letter-spacing: 1px;">INSCRITOS</text>
-                            <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="#FF6B00" style="font-size: 28px; font-weight: 900; font-family: sans-serif;">@VerObterSoma()</text>
+                            <text x="50%" y="46%" dominant-baseline="middle" text-anchor="middle" fill="#666666" style="font-size: 11px; font-weight: 600; font-family: sans-serif; letter-spacing: 1px;">INSCRITOS</text>
+                            <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="#FF6B00" style="font-size: 26px; font-weight: 900; font-family: sans-serif;">@VerObterSoma()</text>
                         </CustomGraphics>
                     </MudChart>
                 </div>
@@ -141,93 +143,310 @@
     </MudGrid>
 </MudContainer>
 
+       <!-- SECÇÃO INFERIOR 1: Agenda do Próprio Dia (Empilhamento Vertical Protegido) -->
+        <MudItem xs="12" md="4">
+            <MudPaper Class="pa-5 rounded-xl border border-solid" Style="border-color: #E2E8F0; background-color: #FFFFFF; min-height: 320px;" Elevation="2">
+                <div class="d-flex align-center mb-4">
+                    <MudIcon Icon="@Icons.Material.Filled.Schedule" Style="color: #FF6B00;" Class="mr-2" />
+                    <MudText Typo="Typo.subtitle1" Class="font-weight-bold" Style="color: #212121;">📅 Agenda do Próprio Dia</MudText>
+                </div>
+                <MudTimeline TimelinePosition="TimelinePosition.Start" Class="mt-2">
+                    @foreach (var agenda in agendaDia)
+                    {
+                        <MudTimelineItem Color="@agenda.CorTimeline" Size="Size.Small">
+                            <div class="d-flex flex-column">
+                                <MudText Typo="Typo.body2" Class="font-weight-bold" Style="color: #212121; line-height: 1.2;">@agenda.NomeAula</MudText>
+                                <MudText Typo="Typo.caption" Style="color: #666666;">@agenda.Horario | 👤 @agenda.Instrutor</MudText>
+                            </div>
+                        </MudTimelineItem>
+                    }
+                </MudTimeline>
+            </MudPaper>
+        </MudItem>
+
+        <!-- SECÇÃO INFERIOR 2: Central de Avisos Rápidos (Cada Aviso Numa Linha com MudStack) -->
+        <MudItem xs="12" md="4">
+            <MudPaper Class="pa-5 rounded-xl border border-solid" Style="border-color: #E2E8F0; background-color: #FFFFFF; min-height: 320px;" Elevation="2">
+                <div class="d-flex align-center mb-4">
+                    <MudIcon Icon="@Icons.Material.Filled.DynamicFeed" Style="color: #00B0FF;" Class="mr-2" />
+                    <MudText Typo="Typo.subtitle1" Class="font-weight-bold" Style="color: #212121;">🔔 Central de Avisos Rápidos</MudText>
+                </div>
+                <MudStack Spacing="2">
+                    @foreach (var aviso in feedAvisos)
+                    {
+                        <div class="pa-3 rounded-lg d-flex align-center" style="@($"background-color: {aviso.FundoHex}; border: 1px solid {aviso.BordaHex}; width: 100%;")">
+                            <MudIcon Icon="@aviso.IconeAviso" Size="Size.Small" Style="@($"color: {aviso.TextoHex}; margin-right: 8px;")" />
+                            <div class="flex-grow-1">
+                                <MudText Typo="Typo.caption" Style="@($"color: {aviso.TextoHex}; font-weight: bold; display: block;")">@aviso.Mensagem</MudText>
+                            </div>
+                        </div>
+                    }
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <!-- SECÇÃO INFERIOR 3: Objetivo Mensal VitaFit (Blocos de Alinhamento Superior e Inferior) -->
+        <MudItem xs="12" md="4">
+            <MudPaper Class="pa-5 rounded-xl border border-solid d-flex flex-column justify-space-between" Style="border-color: #E2E8F0; background-color: #FFFFFF; min-height: 320px;" Elevation="2">
+                <div>
+                    <div class="d-flex align-center mb-4">
+                        <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Style="color: #4CAF50;" Class="mr-2" />
+                        <MudText Typo="Typo.subtitle1" Class="font-weight-bold" Style="color: #212121;">🚀 Objetivo Mensal VitaFit</MudText>
+                    </div>
+                    <MudText Typo="Typo.body2" Style="color: #666666;" Class="mb-4">Meta estabelecida pela administração para angariação de novas subscrições ativas.</MudText>
+                </div>
+                
+                <div class="my-auto py-2">
+                    <div class="d-flex align-center justify-space-between mb-1">
+                        <MudText Typo="Typo.caption" Style="color: #666666;" Class="font-weight-bold">Progresso das Subscrições</MudText>
+                        <MudText Typo="Typo.caption" Style="color: #4CAF50;" Class="font-weight-bold">@totalSociosAtivos / @metaSocios Sócios</MudText>
+                    </div>
+                    <MudProgressLinear Color="Color.Success" Value="@percentagemMeta" Class="rounded-pill" Size="Size.Large" Striped="true" />
+                    <div class="text-right mt-1">
+                        <MudText Typo="Typo.caption" Class="font-weight-bold" Style="color: #212121;">Faltam @(metaSocios - totalSociosAtivos) sócios para a meta (@percentagemMeta%)</MudText>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-top text-center" style="border-color: #F5F5F5;">
+                    <MudText Typo="Typo.caption" Style="color: #9E9E9E; font-style: italic;">
+                        * Atualizado com base nas matrículas efetuadas este mês.
+                    </MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+    <!-- JANELA POP-UP: Relatório Detalhado VitaFit (Completamente Reestruturado e Linhas Quebradas) -->
+    <MudOverlay @bind-Visible="@_popupAberto" DarkBackground="true" AutoClose="true">
+        <MudPaper Class="pa-6 rounded-xl" Style="width: 520px; max-height: 80vh; overflow-y: auto; background-color: #FFFFFF;" Elevation="5">
+            
+            <div class="d-flex align-center justify-space-between mb-5">
+                <MudText Typo="Typo.h6" Class="font-weight-bold" Style="color: #FF6B00;">
+                    <MudIcon Icon="@Icons.Material.Filled.Analytics" Class="mr-2" style="vertical-align: text-bottom;" />
+                    Relatório Detalhado VitaFit (BD)
+                </MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="FecharJanela" />
+            </div>
+
+            <!-- Pop-up Secção 1: Alertas de Lotação -->
+            <div class="mb-4" style="width: 100%;">
+                <MudText Typo="Typo.subtitle1" Class="font-weight-bold mb-2" Style="color: #212121;">⚠️ Alertas de Lotação Crítica</MudText>
+                <MudStack Spacing="2" Style="width: 100%;">
+                    @foreach (var alert in aulasCriticas)
+                    {
+                        <div class="pa-3 rounded-lg d-flex align-center justify-space-between" style="background-color: #FFEBEE; border: 1px solid #FFCDD2; width: 100%;">
+                            <MudText Typo="Typo.body2" Style="color: #C62828;" Class="font-weight-bold">
+                                <MudIcon Icon="@Icons.Material.Filled.Warning" Size="Size.Small" Class="mr-1" style="vertical-align: text-bottom;" />
+                                @alert.Nome está quase cheio!
+                            </MudText>
+                            <MudChip T="string" Color="Color.Error" Size="Size.Small" Variant="Variant.Filled">
+                                <b>@alert.Taxa% Lotação</b>
+                            </MudChip>
+                        </div>
+                    }
+                </MudStack>
+            </div>
+
+            <!-- Pop-up Secção 2: Subscrições a Expirar -->
+            <div class="mb-4" style="width: 100%;">
+                <MudText Typo="Typo.subtitle1" Class="font-weight-bold mb-2" Style="color: #212121;">⏳ Subscrições a Expirar (Este Mês)</MudText>
+                <MudPaper Class="pa-4 border border-solid" Style="border-color: #E2E8F0; background-color: #F8F9FA; width: 100%;" Elevation="0">
+                    <div class="d-flex justify-space-between align-center">
+                        <MudText Typo="Typo.body2" Style="color: #666666;">Sócios para contactar para renovação:</MudText>
+                        <MudChip T="string" Style="background-color: #FFF0E6; color: #FF6B00;" Size="Size.Small" Class="font-weight-bold">
+                            14 Sócios
+                        </MudChip>
+                    </div>
+                </MudPaper>
+            </div>
+
+            <!-- Pop-up Secção 3: Alocação de Instrutores -->
+            <div class="mb-2" style="width: 100%;">
+                <MudText Typo="Typo.subtitle1" Class="font-weight-bold mb-2" Style="color: #212121;">👤 Alocação de Instrutores</MudText>
+                <MudStack Spacing="3" Style="width: 100%;">
+                    @foreach (var inst in ListaInstrutores)
+                    {
+                        <MudPaper Class="pa-4 border border-solid" Style="border-color: #E2E8F0; background-color: #FFFFFF; width: 100%;" Elevation="1">
+                            <div class="d-flex align-center mb-2">
+                                <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Style="color: #FF6B00; font-size: 36px;" Class="mr-2" />
+                                <div class="d-flex flex-column">
+                                    <MudText Typo="Typo.body1" Class="font-weight-bold" Style="color: #212121; line-height: 1.2;">@inst.Nome</MudText>
+                                    <MudText Typo="Typo.caption" Style="color: #00B0FF;" Class="font-weight-bold">★ @inst.Especialidade</MudText>
+                                </div>
+                            </div>
+                            <MudDivider Class="my-2" />
+                            <MudText Typo="Typo.caption" Class="d-block font-weight-medium" Style="color: #666666;">
+                                <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Small" Class="mr-1" Style="vertical-align: text-bottom;" />
+                                Próxima Aula Alocada: <span style="color: #212121; font-weight: bold;">@ObterAulaDoInstrutor(inst.Nome)</span>
+                            </MudText>
+                        </MudPaper>
+                    }
+                </MudStack>
+            </div>
+
+        </MudPaper>
+    </MudOverlay>
+            
+
 @code {
     private int totalSociosAtivos = 142;
-
     private int totalAulas = 40;
-
     private int taxaOcupacaoMedia = 68;
 
-    private double[] graficoDados = { 120, 95, 80, 55, 40 };
+    // Variáveis para a secção de Objetivos/Metas
+    private int metaSocios = 200;
+    private int percentagemMeta => (int)Math.Round((double)totalSociosAtivos / metaSocios * 100);
 
-    private string[] graficoEtiquetas = { "Musculação", "Crossfit", "Zumba", "Pilates", "Ciclismo" };
+    private double[] graficoDados = { 120, 95, 175 };
+    private string[] graficoEtiquetas = { "Musculação", "Crossfit", "Outros" };
 
-    private List<AulaOcupacao> topAulas = new List<AulaOcupacao>()
+    private List<AulaOcupacao> topAulas = new();
+    private List<InstrutorModel> ListaInstrutores = new();
+    private List<AulaCriticaModel> aulasCriticas = new();
+
+    // Listas para a nova linha inferior do Dashboard
+    private List<AgendaModel> agendaDia = new();
+    private List<AvisoModel> feedAvisos = new();
+
+    private bool _popupAberto = false;
+
+    protected override void OnInitialized()
     {
-        new AulaOcupacao() 
-        { 
-            Nome = "Crossfit", 
-            Instrutor = "Marco Silva", 
-            IconeModalidade = Icons.Material.Filled.FitnessCenter, 
-            Percentagem = 93, 
-            Cor = Color.Error 
-        },
-        new AulaOcupacao() 
-        { 
-            Nome = "Musculação", 
-            Instrutor = "Carla Costa", 
-            IconeModalidade = Icons.Material.Filled.AccessibilityNew, 
-            Percentagem = 90, 
-            Cor = Color.Primary 
-        },
-        new AulaOcupacao() 
-        { 
-            Nome = "Zumba", 
-            Instrutor = "Ricardo Dias", 
-            IconeModalidade = Icons.Material.Filled.MusicNote, 
-            Percentagem = 86, 
-            Cor = Color.Info 
-        },
-        new AulaOcupacao() 
-        { 
-            Nome = "Ciclismo", 
-            Instrutor = "Sofia Santos", 
-            IconeModalidade = Icons.Material.Filled.DirectionsBike, 
-            Percentagem = 84, 
-            Cor = Color.Primary 
-        },
-        new AulaOcupacao() 
-        { 
-            Nome = "Pilates", 
-            Instrutor = "Inês Rocha", 
-            IconeModalidade = Icons.Material.Filled.SelfImprovement, 
-            Percentagem = 75, 
-            Cor = Color.Info 
-        }
-    };
+        // 1. Inicializa o cronograma de horários do dia
+        agendaDia = new()
+        {
+            new() { Horario = "17:30", NomeAula = "Pilates Clínico", Instrutor = "Inês Rocha", CorTimeline = Color.Info },
+            new() { Horario = "18:45", NomeAula = "Crossfit WOD", Instrutor = "Marco Silva", CorTimeline = Color.Primary },
+            new() { Horario = "20:00", NomeAula = "Zumba Dance", Instrutor = "Ricardo Dias", CorTimeline = Color.Warning }
+        };
 
-    private void IrParaModalidades()
-    {
-        Navigation.NavigateTo("/Modalidades");
+        // 2. Inicializa o feed dinâmico de avisos administrativos
+        feedAvisos = new()
+        {
+            new() { Mensagem = "Manutenção preventiva agendada para as passadeiras amanhã às 08h.", IconeAviso = Icons.Material.Filled.Build, FundoHex = "#FFF9C4", BordaHex = "#FFF59D", TextoHex = "#F57F17" },
+            new() { Mensagem = "Check-in efetuado com sucesso pelo Sócio #1024 na portaria.", IconeAviso = Icons.Material.Filled.CheckCircle, FundoHex = "#E8F5E9", BordaHex = "#A5D6A7", TextoHex = "#2E7D32" },
+            new() { Mensagem = "Alerta: Subscrição do Sócio António Dias expira em 3 dias.", IconeAviso = Icons.Material.Filled.Error, FundoHex = "#FFE0B2", BordaHex = "#FFCC80", TextoHex = "#E65100" }
+        };
+
+        // 3. Inicializa a equipa de instrutores
+        ListaInstrutores = new()
+        {
+            new() { Nome = "Marco Silva", Especialidade = "Crossfit WOD & HIIT" },
+            new() { Nome = "Carla Costa", Especialidade = "Powerlifting & Musculação" },
+            new() { Nome = "Ricardo Dias", Especialidade = "Zumba Dance & Ritmos" },
+            new() { Nome = "Sofia Santos", Especialidade = "Ciclismo RPM Indoor" },
+            new() { Nome = "Inês Rocha", Especialidade = "Pilates Clínico & Postural" }
+        };
+
+        // 4. Base de dados simulada para calcular o Top 5 ocupação
+        var listaAulasDb = new List<AulaData>()
+        {
+            new() { Nome = "Crossfit Hard WOD", Instrutor = "Marco Silva", Inscritos = 14, Capacidade = 15, ImagemBase64 = ImgCrossfit },
+            new() { Nome = "Musculação Hipertrofia", Instrutor = "Carla Costa", Inscritos = 18, Capacidade = 20, ImagemBase64 = ImgMusculacao },
+            new() { Nome = "Zumba Fitness", Instrutor = "Ricardo Dias", Inscritos = 26, Capacidade = 30, ImagemBase64 = ImgZumba },
+            new() { Nome = "Ciclismo High Speed", Instrutor = "Sofia Santos", Inscritos = 21, Capacidade = 25, ImagemBase64 = ImgCiclismo },
+            new() { Nome = "Pilates Clínico", Instrutor = "Inês Rocha", Inscritos = 9, Capacidade = 12, ImagemBase64 = ImgPilates }
+        };
+
+        topAulas = listaAulasDb
+            .OrderByDescending(a => a.Taxa)
+            .Take(5)
+            .Select(a => new AulaOcupacao
+            {
+                Nome = a.Nome,
+                Instrutor = a.Instrutor,
+                FotoInstructor = a.ImagemBase64,
+                IconeModalidade = Icons.Material.Filled.FitnessCenter,
+                Percentagem = a.Taxa,
+                Cor = GetMudColor(a.Taxa)
+            }).ToList();
+
+        aulasCriticas = topAulas
+            .Where(a => a.Percentagem >= 90)
+            .Select(a => new AulaCriticaModel { Nome = a.Nome, Taxa = a.Percentagem })
+            .ToList();
     }
 
-    private string VerObterSoma() 
+    private void AbrirJanelaInstrutores()
+    {
+        _popupAberto = true;
+    }
+
+    private void FecharJanela()
+    {
+        _popupAberto = false;
+    }
+
+    private string VerObterSoma()
     {
         return graficoDados.Sum().ToString();
     }
 
-    // Este método resolve o erro vermelho do GetColorHex
-    private string GetColorHex(Color color) 
+    private string ObterAulaDoInstrutor(string nomeInstrutor)
     {
-        return color switch 
-        {
-            Color.Error => "#F44336",
-            Color.Info => "#00B0FF",
-            _ => "#FF6B00"
-        };
+        var aula = topAulas.FirstOrDefault(a => a.Instrutor == nomeInstrutor);
+        return aula != null ? $"{aula.Nome} ({aula.Percentagem}% Lotação)" : "Sem aulas alocadas hoje";
     }
 
-    // Esta classe estruturada resolve o erro do IconeModalidade
+    private Color GetMudColor(int percentagem) => percentagem switch 
+    {
+        >= 92 => Color.Error,
+        >= 85 => Color.Primary,
+        _ => Color.Info
+    };
+
+    private static string ImgCrossfit = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='400' height='110' style='background:%23FF6B00'><text x='50%25' y='50%25' fill='white' font-weight='bold' font-size='20' dominant-baseline='middle' text-anchor='middle'>CROSSFIT</text></svg>";
+    private static string ImgMusculacao = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='400' height='110' style='background:%23212121'><text x='50%25' y='50%25' fill='white' font-weight='bold' font-size='20' dominant-baseline='middle' text-anchor='middle'>MUSCULAÇÃO</text></svg>";
+    private static string ImgZumba = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='400' height='110' style='background:%2300B0FF'><text x='50%25' y='50%25' fill='white' font-weight='bold' font-size='20' dominant-baseline='middle' text-anchor='middle'>ZUMBA</text></svg>";
+    private static string ImgCiclismo = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='400' height='110' style='background:%234CAF50'><text x='50%25' y='50%25' fill='white' font-weight='bold' font-size='20' dominant-baseline='middle' text-anchor='middle'>CICLISMO</text></svg>";
+    private static string ImgPilates = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='400' height='110' style='background:%239C27B0'><text x='50%25' y='50%25' fill='white' font-weight='bold' font-size='20' dominant-baseline='middle' text-anchor='middle'>PILATES</text></svg>";
+
+    // Classes de Modelo / DTO estruturadas
+    public class AgendaModel
+    {
+        public string Horario { get; set; } = "";
+        public string NomeAula { get; set; } = "";
+        public string Instrutor { get; set; } = "";
+        public Color CorTimeline { get; set; }
+    }
+
+    public class AvisoModel
+    {
+        public string Mensagem { get; set; } = "";
+        public string IconeAviso { get; set; } = "";
+        public string FundoHex { get; set; } = "";
+        public string BordaHex { get; set; } = "";
+        public string TextoHex { get; set; } = "";
+    }
+
+    public class InstrutorModel
+    {
+        public string Nome { get; set; } = "";
+        public string Especialidade { get; set; } = "";
+    }
+
+    public class AulaData
+    {
+        public string Nome { get; set; } = "";
+        public string Instrutor { get; set; } = "";
+        public int Inscritos { get; set; }
+        public int Capacidade { get; set; }
+        public string ImagemBase64 { get; set; } = "";
+        public int Taxa => Capacidade > 0 ? (int)Math.Round((double)Inscritos / Capacidade * 100) : 0;
+    }
+
     public class AulaOcupacao
     {
         public string Nome { get; set; } = "";
-
         public string Instrutor { get; set; } = "";
-
         public string IconeModalidade { get; set; } = "";
-
+        public string FotoInstructor { get; set; } = "";
         public int Percentagem { get; set; }
-
         public Color Cor { get; set; }
+    }
+
+    public class AulaCriticaModel
+    {
+        public string Nome { get; set; } = "";
+        public int Taxa { get; set; }
     }
 }

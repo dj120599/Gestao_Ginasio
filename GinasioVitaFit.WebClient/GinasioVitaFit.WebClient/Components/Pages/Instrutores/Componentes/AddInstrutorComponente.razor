@@ -115,9 +115,9 @@
         _isEdicao = true;
         _isOpen = true;
         _isLoading = false;
-        
-        novoInstrutor = new Instrutor
-        {
+
+        novoInstrutor =  instrutorParaEditar;
+        var mods = await GinasioService.GetAllModalidadesFromInstrutor(instrutorParaEditar.Id);
             List<InstrutorMod> templist = mods.Content ?? new List<InstrutorMod>();
             foreach (var tl in templist)
             {
@@ -137,9 +137,9 @@
                     
                 //_chosenMods.Add(resultmod);
                 MultiSelectItem m2 = From1To2(resultmod);
-                SelectedMods.Add(m2);
+                SelectedMods.Add(m2); 
             }
-        }
+        
         
         await CarregarDados();
         StateHasChanged();
