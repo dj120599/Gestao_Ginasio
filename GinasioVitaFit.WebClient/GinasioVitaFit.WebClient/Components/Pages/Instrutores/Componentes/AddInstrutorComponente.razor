@@ -123,16 +123,31 @@
         _isEdicao = true;
         _isOpen = true;
         _isLoading = false;
+
+        novoInstrutor =  instrutorParaEditar;
+        var mods = await GinasioService.GetAllModalidadesFromInstrutor(instrutorParaEditar.Id);
+            List<InstrutorMod> templist = mods.Content ?? new List<InstrutorMod>();
+            foreach (var tl in templist)
+            {
+                InstrutorMod im = new InstrutorMod()
+                {
+                    InstrutorId = tl.InstrutorId,
+                    ModalidadeId = tl.ModalidadeId
+                };
+                    
+                _ModsFromInst.Add(im);
+            }
+            
+            foreach (var im in _ModsFromInst)
+            {
+                var mod = await GinasioService.GetModalidade(im.ModalidadeId);
+                Modalidade resultmod = mod.Content ?? new Modalidade();
+                    
+                //_chosenMods.Add(resultmod);
+                MultiSelectItem m2 = From1To2(resultmod);
+                SelectedMods.Add(m2); 
+            }
         
-        _SelectedMods.Clear();
-        
-        _novoInstrutorDto = instrutorDtoParaEditar;
-        
-        foreach (var im in instrutorDtoParaEditar.Modalidades)
-        {
-            MultiSelectItem2 m2 = From1To2(im);
-            _SelectedMods.Add(m2);
-        }
         
         await CarregarDados();
         StateHasChanged();
