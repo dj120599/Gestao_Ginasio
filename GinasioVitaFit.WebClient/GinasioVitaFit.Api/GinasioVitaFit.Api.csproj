@@ -25,4 +25,8 @@
       <Folder Include="wwwroot\uploads\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\GinasioVitaFit.Shared\GinasioVitaFit.Shared.csproj" />
+    </ItemGroup>
+
 </Project>

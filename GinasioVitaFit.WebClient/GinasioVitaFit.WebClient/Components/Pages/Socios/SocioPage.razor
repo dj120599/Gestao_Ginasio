@@ -72,7 +72,7 @@
                 </CellTemplate>
             </TemplateColumn>
 
-            <!-- 4. Coluna Plano -->
+            <!-- 4. Coluna PlanoDto -->
             <PropertyColumn Property="x => x.Plano.Name" Title="Plano"/>
 
             <!-- 5. Coluna de Ações -->
@@ -98,11 +98,11 @@
 </MudContainer>
 
 @code {
-    private List<Socio> listaSocios = new List<Socio>();
+    private List<SocioDto> listaSocios = new List<SocioDto>();
     private string pesquisa = "";
     
     private bool exibirPopupConfirmacao = false;
-    private Socio? SocioSelecionado;
+    private SocioDto? SocioSelecionado;
     
     private GinasioVitaFit.WebClient.Components.Pages.Socios.Componentes.AddSocioComponente modalAdicionar = default!;
 
@@ -138,35 +138,35 @@
             Snackbar.Add($"Aviso de ligação: {ex.Message}. A carregar dados locais...", Severity.Info);
             
             // Dados simulados caso a API ainda não tenha registos ou o método GET falhe
-            listaSocios = new List<Socio>
+            listaSocios = new List<SocioDto>
             {
-                new() { Id = 1, Name = "Sócio Exemplo 1", Email = "socio1@ginasio.com", Contacto = "911111111", Nascimento = new DateOnly(1995, 5, 20), PlanoId = 1, ImageUrl = "/images/modalidade-placeholder.png" },
-                new() { Id = 2, Name = "Sócio Exemplo 2", Email = "socio2@ginasio.com", Contacto = "922222222", Nascimento = new DateOnly(1998, 10, 12), PlanoId = 2, ImageUrl = "/images/modalidade-placeholder.png" }
+                new() { Id = 1, Name = "Sócio Exemplo 1", Email = "socio1@ginasio.com", Contacto = "911111111", Nascimento = new DateOnly(1995, 5, 20), PlanoId = 1, ImageUrl = "/images/modalidadeDto-placeholder.png" },
+                new() { Id = 2, Name = "Sócio Exemplo 2", Email = "socio2@ginasio.com", Contacto = "922222222", Nascimento = new DateOnly(1998, 10, 12), PlanoId = 2, ImageUrl = "/images/modalidadeDto-placeholder.png" }
             };
         }
 
         StateHasChanged();
     }
 
-    private bool FiltroGlobal(Socio socio)
+    private bool FiltroGlobal(SocioDto socioDto)
     {
         if (string.IsNullOrWhiteSpace(pesquisa)) return true;
         
-        if (socio.Name?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
-        if (socio.Email?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (socioDto.Name?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (socioDto.Email?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
         
         return false;
     }
     
-    private async Task ConfirmarEliminacao(Socio socio)
+    private async Task ConfirmarEliminacao(SocioDto socioDto)
     {
         var parameters = new DialogParameters<MudMessageBox>();
         
         var mbox = new MudBlazor.MessageBoxOptions
         {
             Title = "Eliminar Sócio",
-            // Ajustado para .Modalidade.Name
-            Message = $"Tem a certeza que deseja eliminar o Socio, {socio.Name}?",
+            // Ajustado para .ModalidadeDto.Name
+            Message = $"Tem a certeza que deseja eliminar o Socio, {socioDto.Name}?",
             YesText = "Eliminar",
             CancelText = "Cancelar"
         };
@@ -180,15 +180,15 @@
         
         if (!result.Canceled && result.Data is bool confirmar && confirmar)
         { 
-            var aulas = await GinasioService.DeleteSocio_Soft(socio.Id);
+            var aulas = await GinasioService.DeleteSocio_Soft(socioDto.Id);
             
             if (aulas.IsSuccessful)
             {
-                Snackbar.Add("Socio eliminada com sucesso!", Severity.Success);
+                Snackbar.Add("SocioDto eliminada com sucesso!", Severity.Success);
             }
             else
             {
-                Snackbar.Add("Ocorreu um Erro na eliminação do Socio!", Severity.Error);
+                Snackbar.Add("Ocorreu um Erro na eliminação do SocioDto!", Severity.Error);
             }
             await CarregarSocios();
         }

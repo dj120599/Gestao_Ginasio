@@ -147,7 +147,7 @@ else
     private bool _isLoading = true;
     private ModalidadeModalComponente? _modal;
 
-    private List<Modalidade> _modalidades = new();
+    private List<ModalidadeDto> _modalidades = new();
     private List<string> _imagensExistentes = new();
 
     private async Task CarregarDados()
@@ -158,9 +158,7 @@ else
 
         if (modalidades.IsSuccessStatusCode)
         {
-            _modalidades = (modalidades.Content ?? new List<Modalidade>())
-                .Where(m => !m.IsDeleted)
-                .ToList();
+            _modalidades = modalidades.Content ?? new List<ModalidadeDto>();
 
             _imagensExistentes = _modalidades
                 .Where(m =>
@@ -189,9 +187,9 @@ else
         await _modal!.Show();
     }
 
-    private async Task AbrirModalEdit(Modalidade modalidade)
+    private async Task AbrirModalEdit(ModalidadeDto modalidadeDto)
     {
-        await _modal!.Show(modalidade);
+        await _modal!.Show(modalidadeDto);
     }
 
     private async Task OnDeleteModalidade(int id)
@@ -201,8 +199,8 @@ else
             var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall };
 
             bool? resultConfirm = await DialogService.ShowMessageBoxAsync(
-                "Eliminar Modalidade?",
-                "Tem a certeza que deseja eliminar esta modalidade?",
+                "Eliminar ModalidadeDto?",
+                "Tem a certeza que deseja eliminar esta modalidadeDto?",
                 yesText: "Sim, Eliminar",
                 cancelText: "Não, Cancelar",
                 options: options);
@@ -213,7 +211,7 @@ else
 
             if (result.IsSuccessStatusCode)
             {
-                Snackbar.Add("Modalidade eliminada com sucesso!", Severity.Success, config =>
+                Snackbar.Add("ModalidadeDto eliminada com sucesso!", Severity.Success, config =>
                 {
                     config.VisibleStateDuration = 1500;
                     config.HideTransitionDuration = 200;
@@ -223,7 +221,7 @@ else
             }
             else
             {
-                Snackbar.Add("Não foi possível eliminar a modalidade.", Severity.Error);
+                Snackbar.Add("Não foi possível eliminar a modalidadeDto.", Severity.Error);
             }
         }
         catch (Exception e)

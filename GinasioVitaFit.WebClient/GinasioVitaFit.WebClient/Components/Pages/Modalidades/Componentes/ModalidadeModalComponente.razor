@@ -40,12 +40,11 @@
                             class="p-2 text-amber-500! rounded-lg hover:bg-gray-100! hover:text-amber-700! transition cursor-pointer">
 
                             <MudIcon Icon="@Icons.Material.Filled.Close" class="text-xl!"/>
-                            @* <span class="bi bi-x-lg text-xl"></span> *@
                         </button>
 
                     </div>
                     <div class="p-6! overflow-y-auto max-h-[70vh]">
-                        <EditForm Model="_modalidade" FormName="modalidadeForm" OnValidSubmit="OnModalidade">
+                        <EditForm Model="_modalidadeDto" FormName="modalidadeDtoForm" OnValidSubmit="OnModalidade">
                             <DataAnnotationsValidator/>
 
                             <div class="flex flex-col gap-4 p-6">
@@ -54,16 +53,16 @@
                                     <label class="text-sm font-medium text-gray-700">Nome</label>
                                     <InputText
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
-                                        @bind-Value="_modalidade.Name"/>
-                                    <ValidationMessage For="() => _modalidade.Name" class="text-xs text-red-500"/>
+                                        @bind-Value="_modalidadeDto.Name"/>
+                                    <ValidationMessage For="() => _modalidadeDto.Name" class="text-xs text-red-500"/>
                                 </div>
 
                                 <div class="flex flex-col gap-1">
                                     <label class="text-sm font-medium text-gray-700">Descrição</label>
                                     <InputTextArea
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white min-h-20"
-                                        @bind-Value="_modalidade.Description"/>
-                                    <ValidationMessage For="() => _modalidade.Description"
+                                        @bind-Value="_modalidadeDto.Description"/>
+                                    <ValidationMessage For="() => _modalidadeDto.Description"
                                                        class="text-xs text-red-500"/>
                                 </div>
 
@@ -71,14 +70,14 @@
                                     <label class="text-sm font-medium text-gray-700">Dificuldade</label>
                                     <InputSelect
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
-                                        @bind-Value="_modalidade.DificuldadeId">
+                                        @bind-Value="_modalidadeDto.DificuldadeId">
                                         <option value="0">Selecione a dificuldade...</option>
                                         @foreach (var dif in _dificuldades)
                                         {
                                             <option value="@dif.Id">@dif.Name</option>
                                         }
                                     </InputSelect>
-                                    <ValidationMessage For="() => _modalidade.DificuldadeId"
+                                    <ValidationMessage For="() => _modalidadeDto.DificuldadeId"
                                                        class="text-xs text-red-500"/>
                                 </div>
 
@@ -103,7 +102,7 @@
                                                     pesada...</p>
                                             </div>
                                         }
-                                        else if (string.IsNullOrEmpty(_modalidade.ImageUrl) || _modalidade.ImageUrl.Contains("placeholder"))
+                                        else if (string.IsNullOrEmpty(_modalidadeDto.ImageUrl) || _modalidadeDto.ImageUrl.Contains("placeholder"))
                                         {
                                             <!-- Estado 1: Sem Imagem (Mostra a zona de upload) -->
                                             <span
@@ -151,7 +150,7 @@
                                                 class="flex flex-row gap-2 overflow-x-auto py-3 px-2 bg-gray-50 rounded-lg border border-gray-100 overflow-y-visible">
                                                 @foreach (var imgPath in ImagensExistentes)
                                                 {
-                                                    bool isSelected = _modalidade.ImageUrl == imgPath;
+                                                    bool isSelected = _modalidadeDto.ImageUrl == imgPath;
                                                     string nomeFicheiro = imgPath.Contains("/") ? imgPath.Split('/').Last() : imgPath;
 
                                                     <!-- Classe inline-block força o tooltip a ficar colado ao botão -->
@@ -242,11 +241,11 @@
 
     private SaveState _saveState = SaveState.Idle;
 
-    private Modalidade _modalidade = new();
-    private bool IsEdit => _modalidade.Id > 0;
-    private List<Dificuldade> _dificuldades = new();
+    private ModalidadeDto _modalidadeDto = new();
+    private bool IsEdit => _modalidadeDto.Id > 0;
+    private List<DificuldadeDto> _dificuldades = new();
 
-    private string _previewUrl = "/images/modalidade-placeholder.png";
+    private string _previewUrl = "/images/modalidadeDto-placeholder.png";
     private bool _isUploading;
 
     private string OverlayClass =>
@@ -292,31 +291,29 @@
     
     public async Task Show()
     {
-        _modalidade = new();
-        _previewUrl = "/images/modalidade-placeholder.png";
+        _modalidadeDto = new();
+        _previewUrl = "/images/modalidadeDto-placeholder.png";
         _saveState = SaveState.Idle;
 
         await OpenModal();
     }
     
-    public async Task Show(Modalidade modalidade)
+    public async Task Show(ModalidadeDto modalidadeDto)
     {
         _saveState = SaveState.Idle;
 
-        _modalidade = new Modalidade
+        _modalidadeDto = new ModalidadeDto
         {
-            Id = modalidade.Id,
-            Name = modalidade.Name,
-            Description = modalidade.Description,
-            DificuldadeId = modalidade.DificuldadeId,
-            ImageUrl = modalidade.ImageUrl,
-            CreatedDate = modalidade.CreatedDate,
-            UpdatedDate = modalidade.UpdatedDate
+            Id = modalidadeDto.Id,
+            Name = modalidadeDto.Name,
+            Description = modalidadeDto.Description,
+            DificuldadeId = modalidadeDto.DificuldadeId,
+            ImageUrl = modalidadeDto.ImageUrl
         };
 
-        _previewUrl = modalidade.ImageUrl.StartsWith("/uploads")
-            ? $"https://localhost:7134{modalidade.ImageUrl}"
-            : modalidade.ImageUrl;
+        _previewUrl = modalidadeDto.ImageUrl.StartsWith("/uploads")
+            ? $"https://localhost:7134{modalidadeDto.ImageUrl}"
+            : modalidadeDto.ImageUrl;
 
         await OpenModal();
     }
@@ -330,8 +327,8 @@
 
         _isOpen = false;
 
-        _modalidade = new();
-        _previewUrl = "/images/modalidade-placeholder.png";
+        _modalidadeDto = new();
+        _previewUrl = "/images/modalidadeDto-placeholder.png";
 
         StateHasChanged();
     }
@@ -341,7 +338,7 @@
         var dificuldades = await GinasioVitaFitService.GetAllDificuldades();
 
         if (dificuldades.IsSuccessStatusCode)
-            _dificuldades = dificuldades.Content ?? new List<Dificuldade>();
+            _dificuldades = dificuldades.Content ?? new List<DificuldadeDto>();
     }
 
     private async Task OnModalidade()
@@ -351,16 +348,16 @@
             _saveState = SaveState.Saving;
 
             if (IsEdit)
-                await GinasioVitaFitService.UpdateModalidade(_modalidade);
+                await GinasioVitaFitService.UpdateModalidade(_modalidadeDto);
             else
-                await GinasioVitaFitService.AddModalidade(_modalidade);
+                await GinasioVitaFitService.AddModalidade(_modalidadeDto);
 
             _saveState = SaveState.Saved;
 
             Snackbar.Add(
                 IsEdit
-                    ? "Modalidade atualizada com sucesso!"
-                    : "Modalidade guardada com sucesso!",
+                    ? "ModalidadeDto atualizada com sucesso!"
+                    : "ModalidadeDto guardada com sucesso!",
                 Severity.Success,
                 config =>
                 {
@@ -378,7 +375,7 @@
         {
             _saveState = SaveState.Idle;
 
-            Snackbar.Add($"Erro ao guardar modalidade: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Erro ao guardar modalidadeDto: {ex.Message}", Severity.Error);
         }
     }
 
@@ -404,7 +401,7 @@
                 _previewUrl = base64Completo;
 
                 // 2. A propriedade que vai para a API guarda a tua estrutura com a barra |
-                _modalidade.ImageUrl = $"{file.Name}|{base64Completo}";
+                _modalidadeDto.ImageUrl = $"{file.Name}|{base64Completo}";
             }
             catch (Exception ex)
             {
@@ -420,13 +417,13 @@
 
     private void LimparImagemManualmente()
     {
-        _previewUrl = "/images/modalidade-placeholder.png";
-        _modalidade.ImageUrl = "/images/modalidade-placeholder.png";
+        _previewUrl = "/images/modalidadeDto-placeholder.png";
+        _modalidadeDto.ImageUrl = "/images/modalidadeDto-placeholder.png";
     }
 
     private void SelecionarImagemExistente(string caminhoImagem)
     {
-        _modalidade.ImageUrl = caminhoImagem;
+        _modalidadeDto.ImageUrl = caminhoImagem;
 
         // 2. Atualiza o ecrã com o caminho completo da API para a imagem aparecer na hora
         _previewUrl = caminhoImagem.StartsWith("/uploads")

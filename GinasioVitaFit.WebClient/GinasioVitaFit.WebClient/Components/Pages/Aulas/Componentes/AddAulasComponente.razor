@@ -22,14 +22,14 @@
             else
             {
                 <!-- EDITFORM COM VALIDAÇÕES NATIVAS (REQUISITO ANTÓNIO TRELLO) -->
-                <EditForm Model="@novaAula" OnValidSubmit="SubmeterFormulario">
+                <EditForm Model="@_novaAulaDto" OnValidSubmit="SubmeterFormulario">
                     <DataAnnotationsValidator />
 
                     <!-- CABEÇALHO DO MODAL -->
                     <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                         <h3 class="text-xl font-bold text-gray-800">
                             <MudIcon Icon="@(_isEdicao ? Icons.Material.Filled.Edit : Icons.Material.Filled.CalendarMonth)" Class="mr-2" Style="color: #FF6B00;" />
-                            @(_isEdicao ? "Editar Dados da Aula" : "Agendar Nova Aula")
+                            @(_isEdicao ? "Editar Dados da Aula" : "Marcar Nova Aula")
                         </h3>
                         <button type="button" @onclick="Hide" class="p-2 text-gray-400 hover:text-gray-600 transition cursor-pointer">
                             <MudIcon Icon="@Icons.Material.Filled.Close" />
@@ -44,9 +44,9 @@
                             <MudItem xs="12" sm="6">
                                 <MudSelect T="int" 
                                            Label="Modalidade Associada" 
-                                           Value="novaAula.ModalidadeId" 
+                                           Value="_novaAulaDto.ModalidadeId" 
                                            ValueChanged="OnModalidadeChanged"
-                                           For="@(() => novaAula.ModalidadeId)" 
+                                           For="@(() => _novaAulaDto.ModalidadeId)" 
                                            AnchorOrigin="Origin.BottomCenter">
                                     <MudSelectItem Value="0" Disabled="true">Selecione uma modalidade...</MudSelectItem>
                                     @if (listaModalidades != null)
@@ -63,12 +63,12 @@
                             <MudItem xs="12" sm="6">
                                 <MudSelect T="int" 
                                            Label="Instrutor Técnico" 
-                                           @bind-Value="novaAula.InstrutorId" 
-                                           Disabled="@(novaAula.ModalidadeId == 0)"
-                                           For="@(() => novaAula.InstrutorId)" 
+                                           @bind-Value="_novaAulaDto.InstrutorId" 
+                                           Disabled="@(_novaAulaDto.ModalidadeId == 0)"
+                                           For="@(() => _novaAulaDto.InstrutorId)" 
                                            AnchorOrigin="Origin.BottomCenter">
                                     <MudSelectItem Value="0" Disabled="true">
-                                        @(novaAula.ModalidadeId == 0 ? "Escolha primeiro uma modalidade..." : "Selecione um instrutor qualificado...")
+                                        @(_novaAulaDto.ModalidadeId == 0 ? "Escolha primeiro uma modalidade..." : "Selecione um instrutor qualificado...")
                                     </MudSelectItem>
                                     @if (listaInstrutoresFiltrados != null)
                                     {
@@ -82,9 +82,9 @@
 
                             <!-- CORREÇÃO: DROPDOWN DE SELEÇÃO DE SALA EXIGIDO PELO TEU COLEGAS NO MODELO -->
                             <MudItem xs="12" sm="6">
-                                <MudSelect T="int" Label="Sala / Espaço" @bind-Value="novaAula.SalaId" For="@(() => novaAula.SalaId)" AnchorOrigin="Origin.BottomCenter">
+                                <MudSelect T="int" Label="Sala / Espaço" @bind-Value="_novaAulaDto.SalaId" For="@(() => _novaAulaDto.SalaId)" AnchorOrigin="Origin.BottomCenter">
                                     <MudSelectItem Value="0" Disabled="true">Selecione uma sala...</MudSelectItem>
-                                    <MudSelectItem Value="1">Sala de Musculação</MudSelectItem>
+                                    <MudSelectItem Value="1">SalaDto de Musculação</MudSelectItem>
                                     <MudSelectItem Value="2">Estúdio de Zumba / Pilates</MudSelectItem>
                                     <MudSelectItem Value="3">Box de Crossfit</MudSelectItem>
                                     <MudSelectItem Value="4">Estúdio de Ciclismo</MudSelectItem>
@@ -93,7 +93,7 @@
 
                             <!-- 4. CAPACIDADE DE VAGAS -->
                             <MudItem xs="12" sm="6">
-                                <MudNumericField T="int" Label="Vagas Máximas (Capacidade)" Min="1" @bind-Value="novaAula.Capacidade" For="@(() => novaAula.Capacidade)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Groups" />
+                                <MudNumericField T="int" Label="Vagas Máximas (Capacidade)" Min="1" @bind-Value="_novaAulaDto.Capacidade" For="@(() => _novaAulaDto.Capacidade)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Groups" />
                             </MudItem>
 
                             <!-- 5. COMPONENTES DE DATA E HORA DE INÍCIO -->
@@ -126,7 +126,7 @@
 }
 
 @code {
-    private Aula novaAula = new Aula { Capacidade = 20 };
+    private AulaDto _novaAulaDto = new AulaDto { Capacidade = 20 };
     
     private bool _isOpen = false;
     private bool _isLoading = false;
@@ -138,9 +138,9 @@
     private TimeSpan? _horaFim = new TimeSpan(11, 0, 0);
 
     // CORREÇÃO DOS NOMES: Declaração limpa e sem gralhas de digitação
-    private List<Modalidade> listaModalidades = new();
-    private List<Instrutor> listaInstrutores = new();
-    private List<Instrutor> listaInstrutoresFiltrados = new();
+    private List<ModalidadeDto> listaModalidades = new();
+    private List<InstrutorDto> listaInstrutores = new();
+    private List<InstrutorDto> listaInstrutoresFiltrados = new();
 
     [Parameter] public EventCallback OnSubmetido { get; set; }
 
@@ -154,8 +154,8 @@
         _horaInicio = new TimeSpan(DateTime.Now.Hour, 0, 0);
         _horaFim = _horaInicio.Value.Add(TimeSpan.FromHours(1));
         
-        novaAula = new Aula { Capacidade = 20, ModalidadeId = 0, InstrutorId = 0, SalaId = 0 };
-        listaInstrutoresFiltrados = new List<Instrutor>();
+        _novaAulaDto = new AulaDto { Capacidade = 20, ModalidadeId = 0, InstrutorId = 0, SalaId = 0 };
+        listaInstrutoresFiltrados = new List<InstrutorDto>();
         StateHasChanged();
 
         await CarregarDadosAuxiliares();
@@ -164,7 +164,7 @@
         StateHasChanged();
     }
 
-    public async Task ShowEditar(Aula aulaParaEditar)
+    public async Task ShowEditar(AulaDto aulaDtoParaEditar)
     {
         _isEdicao = true;
         _isOpen = true;
@@ -173,20 +173,19 @@
 
         await CarregarDadosAuxiliares();
 
-        _dataAula = aulaParaEditar.Inicio.Date;
-        _horaInicio = aulaParaEditar.Inicio.TimeOfDay;
-        _horaFim = aulaParaEditar.Fim.TimeOfDay;
+        _dataAula = aulaDtoParaEditar.Inicio.Date;
+        _horaInicio = aulaDtoParaEditar.Inicio.TimeOfDay;
+        _horaFim = aulaDtoParaEditar.Fim.TimeOfDay;
 
-        novaAula = new Aula
+        _novaAulaDto = new AulaDto
         {
-            Id = aulaParaEditar.Id,
-            Inicio = aulaParaEditar.Inicio,
-            Fim = aulaParaEditar.Fim,
-            Capacidade = aulaParaEditar.Capacidade,
-            ModalidadeId = aulaParaEditar.ModalidadeId,
-            InstrutorId = aulaParaEditar.InstrutorId,
-            SalaId = aulaParaEditar.SalaId,
-            IsDeleted = aulaParaEditar.IsDeleted
+            Id = aulaDtoParaEditar.Id,
+            Inicio = aulaDtoParaEditar.Inicio,
+            Fim = aulaDtoParaEditar.Fim,
+            Capacidade = aulaDtoParaEditar.Capacidade,
+            ModalidadeId = aulaDtoParaEditar.ModalidadeId,
+            InstrutorId = aulaDtoParaEditar.InstrutorId,
+            SalaId = aulaDtoParaEditar.SalaId
         };
 
         listaInstrutoresFiltrados = listaInstrutores.ToList();
@@ -207,15 +206,15 @@
             dynamic resMod = await GinasioService.GetAllModalidades();
             if (resMod != null)
             {
-                List<Modalidade> mods = resMod.Content ?? resMod;
-                listaModalidades = mods.Where(m => !m.IsDeleted).ToList();
+                List<ModalidadeDto> mods = resMod.Content ?? resMod;
+                listaModalidades = mods.ToList();
             }
 
             dynamic resInst = await GinasioService.GetAllInstrutores();
             if (resInst != null)
             {
-                List<Instrutor> insts = resInst.Content ?? resInst;
-                listaInstrutores = insts.Where(i => !i.IsDeleted).ToList();
+                List<InstrutorDto> insts = resInst.Content ?? resInst;
+                listaInstrutores = insts.ToList();
             }
         }
         catch (Exception ex)
@@ -224,15 +223,15 @@
         }
     }
 
-    // REGRA DO TRELLO: Disparada reativamente ao mudar a modalidade no ecrã
+    // REGRA DO TRELLO: Disparada reativamente ao mudar a modalidadeDto no ecrã
     private void OnModalidadeChanged(int novaModalidadeId)
     {
-        novaAula.ModalidadeId = novaModalidadeId;
-        novaAula.InstrutorId = 0; 
+        _novaAulaDto.ModalidadeId = novaModalidadeId;
+        _novaAulaDto.InstrutorId = 0; 
 
         if (novaModalidadeId == 0)
         {
-            listaInstrutoresFiltrados = new List<Instrutor>();
+            listaInstrutoresFiltrados = new List<InstrutorDto>();
         }
         else
         {
@@ -244,7 +243,7 @@
 
     private async Task SubmeterFormulario()
     {
-        if (novaAula.ModalidadeId == 0 || novaAula.InstrutorId == 0)
+        if (_novaAulaDto.ModalidadeId == 0 || _novaAulaDto.InstrutorId == 0)
         {
             Snackbar.Add("Por favor, selecione uma modalidade e um instrutor!", Severity.Warning);
             return;
@@ -256,8 +255,8 @@
             return;
         }
 
-        novaAula.Inicio = _dataAula.Value.Date.Add(_horaInicio.Value);
-        novaAula.Fim = _dataAula.Value.Date.Add(_horaFim.Value);
+        _novaAulaDto.Inicio = _dataAula.Value.Date.Add(_horaInicio.Value);
+        _novaAulaDto.Fim = _dataAula.Value.Date.Add(_horaFim.Value);
 
         _isLoading = true;
         StateHasChanged();
@@ -267,9 +266,9 @@
             HttpResponseMessage? resposta;
 
             if (_isEdicao)
-                resposta = await GinasioService.UpdateAula(novaAula);
+                resposta = await GinasioService.UpdateAula(_novaAulaDto);
             else
-                resposta = await GinasioService.AddAula(novaAula);
+                resposta = await GinasioService.AddAula(_novaAulaDto);
 
             if (resposta != null && resposta.IsSuccessStatusCode)
             {

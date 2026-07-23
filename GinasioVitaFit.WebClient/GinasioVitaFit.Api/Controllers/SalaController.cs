@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GinasioVitaFit.Api.Data;
 using GinasioVitaFit.Api.Entities;
-using GinasioVitaFit.Api.Models;
+using GinasioVitaFit.Shared.Models;
 
 namespace GinasioVitaFit.Api.Controllers;
 
@@ -28,8 +28,10 @@ public class SalaController: Controller
             var salas = await _context.Salas
                 .ToListAsync();
             
-            if(salas.Any())
-                return Ok(salas);
+            List<SalaDto> SalasMapped = _mapper.Map<List<SalaDto>>(salas);
+            
+            if(SalasMapped.Any())
+                return Ok(SalasMapped);
         }
 
         return NotFound();
@@ -47,14 +49,14 @@ public class SalaController: Controller
             var sala = await _context.Salas.FirstOrDefaultAsync(t => t.Id == id);
 
             if(sala is null)
-                return Results.NotFound("Sala não foi encontrado");
+                return Results.NotFound("SalaDto não foi encontrado");
             
             sala.IsDeleted = true;
             
             
             await _context.SaveChangesAsync();
             
-            return Results.Ok("Sala apagado com Successo.");
+            return Results.Ok("SalaDto apagado com Successo.");
         }
         return Results.Empty;
     }

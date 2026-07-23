@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GinasioVitaFit.Api.Data;
 using GinasioVitaFit.Api.Entities;
-using GinasioVitaFit.Api.Models;
+using GinasioVitaFit.Shared.Models;
 
 namespace GinasioVitaFit.Api.Controllers;
 
@@ -20,7 +20,7 @@ public class DificuldadeController: Controller
         
     } 
     
-    [HttpGet("/dificuldades")]
+    [HttpGet("/Dificuldades")]
     public async Task<IActionResult> GetAllDificuldades()
     {
         if (_context.Dificuldades is not null)
@@ -28,15 +28,18 @@ public class DificuldadeController: Controller
             var dificuldades = await _context.Dificuldades
                 .ToListAsync();
             
-            if(dificuldades.Any())
-                return Ok(dificuldades);
+            List<DificuldadeDto> dificuldadesmapped = _mapper.Map<List<DificuldadeDto>>(dificuldades);
+            
+            if(dificuldadesmapped.Any())
+                return Ok(dificuldadesmapped);
         }
+        
 
         return NotFound();
     }
     
     
-    [HttpDelete("dificuldade_softdelete/{id}")]
+    [HttpDelete("Dificuldadesoftdelete/{id}")]
     public async Task<IResult> DeleteDificuldade_Soft(int id)
     {
         if (id == null)
@@ -47,14 +50,14 @@ public class DificuldadeController: Controller
             var dificuldade = await _context.Dificuldades.FirstOrDefaultAsync(t => t.Id == id);
 
             if(dificuldade is null)
-                return Results.NotFound("Dificuldade não foi encontrado");
+                return Results.NotFound("DificuldadeDto não foi encontrado");
             
             dificuldade.IsDeleted = true;
             
             
             await _context.SaveChangesAsync();
             
-            return Results.Ok("Dificuldade apagado com Successo.");
+            return Results.Ok("DificuldadeDto apagado com Successo.");
         }
         return Results.Empty;
     }
