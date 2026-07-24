@@ -1,0 +1,369 @@
+@using GinasioVitaFit.Shared.Services
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.WebClient.Components.Pages.Aulas.Models
+@inject IGinasioVitaFitService GinasioVitaFitService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
+@if (_isOpen)
+{
+    <div class="@OverlayClass">
+
+        <div class="@ModalClass bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-full overflow-hidden"
+             @onclick:stopPropagation>
+
+            @if (_isLoading)
+            {
+                <div class="flex flex-col items-center justify-center py-20">
+
+                    <div
+                        class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+
+                    <p class="mt-4 text-gray-500">
+                        A carregar...
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                <div class="max-h-[90vh] overflow-y-auto">
+
+                    <div class="px-6! py-2 overflow-y-auto max-h-[80vh] divide-y-2! divide-gray-200/50! *:py-3.5!">
+                        <div class="flex items-center justify-between ">
+                            <div class="flex flex-row items-center gap-x-4">
+                                <span class="w-12 h-12 bg-amber-400 rounded-full
+                                         flex items-center justify-center">
+                                    <MudIcon
+                                        Icon="@Icons.Material.Filled.Class"
+                                        class="text-white w-8! h-8!"
+                                    />
+                                </span>
+
+                                <h3 class="text-2xl font-bold text-gray-800! m-0">
+                                    Aula de @_aula!.Modalidade.Name
+                                </h3>
+                            </div>
+
+                            @* <button *@
+                            @*     @onclick="Hide" *@
+                            @*     class="p-2 text-amber-500! rounded-lg hover:bg-gray-100! hover:text-amber-700! transition cursor-pointer"> *@
+                            @* *@
+                            @*     <MudIcon Icon="@Icons.Material.Filled.Close" class="text-xl!"/> *@
+                            @* </button> *@
+                        </div>
+                        <div class="">
+                            <div class="grid grid-flow-col grid-rows-2 gap-y-2 justify-items-start p-0">
+                                @foreach (var item in InfoItemList)
+                                {
+                                    <div class="flex gap-2">
+                                        @if (item.IsBadge)
+                                        {
+                                            <span class="relative flex size-2 justify-center items-center mt-[0.4rem]!">
+                                                <span class="absolute inline-flex h-[0.6rem] w-[0.6rem] animate-ping rounded-full 
+                                                        @(item.CirclePingColor == true? "bg-emerald-400/25!":"bg-rose-400/25!")"></span>
+                                                <span class="relative inline-flex size-2 rounded-full 
+                                                        @(item.CirclePingColor == true? "bg-emerald-500/75!":"bg-rose-500/75!")"></span>
+                                            </span>
+                                            <div class="flex flex-col">
+                                                <p class="m-0">@item.Titulo</p>
+
+                                                <span class="rounded-md px-3 py-1 mt-1 text-base @item.BadgeColor">
+                                                    @item.Valor
+                                                </span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <MudIcon
+                                                Icon="@item.Icone"
+                                                class="text-amber-500"/>
+                                            <div class="flex flex-col">
+                                                <p class="m-0">@item.Titulo</p>
+                                                <p class="m-0 font-semibold text-base text-gray-800">
+                                                    @item.Valor
+                                                </p>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="text-lg! font-bold!">Estatísticas das Vagas</h3>
+
+                                <div class="flex items-center justify-center">
+
+                                    <svg 
+                                        class="w-40 h-40 transition-all duration-500 ease-out">
+
+                                        <!-- Fundo -->
+                                        <circle
+                                            cx="75"
+                                            cy="75"
+                                            r="60"
+                                            fill="none"
+                                            stroke-width="14"
+                                            pathLength="100"
+                                            class="stroke-gray-200!"
+                                            />
+
+                                        <!-- Progresso -->
+                                        <circle
+                                            cx="75"
+                                            cy="75"
+                                            r="60"
+                                            fill="none"
+                                            stroke-width="14"
+                                            stroke-linecap="round"
+                                            pathLength="100"
+                                            stroke-dasharray="100"
+                                            stroke-dashoffset="@_offset"
+                                            transform="rotate(-90 75 75)"
+                                            class="stroke-amber-500! progress-circle"
+                                        />
+
+                                        <!-- Percentagem -->
+                                        <text
+                                            x="75"
+                                            y="70"
+                                            text-anchor="middle"
+                                            font-size="20"
+                                            font-weight="700">
+                                            @($"{Percentagem}%")
+                                        </text>
+
+                                        <text
+                                            x="75"
+                                            y="92"
+                                            text-anchor="middle"
+                                            font-size="13"
+                                            fill="#4B5563">
+                                            Inscritos
+                                        </text>
+
+                                    </svg>
+
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-x-4">
+                                    <div class="flex flex-col gap-2 items-center border border-gray-100 rounded-lg py-2">
+                                        <MudIcon 
+                                            Icon="@Icons.Material.Outlined.PeopleAlt"
+                                            class="text-amber-500"/>
+                                        <div class="flex flex-col items-center">
+                                            <p class="m-0">Inscritos</p>
+                                            <p class="m-0 text-lg font-bold">@Inscritos</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex flex-col gap-2 items-center border border-gray-100 rounded-lg py-2">
+                                        <MudIcon 
+                                            Icon="@Icons.Material.Outlined.CheckCircleOutline"
+                                            class="text-amber-500"/>
+                                        <div class="flex flex-col items-center">
+                                            <p class="m-0">Vagas</p>
+                                            <p class="m-0 text-lg font-bold">@Vagas</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-lg! font-bold! mb-4">
+                                    Sócios Inscritos (@_socios.Count)
+                                </h3>
+
+                                <div class="max-h-60 overflow-y-auto space-y-3!">
+                                    @foreach (var socio in _socios)
+                                    {
+                                        <div class="flex justify-between items-center border rounded-lg px-3 py-2">
+                                            <div class="flex items-center gap-x-3">
+                                                <img src="@socio.ImageUrl"
+                                                     class="w-10 h-10 rounded-full" />
+
+                                                <div>
+                                                    <p class="m-0 font-medium">@socio.Name</p>
+                                                    <p class="m-0 text-sm text-gray-500">@socio.Email</p>
+                                                </div>
+                                            </div>
+
+                                            <span class="bg-green-100 text-green-700 rounded-full px-3 py-1 text-sm">
+                                                Inscrito
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-end gap-x-2 font-semibold border-t border-gray-200 px-6 py-3 
+                            *:py-2! *:px-3! *:border! *:rounded! *:h-10! *:items-center! *:justify-center!">
+                        <button 
+                            @onclick="Hide"
+                            class="border-gray-300!">
+                            <p class="m-0 text-gray-500">Fechar</p>
+                        </button>
+                        <button 
+                            @onclick="() => ChangePageInfo(_aula.Id)"
+                            class="flex flex-row items-center gap-x-1 bg-amber-500! text-white">
+                            <MudIcon Icon="@Icons.Material.Filled.EditNote"/>
+                            <p class="m-0">Editar Aula</p>
+                        </button>
+                    </div>
+
+                </div>
+            }
+        </div>
+
+    </div>
+}
+
+@code {
+    private bool _isOpen;
+    private bool _isAnimating;
+    private bool _isLoading;
+
+    private Aula? _aula = new();
+    private List<Socio> _socios = new();
+    private List<AulaSocios> _inscritos = new();
+    private int Inscritos => _socios.Count;
+    private int Vagas => (_aula?.Capacidade ?? 0) - Inscritos;
+    private int Percentagem =>
+        _aula?.Capacidade > 0
+            ? (int)Math.Round((double)Inscritos / _aula.Capacidade * 100)
+            : 0;
+
+    private double _offset = 100;
+    private double OffsetFinal => 100 - Percentagem;
+            
+
+    private string OverlayClass =>
+        $"fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 " +
+        $"{(_isAnimating ? "opacity-100" : "opacity-0")}";
+
+    private string ModalClass =>
+        $"transition-all duration-300 ease-out " +
+        $"{(_isAnimating
+            ? "opacity-100 scale-100 translate-y-0"
+            : "opacity-0 scale-95 translate-y-6")}";
+
+    private List<AulaInfoItem> InfoItemList => new()
+    {
+        new()
+        {
+            Titulo = "Instrutor",
+            Valor = _aula?.Instrutor.Name ?? "-",
+            Icone = Icons.Material.Outlined.PersonOutline
+        },
+        new()
+        {
+            Titulo = "Modalidade",
+            Valor = _aula?.Modalidade.Name ?? "-",
+            Icone = Icons.Material.Outlined.SportsVolleyball
+        },
+        new()
+        {
+            Titulo = "Sala / Espaço",
+            Valor = _aula?.Sala.Name ?? "-",
+            Icone = Icons.Material.Outlined.LocationOn
+        },
+        new()
+        {
+            Titulo = "Data",
+            Valor = _aula?.UpdatedDate.ToString("dd/MM/yyyy") ?? "-",
+            Icone = Icons.Material.Outlined.CalendarMonth
+        },
+        new()
+        {
+            Titulo = "Horário",
+            Valor = $"{_aula?.Inicio:hh\\:mm} - {_aula?.Fim:hh\\:mm}",
+            Icone = Icons.Material.Outlined.Schedule
+        },
+        new()
+        {
+            Titulo = "Capacidade",
+            Valor = $"{_aula?.Capacidade} pessoas",
+            Icone = Icons.Material.Outlined.Groups
+        },
+        new()
+        {
+            Titulo = "Vagas",
+            Valor = _aula!.IsOpen ? "Aberta" : "Fechada",
+            Icone = Icons.Material.Outlined.Circle,
+            IsBadge = true,
+            BadgeColor = _aula?.IsOpen == true
+            ? "bg-emerald-100/75 text-emerald-600 border-2 border-emerald-200"
+            : "bg-red-100/75 text-red-700 border-2 border-rose-200",
+            CirclePingColor = _aula!.IsOpen
+        }
+    };
+
+    private async Task OpenModal()
+    {
+        _isOpen = true;
+        _isLoading = true;
+        _isAnimating = true;
+
+        _offset = 100;
+
+        StateHasChanged();
+
+        await CarregarDados();
+
+        _isLoading = false;
+
+        StateHasChanged();
+        
+        await Task.Delay(300);
+        _offset = OffsetFinal;
+
+        StateHasChanged();
+    }
+
+    public async Task Show(Aula aula)
+    {
+        _aula = aula;
+
+        await OpenModal();
+    }
+
+    private async Task Hide()
+    {
+        _isAnimating = false;
+        StateHasChanged();
+
+        await Task.Delay(300);
+
+        _isOpen = false;
+
+        _aula = null;
+
+        StateHasChanged();
+    }
+
+    private async Task CarregarDados()
+    {
+        if (_aula is null)
+            return;
+
+        try
+        {
+            var socios = await GinasioVitaFitService.GetAllSociosFromAula(_aula.Id);
+
+            if (socios.IsSuccessStatusCode)
+                _socios = socios.Content ?? new List<Socio>();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar os Sócios: {ex.Message}",
+                Severity.Error);
+        }
+    }
+
+    private void ChangePageInfo(int id)
+    {
+        NavigationManager.NavigateTo($"/AddAula/{id}");
+    }
+
+}

@@ -26,9 +26,12 @@ public class AulaSocioController : Controller
     {
         if (_context.AulaSocios is not null)
         {
-            var socios = await _context.AulaSocios.
-                Where(a => a.AulaId == id && a.IsDeleted.Equals(false)).
-                ToListAsync();
+            var socios = await _context.AulaSocios
+                .Where(a => a.AulaId == id && !a.IsDeleted)
+                .Include(a => a.Socio)
+                .Select(a => a.Socio)
+                .Where(s => !s.IsDeleted)
+                .ToListAsync();
             
             List<AulaSociosDto> Sociosmapped = _mapper.Map<List<AulaSociosDto>>(socios);
             
@@ -174,7 +177,7 @@ public class AulaSocioController : Controller
                                          && t.SocioId == sociomapped.SocioId);
             
             if(oldAulaSocios is null)
-                return Results.NotFound("AulaDto Agendada não foi encontrado");
+                return Results.NotFound("Aula Agendada não foi encontrado");
             
             sociomapped.UpdatedDate = DateTime.UtcNow;
             sociomapped.IsDeleted = true;
@@ -182,7 +185,7 @@ public class AulaSocioController : Controller
             
             await _context.SaveChangesAsync();
             
-            return Results.Ok("AulaDto desistida com Successo.");
+            return Results.Ok("Aula desistida com Successo.");
         }
         return Results.Empty;
     }

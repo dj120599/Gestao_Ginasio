@@ -1,0 +1,344 @@
+@page "/AddAula"
+@page "/AddAula/{id:int}"
+
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IGinasioVitaFitService GinasioService
+@rendermode InteractiveServer
+
+<h3 class="text-2xl font-bold text-gray-800 mb-6">@(Id.HasValue ? "Editar" : "Adicionar") Aulas</h3>
+
+<MudThemeProvider />
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudCard Elevation="3" Class="pa-4">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h5" Color="Color.Warning" Align="Align.Center">
+                    <b>@(Id.HasValue ? "Editar" : "Registar Nova") Aula</b>
+                </MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+            <MudForm @ref="form">
+                <MudGrid>
+
+                    <!-- 1. Dropdown de Modalidades -->
+                    
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="Modalidade"
+                                   Label="Modalidade Associada"
+                                   Required="true"
+                                   RequiredError="A modalidade é obrigatória!"
+                                   @bind-Value="_modalidade"
+                                   Text="@_modalidadename"
+                                   Adornment="Adornment.Start"
+                                   AdornmentIcon="@Icons.Material.Filled.FitnessCenter">
+                            @if (modalidades != null)
+                            {
+                                @foreach (var mod in modalidades)
+                                {
+                                    <MudSelectItem Value="@mod">@mod.Name</MudSelectItem>
+                                }
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    
+                    <!-- 2. Dropdown de Instrutores -->
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="Instrutor"
+                                   Label="Instrutor Responsável"
+                                   Required="true"
+                                   RequiredError="O instrutor é obrigatório!"
+                                       @bind-Value="_instrutor"
+                                   Text="@_instrutorname"
+                                   Adornment="Adornment.Start"
+                                   AdornmentIcon="@Icons.Material.Filled.Person">
+                            @if (instrutores != null)
+                            {
+                                @foreach (var inst in instrutores)
+                                {
+                                    <MudSelectItem Value="@inst">@inst.Name</MudSelectItem>
+                                }
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" sm="4">
+                        <MudDatePicker Label="Data da Aula"
+                                       Required="true"
+                                       Editable="true"
+                                       @bind-Date="dataSelecionada"
+                                       AdornmentIcon="@Icons.Material.Filled.CalendarMonth" />
+                    </MudItem>
+
+                    <MudItem xs="6" sm="4">
+                        <MudTimePicker Label="Hora de Início"
+                                       Required="true"
+                                       Editable="true"
+                                       @bind-Time="horaInicio"
+                                       AdornmentIcon="@Icons.Material.Filled.AccessTime" />
+                    </MudItem>
+
+                    <MudItem xs="6" sm="4">
+                        <MudTimePicker Label="Hora de Fim"
+                                       Required="true"
+                                       Editable="true"
+                                       @bind-Time="horaFim"
+                                       AdornmentIcon="@Icons.Material.Filled.AccessTime" />
+                    </MudItem>
+
+                    <!-- 3. Dropdown de Salas -->
+                    
+                    <MudItem xs="12" sm="8">
+                        <MudSelect T="Sala"
+                                   Label="Sala / Espaço"
+                                   Required="true"
+                                   RequiredError="O espaço/sala é obrigatório!"
+                                   @bind-Value="_sala"
+                                   Text="@_salaname"
+                                   Adornment="Adornment.Start"
+                                   AdornmentIcon="@Icons.Material.Filled.Room">
+                            @if (salas != null)
+                            {
+                                @foreach (var s in salas)
+                                {
+                                    <MudSelectItem Value="@s">@s.Name</MudSelectItem>
+                                }
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    
+                    <MudItem xs="12" sm="4">
+                        <MudNumericField T="int"
+                                         Label="Capacidade"
+                                         Required="true"
+                                         Min="1"
+                                         Max="100"
+                                         Placeholder="20"
+                                         @bind-Value="capacidade"
+                                         Adornment="Adornment.Start"
+                                         AdornmentIcon="@Icons.Material.Filled.Groups" />
+                    </MudItem>
+
+                </MudGrid>
+            </MudForm>
+        </MudCardContent>
+
+        <MudCardActions Class="d-flex justify-center mt-4">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Warning"
+                       Size="Size.Large"
+                       OnClick="SubmeterFormulario">
+                Gravar Aula
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    
+    private MudForm form = default!;
+    private bool Changebool = false;
+    private int capacidade = 20;
+
+    private Aula _aula = new Aula();
+    
+    private DateTime? dataSelecionada = DateTime.Today;
+    private TimeSpan? horaInicio = new TimeSpan(19, 00, 00);
+    private TimeSpan? horaFim = new TimeSpan(20, 00, 00);
+
+    private Modalidade? _modalidade;
+    private Instrutor? _instrutor;
+    private Sala? _sala;
+    
+    private string? _modalidadename;
+    private string? _instrutorname;
+    private string? _salaname;
+    
+    private List<Modalidade> modalidades = new();
+    private List<Instrutor> instrutores = new();
+    private List<Sala> salas = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (Id.HasValue)
+            {
+                
+                Changebool = true;
+                
+                int aulaid = (int)Id.Value;
+                var aula  = await GinasioService.GetAula(aulaid);
+                _aula  = aula.Content?? new Aula();
+                
+                capacidade = _aula.Capacidade;
+                dataSelecionada=_aula.Inicio.Date;
+                horaInicio=_aula.Inicio.TimeOfDay;
+                horaFim=_aula.Fim.TimeOfDay;
+                _modalidade = _aula.Modalidade;
+                _instrutor = _aula.Instrutor;
+                _sala = _aula.Sala;
+                _salaname = _aula.Sala.Name;
+                _instrutorname = _aula.Instrutor.Name;
+                _modalidadename = _aula.Modalidade.Name;
+            }
+            else
+            {
+                Changebool = false;
+            }
+            var resModalidades = await GinasioService.GetAllModalidades();
+            modalidades = resModalidades?.Content ?? new();
+
+            var resInstrutores = await GinasioService.GetAllInstrutores();
+            instrutores = resInstrutores?.Content ?? new();
+
+            var resSalas = await GinasioService.GetAllSalas();
+            salas = resSalas?.Content ?? new();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Aviso de ligação: {ex.Message}. Usando dados locais...", Severity.Info);
+        }
+
+        if (modalidades == null || !modalidades.Any())
+        {
+            modalidades = new List<Modalidade> 
+            { 
+                new() { Id = 3, Name = "Musculação" }, 
+                new() { Id = 1, Name = "Zumba" },
+                new() { Id = 2, Name = "Pilates" }
+            };
+        }
+
+        if (instrutores == null || !instrutores.Any())
+        {
+            instrutores = new List<Instrutor> 
+            { 
+                new() { Id = 1, Name = "Carlos Neves" },
+                new() { Id = 2, Name = "Mariana Silva" }
+            };
+        }
+
+        if (salas == null || !salas.Any())
+        {
+            salas = new List<Sala> 
+            { 
+                new() { Id = 1, Name = "Sala 1" }, 
+                new() { Id = 2, Name = "Sala 2" }, 
+                new() { Id = 3, Name = "Sala 3" }, 
+                new() { Id = 4, Name = "Sala 4" }, 
+                new() { Id = 5, Name = "Sala 5" }
+            };
+        }
+    }
+
+       private async Task SubmeterFormulario()
+    {
+        if (form == null) return;
+        
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            if (dataSelecionada == null || horaInicio == null || horaFim == null)
+            {
+                Snackbar.Add("Erro: Preencha a data e os horários!", Severity.Warning);
+                return;
+            }
+
+            try
+            {
+                _aula.Capacidade = capacidade;
+                _aula.Inicio = dataSelecionada.Value.Date + horaInicio.Value;
+                _aula.Fim = dataSelecionada.Value.Date + horaFim.Value;
+                _aula.IsDeleted = false;
+                _aula.IsOpen = true;
+
+                _aula.ModalidadeId = _modalidade.Id;
+                _aula.InstrutorId = _instrutor.Id;
+                _aula.SalaId = _sala.Id;
+
+                _aula.Modalidade = null;
+                _aula.Instrutor = null;
+                _aula.Sala = null;
+                
+                if (_aula.Fim <= _aula.Inicio)
+                {
+                    Snackbar.Add("Erro: A hora de fim deve ser posterior à hora de início!", Severity.Error);
+                    return;
+                }
+
+                if (Changebool)
+                {
+                    // Faz a chamada para a rota da API
+                    using var resposta = await GinasioService.UpdateAula(_aula);
+
+                    // CORREÇÃO DEFINTIVA: Valida se o StatusCode está na gama dos 200 (Sucesso)
+                    if (resposta.StatusCode == System.Net.HttpStatusCode.OK || resposta.StatusCode == System.Net.HttpStatusCode.Created)
+                    {
+                        Snackbar.Add("Aula alterada com sucesso!", Severity.Success);
+                        await ResetarFormulario();
+                        Navigation.NavigateTo("/AulasPage");
+
+                    }
+                    else
+                    {
+                        var erroTexto = resposta.ReasonPhrase ?? "Erro desconhecido na API";
+                        Snackbar.Add($"Erro da API: {erroTexto}", Severity.Error);
+                    }
+                    
+                }
+                else
+                {
+                    // Faz a chamada para a rota da API
+                    using var resposta = await GinasioService.AddAula(_aula);
+
+                    // CORREÇÃO DEFINTIVA: Valida se o StatusCode está na gama dos 200 (Sucesso)
+                    if (resposta.StatusCode == System.Net.HttpStatusCode.OK || resposta.StatusCode == System.Net.HttpStatusCode.Created)
+                    {
+                        Snackbar.Add("Aula registada com sucesso!", Severity.Success);
+                        await ResetarFormulario();
+                        Navigation.NavigateTo("/AulasPage");
+
+                    }
+                    else
+                    {
+                        var erroTexto = resposta.ReasonPhrase ?? "Erro desconhecido na API";
+                        Snackbar.Add($"Erro da API: {erroTexto}", Severity.Error);
+                    }
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Erro de ligação: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    private async Task ResetarFormulario()
+    {
+        /*
+        capacidade = 20;
+        dataSelecionada = DateTime.Today;
+        horaInicio = new TimeSpan(19, 00, 00);
+        horaFim = new TimeSpan(20, 00, 00);
+        modalidadeSelecionada = null;
+        instrutorSelecionado = null;
+        salaSelecionada = null;
+        */
+        _aula = new Aula();
+        
+        if (form != null)
+        {
+            await form.ResetValidationAsync();
+        }
+    }
+}
