@@ -1,21 +1,15 @@
 @page "/AulasPage"
-
 @using GinasioVitaFit.Shared.Models
 @using GinasioVitaFit.Shared.Services
 @using MudBlazor
-@inject ISnackbar Snackbar
-@using GinasioVitaFit.WebClient.Components.Pages.Aulas.Componentes
-@inject IDialogService DialogService
 @inject IGinasioVitaFitService GinasioService
-@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@rendermode InteractiveServer
 
 <MudThemeProvider Theme="@temaLaranja" />
 <MudSnackbarProvider />
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
-    <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Warning">
-        <b>Gestão de Aulas</b>
-    </MudText>
     
     <!-- CABEÇALHO SUPERIOR LARANJA -->
     <div style="background: white; border-top: 6px solid #FF6B00; border-radius: 8px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 24px;">
@@ -41,7 +35,7 @@
 
     <!-- TABELA MAPA DE HORÁRIOS -->
     <div style="background: white; border-radius: 8px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-        <MudDataGrid Items="@_listaAulas" Filterable="true" SortMode="SortMode.Multiple">
+        <MudDataGrid Items="@listaAulas" Filterable="true" SortMode="SortMode.Multiple">
             <ToolBarContent>
                 <MudText Typo="Typo.h6" Style="color: #333; font-weight: bold;">Aulas Marcadas</MudText>
                 <MudSpacer />
@@ -83,10 +77,9 @@
                     <CellTemplate>
                         <div class="d-flex gap-2">
                             <MudIconButton Size="Size.Small"
-                                           Icon="@Icons.Material.Rounded.OpenInNew"
-                                           OnClick="@(() => AbrirModalInfo(context.Item))" 
-                                           Class="text-amber-500!"
-                            />
+                                           Icon="@Icons.Material.Filled.Edit"
+                                           Style="color: #FF6B00;"
+                                           OnClick="@(() => modalAgendar.ShowEditar(context.Item))" />
 
                             <MudIconButton Size="Size.Small"
                                            Icon="@Icons.Material.Filled.Delete"
@@ -100,13 +93,8 @@
     </div>
 </MudContainer>
 
-<AulaModalComponente 
-    @ref="_modal"
-/>
-
 @code {
-    private AulaModalComponente? _modal;
-    private List<AulaDto> _listaAulas = new();
+    private List<AulaDto> listaAulas = new();
     private GinasioVitaFit.WebClient.Components.Pages.Aulas.Componentes.AddAulasComponente modalAgendar = default!;
 
     private MudTheme temaLaranja = new MudTheme()
@@ -122,12 +110,6 @@
     protected override async Task OnInitializedAsync()
     {
         await CarregarAulas();
-        await base.OnInitializedAsync();
-    }
-    
-    private async Task AbrirModalInfo(AulaDto aula)
-    {
-        await _modal!.Show(aula);
     }
 
     private async Task CarregarAulas()
@@ -137,26 +119,13 @@
             var resposta = await GinasioService.GetAulas();
             if (resposta != null && resposta.IsSuccessStatusCode)
             {
-                _listaAulas = resposta.Content?? new();
+                listaAulas = resposta.Content?? new();
             }
         }
         catch (Exception ex)
         {
             Snackbar.Add($"Aviso de rede: {ex.Message}", Severity.Info);
-            _listaAulas = new List<AulaDto>();
         }
-        
-        // Filtra as aulas que não foram eliminadas
-        if (_listaAulas != null)
-        {
-            _listaAulas = _listaAulas.Where(a => !a.IsDeleted).ToList();
-        }
-        else
-        {
-            _listaAulas = new List<AulaDto>();
-        }
-        
-        StateHasChanged();
     }
 
     private async Task AbrirModalAgendamento()
