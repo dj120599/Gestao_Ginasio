@@ -91,7 +91,6 @@ namespace GinasioVitaFit.Api.Migrations
                     b.HasKey("AulaId", "SocioId");
 
                     b.ToTable("AulaSociosDto");
-                    b.HasIndex("SocioId");
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.DificuldadeDto", b =>
@@ -356,25 +355,6 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.Navigation("SalaDto");
                 });
-            
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.AulaSocios", b =>
-            {
-                b.HasOne("GinasioVitaFit.Api.Entities.Aula", "Aula")
-                    .WithMany()
-                    .HasForeignKey("AulaId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired();
-
-                b.HasOne("GinasioVitaFit.Api.Entities.Socio", "Socio")
-                    .WithMany()
-                    .HasForeignKey("SocioId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired();
-
-                b.Navigation("Aula");
-
-                b.Navigation("Socio");
-            });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.InstrutorModDto", b =>
                 {

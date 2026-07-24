@@ -19,7 +19,3 @@
         @apply text-amber-600;
     }
 }
-
-.progress-circle {
-    @apply transition-[stroke-dashoffset] duration-900 ease-in-out;
-}
