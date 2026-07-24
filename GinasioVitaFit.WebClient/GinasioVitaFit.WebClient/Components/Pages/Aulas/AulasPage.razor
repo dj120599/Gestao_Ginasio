@@ -85,7 +85,7 @@
             </TemplateColumn>
             <TemplateColumn Title="Aberto">
                 <CellTemplate >
-                    @if (@context.Item.IsOpen)
+                    @if (context.Item.IsOpen)
                     {
                         <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Warning"/>
                     }
