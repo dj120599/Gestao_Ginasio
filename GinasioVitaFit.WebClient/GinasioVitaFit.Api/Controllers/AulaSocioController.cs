@@ -26,14 +26,17 @@ public class AulaSocioController : Controller
     {
         if (_context.AulaSocios is not null)
         {
-            var socios = await _context.AulaSocios.
-                Where(a => a.AulaId == id && a.IsDeleted.Equals(false)).
-                ToListAsync();
+            var socios = await _context.AulaSocios
+                .Where(a => a.AulaId == id && !a.IsDeleted)
+                .Include(a => a.Socio)
+                .Select(a => a.Socio)
+                .Where(s => !s.IsDeleted)
+                .ToListAsync();
             
-            List<AulaSociosDto> Sociosmapped = _mapper.Map<List<AulaSociosDto>>(socios);
+            var sociosmapped = _mapper.Map<List<SocioDto>>(socios);
             
-            if(Sociosmapped.Any())
-                return Ok(Sociosmapped);
+            if(sociosmapped.Any())
+                return Ok(sociosmapped);
         }
 
         return NotFound();

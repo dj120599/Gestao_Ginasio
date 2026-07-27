@@ -1,6 +1,7 @@
 @page "/AulasPage"
 @using GinasioVitaFit.Shared.Models
 @using GinasioVitaFit.Shared.Services
+@using GinasioVitaFit.WebClient.Components.Pages.Aulas.Componentes
 @using MudBlazor
 @inject IGinasioVitaFitService GinasioService
 @inject ISnackbar Snackbar
@@ -77,6 +78,11 @@
                     <CellTemplate>
                         <div class="d-flex gap-2">
                             <MudIconButton Size="Size.Small"
+                                           Icon="@Icons.Material.Rounded.OpenInNew"
+                                           Class="text-amber-500!"
+                                           OnClick="@(() => AbrirModalInfo(context.Item))" />
+
+                            <MudIconButton Size="Size.Small"
                                            Icon="@Icons.Material.Filled.Edit"
                                            Style="color: #FF6B00;"
                                            OnClick="@(() => modalAgendar.ShowEditar(context.Item))" />
@@ -93,7 +99,12 @@
     </div>
 </MudContainer>
 
+<AulaModalComponente
+    @ref="_modal"
+/>
+
 @code {
+    private AulaModalComponente? _modal;
     private List<AulaDto> listaAulas = new();
     private GinasioVitaFit.WebClient.Components.Pages.Aulas.Componentes.AddAulasComponente modalAgendar = default!;
 
@@ -126,6 +137,11 @@
         {
             Snackbar.Add($"Aviso de rede: {ex.Message}", Severity.Info);
         }
+    }
+    
+    private async Task AbrirModalInfo(AulaDto aula)
+    {
+        await _modal!.Show(aula);
     }
 
     private async Task AbrirModalAgendamento()

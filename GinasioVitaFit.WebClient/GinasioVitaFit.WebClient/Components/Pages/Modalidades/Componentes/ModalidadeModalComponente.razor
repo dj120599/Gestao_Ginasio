@@ -245,7 +245,7 @@
     private bool IsEdit => _modalidadeDto.Id > 0;
     private List<DificuldadeDto> _dificuldades = new();
 
-    private string _previewUrl = "/images/modalidadeDto-placeholder.png";
+    private string _previewUrl = "/images/modalidade-placeholder.png";
     private bool _isUploading;
 
     private string OverlayClass =>
@@ -292,7 +292,7 @@
     public async Task Show()
     {
         _modalidadeDto = new();
-        _previewUrl = "/images/modalidadeDto-placeholder.png";
+        _previewUrl = "/images/modalidade-placeholder.png";
         _saveState = SaveState.Idle;
 
         await OpenModal();
@@ -328,7 +328,7 @@
         _isOpen = false;
 
         _modalidadeDto = new();
-        _previewUrl = "/images/modalidadeDto-placeholder.png";
+        _previewUrl = "/images/modalidade-placeholder.png";
 
         StateHasChanged();
     }
@@ -417,8 +417,8 @@
 
     private void LimparImagemManualmente()
     {
-        _previewUrl = "/images/modalidadeDto-placeholder.png";
-        _modalidadeDto.ImageUrl = "/images/modalidadeDto-placeholder.png";
+        _previewUrl = "/images/modalidade-placeholder.png";
+        _modalidadeDto.ImageUrl = "/images/modalidade-placeholder.png";
     }
 
     private void SelecionarImagemExistente(string caminhoImagem)

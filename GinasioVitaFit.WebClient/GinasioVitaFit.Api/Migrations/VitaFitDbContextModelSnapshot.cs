@@ -22,7 +22,7 @@ namespace GinasioVitaFit.Api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.AulaDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Aula", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -68,10 +68,10 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasIndex("SalaId");
 
-                    b.ToTable("Aulas");
+                    b.ToTable("Aulas", (string)null);
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.AulaSociosDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.AulaSocios", b =>
                 {
                     b.Property<int>("AulaId")
                         .HasColumnType("int");
@@ -90,10 +90,10 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasKey("AulaId", "SocioId");
 
-                    b.ToTable("AulaSociosDto");
+                    b.ToTable("AulaSocios", (string)null);
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.DificuldadeDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Dificuldade", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -116,10 +116,10 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Dificuldades");
+                    b.ToTable("Dificuldades", (string)null);
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.InstrutorDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Instrutor", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -154,10 +154,10 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Instrutores");
+                    b.ToTable("Instrutores", (string)null);
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.InstrutorModDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.InstrutorMod", b =>
                 {
                     b.Property<int>("InstrutorId")
                         .HasColumnType("int");
@@ -178,10 +178,10 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasIndex("ModalidadeId");
 
-                    b.ToTable("InstrutorMods");
+                    b.ToTable("InstrutorMods", (string)null);
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.ModalidadeDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Modalidade", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -222,10 +222,10 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasIndex("InstrutorId");
 
-                    b.ToTable("Modalidades");
+                    b.ToTable("Modalidades", (string)null);
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.PlanoDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Plano", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -248,10 +248,10 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Planos");
+                    b.ToTable("Planos", (string)null);
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.SalaDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Sala", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -274,10 +274,10 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Salas");
+                    b.ToTable("Salas", (string)null);
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.SocioDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Socio", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -326,82 +326,82 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasIndex("PlanoId");
 
-                    b.ToTable("Socios");
+                    b.ToTable("Socios", (string)null);
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.AulaDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Aula", b =>
                 {
-                    b.HasOne("GinasioVitaFit.Api.Entities.InstrutorDto", "InstrutorDto")
+                    b.HasOne("GinasioVitaFit.Api.Entities.Instrutor", "Instrutor")
                         .WithMany()
                         .HasForeignKey("InstrutorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GinasioVitaFit.Api.Entities.ModalidadeDto", "ModalidadeDto")
+                    b.HasOne("GinasioVitaFit.Api.Entities.Modalidade", "Modalidade")
                         .WithMany()
                         .HasForeignKey("ModalidadeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GinasioVitaFit.Api.Entities.SalaDto", "SalaDto")
+                    b.HasOne("GinasioVitaFit.Api.Entities.Sala", "Sala")
                         .WithMany()
                         .HasForeignKey("SalaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("InstrutorDto");
+                    b.Navigation("Instrutor");
 
-                    b.Navigation("ModalidadeDto");
+                    b.Navigation("Modalidade");
 
-                    b.Navigation("SalaDto");
+                    b.Navigation("Sala");
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.InstrutorModDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.InstrutorMod", b =>
                 {
-                    b.HasOne("GinasioVitaFit.Api.Entities.InstrutorDto", "InstrutorDto")
+                    b.HasOne("GinasioVitaFit.Api.Entities.Instrutor", "Instrutor")
                         .WithMany()
                         .HasForeignKey("InstrutorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GinasioVitaFit.Api.Entities.ModalidadeDto", "ModalidadeDto")
+                    b.HasOne("GinasioVitaFit.Api.Entities.Modalidade", "Modalidade")
                         .WithMany()
                         .HasForeignKey("ModalidadeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("InstrutorDto");
+                    b.Navigation("Instrutor");
 
-                    b.Navigation("ModalidadeDto");
+                    b.Navigation("Modalidade");
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.ModalidadeDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Modalidade", b =>
                 {
-                    b.HasOne("GinasioVitaFit.Api.Entities.DificuldadeDto", "DificuldadeDto")
+                    b.HasOne("GinasioVitaFit.Api.Entities.Dificuldade", "Dificuldade")
                         .WithMany()
                         .HasForeignKey("DificuldadeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GinasioVitaFit.Api.Entities.InstrutorDto", null)
+                    b.HasOne("GinasioVitaFit.Api.Entities.Instrutor", null)
                         .WithMany("Modalidades")
                         .HasForeignKey("InstrutorId");
 
-                    b.Navigation("DificuldadeDto");
+                    b.Navigation("Dificuldade");
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.SocioDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Socio", b =>
                 {
-                    b.HasOne("GinasioVitaFit.Api.Entities.PlanoDto", "PlanoDto")
+                    b.HasOne("GinasioVitaFit.Api.Entities.Plano", "Plano")
                         .WithMany()
                         .HasForeignKey("PlanoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("PlanoDto");
+                    b.Navigation("Plano");
                 });
 
-            modelBuilder.Entity("GinasioVitaFit.Api.Entities.InstrutorDto", b =>
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Instrutor", b =>
                 {
                     b.Navigation("Modalidades");
                 });

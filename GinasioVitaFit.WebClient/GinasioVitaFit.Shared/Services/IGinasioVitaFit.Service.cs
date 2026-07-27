@@ -58,8 +58,8 @@ public interface IGinasioVitaFitService
     Task<ApiResponse<List<DificuldadeDto>>> GetAllDificuldades();
     
     //Aulasocio
-    [Get("//Sociosaula/{id}")]
-    Task<ApiResponse<List<AulaSociosDto>>> GetAllSociosFromAula(int id);
+    [Get("/Sociosaula/{id}")]
+    Task<ApiResponse<List<SocioDto>>> GetAllSociosFromAula(int id);
 
     [Get("/Aulassocio/{id}")]
     Task<ApiResponse<List<AulaSociosDto>>> GetAllAulasFromSocio(int id);
