@@ -43,4 +43,7 @@ public class AulaDto
     
     [JsonPropertyName("isOpen")] 
     public bool IsOpen { get; set; }
+
+    [JsonPropertyName("updatedDate")] 
+    public DateTime UpdatedDate { get; set; }
 }
