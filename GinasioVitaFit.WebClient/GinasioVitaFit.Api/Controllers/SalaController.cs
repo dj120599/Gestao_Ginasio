@@ -36,27 +36,33 @@ public class SalaController: Controller
 
         return NotFound();
     }
-    
-    
-    [HttpDelete("sala_softdelete/{id}")]
+    [HttpDelete("Saladelete/{id}")]
     public async Task<IResult> DeleteSala_Soft(int id)
     {
-        if (id == null)
-            return Results.Empty;
-        
-        if (_context.Socios is not null)
+        if (_context.Salas is not null)
         {
+            // 1. Procura a sala principal pelo ID recebido
             var sala = await _context.Salas.FirstOrDefaultAsync(t => t.Id == id);
+        
+            if (sala is null)
+                return Results.NotFound("Sala não foi encontrada");
 
-            if(sala is null)
-                return Results.NotFound("SalaDto não foi encontrado");
-            
+            // 2. REQUISITO: Remove as aulas associadas a esta sala
+            if (_context.Aulas is not null)
+            {
+                var aulasDaSala = await _context.Aulas
+                    .Where(a => a.SalaId == id)
+                    .ToListAsync();
+
+                _context.Aulas.RemoveRange(aulasDaSala);
+            }
+
+            // 3. Soft Delete: Apenas marca a sala como eliminada
             sala.IsDeleted = true;
-            
-            
+        
             await _context.SaveChangesAsync();
-            
-            return Results.Ok("SalaDto apagado com Successo.");
+        
+            return Results.Ok("Sala e as suas respetivas aulas foram eliminadas.");
         }
         return Results.Empty;
     }

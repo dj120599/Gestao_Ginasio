@@ -122,27 +122,37 @@ public class SocioController: Controller
         
         return Ok("Sócio actualizada com sucesso.");
     }
-    
-    [HttpPut("Sociosoftdelete/{id}")]
+    [HttpDelete("Sociosoftdelete/{id}")]
     public async Task<IResult> DeleteSocio_Soft(int id)
     {
-        if (id == null)
-            return Results.Empty;
-        
         if (_context.Socios is not null)
         {
+            // 1. Procura o sócio principal pelo ID recebido
             var socio = await _context.Socios.FirstOrDefaultAsync(t => t.Id == id);
-
-            if(socio is null)
+        
+            if (socio is null)
                 return Results.NotFound("Sócio não foi encontrado");
-            
+
+            // 2. REQUISITO DO CARTÃO: Remove todas as linhas correspondentes na tabela AulaSocios
+            if (_context.AulaSocios is not null)
+            {
+                var aulasDoIdSocio = await _context.AulaSocios
+                    .Where(a => a.SocioId == id)
+                    .ToListAsync();
+
+                // Apaga em lote todas as inscrições deste sócio
+                _context.AulaSocios.RemoveRange(aulasDoIdSocio);
+            }
+
+            // 3. Faz o Soft Delete do sócio principal
             socio.IsDeleted = true;
-            
-            
+        
+            // Grava todas as alterações na base de dados
             await _context.SaveChangesAsync();
-            
-            return Results.Ok("Sócio apagado com Successo.");
+        
+            return Results.Ok("Sócio desativado e as suas inscrições em aulas foram removidas.");
         }
         return Results.Empty;
     }
+
 }
