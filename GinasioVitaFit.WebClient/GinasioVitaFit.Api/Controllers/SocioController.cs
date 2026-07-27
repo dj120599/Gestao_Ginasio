@@ -154,5 +154,4 @@ public class SocioController: Controller
         }
         return Results.Empty;
     }
-
 }

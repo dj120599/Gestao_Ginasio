@@ -66,4 +66,5 @@ public class SalaController: Controller
         }
         return Results.Empty;
     }
+    
 }
