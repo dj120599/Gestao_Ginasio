@@ -71,7 +71,7 @@
                 </TemplateColumn>
 
                 <!-- 5. Vagas Totais -->
-                <PropertyColumn Property="x => x.Capacidade" Title="Vagas Totais" />
+                <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Max" />
 
                 <!-- 6. Ações (Editar e Apagar) -->
                 <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
@@ -95,6 +95,11 @@
                     </CellTemplate>
                 </TemplateColumn>
             </Columns>
+            <PagerContent >
+                <div class="bg-warning">
+                    <MudDataGridPager Items="@listaAulas"/>
+                </div>
+            </PagerContent>
         </MudDataGrid>
     </div>
 </MudContainer>
@@ -164,7 +169,7 @@
             
             if (resposta != null && resposta.IsSuccessStatusCode)
             {
-                Snackbar.Add("AulaDto cancelada com sucesso!", Severity.Success);
+                Snackbar.Add("Aula cancelada com sucesso!", Severity.Success);
                 
                
                 await Task.Delay(500); 

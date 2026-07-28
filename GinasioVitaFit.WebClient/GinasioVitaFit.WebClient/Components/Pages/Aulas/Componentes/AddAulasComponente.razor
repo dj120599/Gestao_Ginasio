@@ -82,12 +82,19 @@
 
                             <!-- CORREÇÃO: DROPDOWN DE SELEÇÃO DE SALA EXIGIDO PELO TEU COLEGAS NO MODELO -->
                             <MudItem xs="12" sm="6">
-                                <MudSelect T="int" Label="Sala / Espaço" @bind-Value="_novaAulaDto.SalaId" For="@(() => _novaAulaDto.SalaId)" AnchorOrigin="Origin.BottomCenter">
-                                    <MudSelectItem Value="0" Disabled="true">Selecione uma sala...</MudSelectItem>
-                                    <MudSelectItem Value="1">SalaDto de Musculação</MudSelectItem>
-                                    <MudSelectItem Value="2">Estúdio de Zumba / Pilates</MudSelectItem>
-                                    <MudSelectItem Value="3">Box de Crossfit</MudSelectItem>
-                                    <MudSelectItem Value="4">Estúdio de Ciclismo</MudSelectItem>
+                                
+                                <MudSelect T="int" Label="Sala / Espaço" 
+                                           @bind-Value="_novaAulaDto.SalaId" 
+                                           For="@(() => _novaAulaDto.SalaId)" 
+                                           Text="Escolha uma sala."
+                                           AnchorOrigin="Origin.BottomCenter">
+                                @if (listaSalas != null)
+                                {
+                                    @foreach (var inst in listaSalas)
+                                    {
+                                        <MudSelectItem Value="@inst.Id">@inst.Name</MudSelectItem>
+                                    }
+                                }
                                 </MudSelect>
                             </MudItem>
 
@@ -140,6 +147,7 @@
     // CORREÇÃO DOS NOMES: Declaração limpa e sem gralhas de digitação
     private List<ModalidadeDto> listaModalidades = new();
     private List<InstrutorDto> listaInstrutores = new();
+    private List<SalaDto> listaSalas = new();
     private List<InstrutorDto> listaInstrutoresFiltrados = new();
 
     [Parameter] public EventCallback OnSubmetido { get; set; }
@@ -176,18 +184,9 @@
         _dataAula = aulaDtoParaEditar.Inicio.Date;
         _horaInicio = aulaDtoParaEditar.Inicio.TimeOfDay;
         _horaFim = aulaDtoParaEditar.Fim.TimeOfDay;
-
-        _novaAulaDto = new AulaDto
-        {
-            Id = aulaDtoParaEditar.Id,
-            Inicio = aulaDtoParaEditar.Inicio,
-            Fim = aulaDtoParaEditar.Fim,
-            Capacidade = aulaDtoParaEditar.Capacidade,
-            ModalidadeId = aulaDtoParaEditar.ModalidadeId,
-            InstrutorId = aulaDtoParaEditar.InstrutorId,
-            SalaId = aulaDtoParaEditar.SalaId
-        };
-
+        
+        _novaAulaDto = aulaDtoParaEditar;
+        
         listaInstrutoresFiltrados = listaInstrutores.ToList();
         _isLoading = false;
         StateHasChanged();
@@ -215,6 +214,13 @@
             {
                 List<InstrutorDto> insts = resInst.Content ?? resInst;
                 listaInstrutores = insts.ToList();
+            }
+            
+            dynamic resSala = await GinasioService.GetAllSalas();
+            if (resSala != null)
+            {
+                List<SalaDto> salas = resSala.Content ?? resSala;
+                listaSalas = salas.ToList();
             }
         }
         catch (Exception ex)
