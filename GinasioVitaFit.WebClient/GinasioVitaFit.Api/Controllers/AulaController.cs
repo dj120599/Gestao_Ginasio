@@ -34,15 +34,6 @@ public class AulaController: Controller
                 ToListAsync();
             
             List<AulaDto> Aulasmapped = _mapper.Map<List<AulaDto>>(aulas);
-
-            foreach (var _aulas in Aulasmapped)
-            {
-                var socios = await _context.AulaSocios.
-                    Where(a => a.AulaId == _aulas.Id && a.IsDeleted.Equals(false)).
-                    ToListAsync();
-
-                _aulas.Inscritos = socios.Count;
-            }
             
             if(Aulasmapped.Any())
                 return Ok(Aulasmapped);
@@ -63,12 +54,6 @@ public class AulaController: Controller
                 FirstOrDefaultAsync(a => a.Id == id && a.IsDeleted.Equals(false));
             
             var aulamapped = _mapper.Map<Aula,AulaDto>(aula);
-            
-            var socios = await _context.AulaSocios.
-                Where(a => a.AulaId == id && a.IsDeleted.Equals(false)).
-                ToListAsync();
-
-            aulamapped.Inscritos = socios.Count;
             
             if(aulamapped is not null)
                 return Ok(aulamapped);

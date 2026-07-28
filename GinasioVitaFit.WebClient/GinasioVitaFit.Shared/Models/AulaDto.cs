@@ -33,10 +33,6 @@ public class AulaDto
     [JsonPropertyName("capacidade")] 
     public int Capacidade { get; set; }
 
-    [Range(1, 100, ErrorMessage = "O número de inscritos deve ser menor ou igual á Capacidade.")]
-    [JsonPropertyName("inscritos")] 
-    public int Inscritos { get; set; }
-
     [Required(ErrorMessage = "Horário início é obrigatório.")]
     [JsonPropertyName("inicio")] 
     public DateTime Inicio { get; set; }
