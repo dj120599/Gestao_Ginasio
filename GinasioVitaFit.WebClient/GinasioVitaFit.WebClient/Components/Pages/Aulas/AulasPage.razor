@@ -70,15 +70,25 @@
                     </CellTemplate>
                 </TemplateColumn>
 
-                <!-- 5. Vagas Totais -->
-                <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Max" />
+                <TemplateColumn Title="Aberto">
+                    <CellTemplate >
+                        @if (@context.Item.IsOpen)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Warning"/>
+                        }
+                        else
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Close"  Color="Color.Warning"/>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
 
                 <!-- 6. Ações (Editar e Apagar) -->
                 <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
                     <CellTemplate>
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 center">
                             <MudIconButton Size="Size.Small"
-                                           Icon="@Icons.Material.Rounded.OpenInNew"
+                                           Icon="@Icons.Material.Rounded.Info"
                                            Class="text-amber-500!"
                                            OnClick="@(() => AbrirModalInfo(context.Item))" />
 

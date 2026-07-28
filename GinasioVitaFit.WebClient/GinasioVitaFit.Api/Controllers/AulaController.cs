@@ -72,6 +72,7 @@ public class AulaController: Controller
         var aulamapped = _mapper.Map<AulaDto,Entities.Aula>(aula);
         aulamapped.CreatedDate = DateTime.UtcNow;
         aulamapped.UpdatedDate = DateTime.UtcNow;
+        aulamapped.IsOpen = true;
         
         var products =  _context.Aulas;
         

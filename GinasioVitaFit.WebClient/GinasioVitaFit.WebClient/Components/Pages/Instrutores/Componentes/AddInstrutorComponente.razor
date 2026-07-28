@@ -54,7 +54,7 @@
                                        MultiSelection="true"
                                        SelectedValues="@_SelectedMods"
                                        SelectedValuesChanged="Callback"
-                                       ToStringFunc="@ToString"
+                                       ToStringFunc="@(ToString)"
                                        Adornment="Adornment.Start"
                                        AdornmentIcon="@Icons.Material.Filled.Phone">
                                 @foreach (MultiSelectItem2 item in _listMSI)
