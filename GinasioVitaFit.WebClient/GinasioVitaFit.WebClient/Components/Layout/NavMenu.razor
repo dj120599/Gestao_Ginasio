@@ -1,6 +1,6 @@
-﻿<div class="nav-scrollable bg-verde-claro min-h-dvh min-w-3xs py-3" onclick="ToggleNavMenu">
+﻿<div class="nav-scrollable min-h-dvh min-w-3xs py-3" onclick="ToggleNavMenu">
     <nav class="flex flex-col flex-1 px-2">
-        <div class="link-nav text-amber-400 py-2">
+        <div class="link-nav text-amber-500 py-2">
             <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" class="text-3xl!"/>
             <p class="font-bold! text-2xl! m-0">VitaFit</p>
         </div>
@@ -8,37 +8,37 @@
         <span class="h-px bg-gray-200 my-4"/>
 
         <div class="">
+            <!-- 1. Home Page -->
             <NavLink href="" class="link-nav hover:bg-amber-300/10 group" Match="NavLinkMatch.All">
                 <MudIcon Icon="@Icons.Material.Outlined.Dashboard" class="group-hover:text-amber-600"/>
                 <p class="paragraph group-hover:text-amber-600!">Dashboard</p>
             </NavLink>
 
-            <!-- 1. Link para o Horário / Listagem (Aponta para AulaDtosPage) -->
+            <!-- 2. Aula Page -->
             <NavLink href="/AulasPage" class="link-nav hover:bg-amber-300/10 group">
                 <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" class="group-hover:text-amber-600"/>
-                <p class="paragraph group-hover:text-amber-600!">Horarios de Aulas</p>
+                <p class="paragraph group-hover:text-amber-600!">Aulas</p>
             </NavLink>
             
-
-            <!-- 3. Link para a Lista de Instrutores () -->
-            <NavLink href="/InstrutorPage" class="link-nav hover:bg-amber-300/10 group">
-                <MudIcon Icon="@Icons.Material.Filled.PeopleAlt" class="group-hover:text-amber-600"/>
-                <p class="paragraph group-hover:text-amber-600!">Instrutores</p>
-            </NavLink>
-
-            <!-- 4. Link para Agendar AulaDto () -->
+            <!-- 3. Agendar Aula Page -->
             <NavLink href="/AgendarAula" class="link-nav hover:bg-amber-300/10 group">
                 <MudIcon Icon="@Icons.Material.Filled.EditCalendar" class="group-hover:text-amber-600"/>
                 <p class="paragraph group-hover:text-amber-600!">Agendar Aula</p>
             </NavLink>
 
-            <!-- 6. Link para a Lista de Sócios () -->
+            <!-- 4. Instrutor Page -->
+            <NavLink href="/InstrutorPage" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Filled.PeopleAlt" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Instrutores</p>
+            </NavLink>
+            
+            <!-- 5. Socios Page -->
             <NavLink href="/SocioPage" class="link-nav hover:bg-amber-300/10 group">
                 <MudIcon Icon="@Icons.Material.Filled.PeopleAlt" class="group-hover:text-amber-600"/>
-                <p class="paragraph group-hover:text-amber-600!">Lista de Sócios</p>
+                <p class="paragraph group-hover:text-amber-600!">Sócios</p>
             </NavLink>
 
-            <!-- 7. Link para a Lista de Modalidades () -->
+            <!-- 6. Modalidade Page -->
             <NavLink href="/modalidades" class="link-nav hover:bg-amber-300/10 group">
                 <MudIcon Icon="@Icons.Material.Rounded.SportsTennis" class="group-hover:text-amber-600"/>
                 <p class="paragraph group-hover:text-amber-600!">Modalidades</p>

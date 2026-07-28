@@ -199,8 +199,8 @@ else
             var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall };
 
             bool? resultConfirm = await DialogService.ShowMessageBoxAsync(
-                "Eliminar ModalidadeDto?",
-                "Tem a certeza que deseja eliminar esta modalidadeDto?",
+                "Eliminar Modalidade?",
+                "Tem a certeza que deseja eliminar esta modalidade?",
                 yesText: "Sim, Eliminar",
                 cancelText: "Não, Cancelar",
                 options: options);
@@ -211,7 +211,7 @@ else
 
             if (result.IsSuccessStatusCode)
             {
-                Snackbar.Add("ModalidadeDto eliminada com sucesso!", Severity.Success, config =>
+                Snackbar.Add("Modalidade eliminada com sucesso!", Severity.Success, config =>
                 {
                     config.VisibleStateDuration = 1500;
                     config.HideTransitionDuration = 200;
@@ -221,7 +221,7 @@ else
             }
             else
             {
-                Snackbar.Add("Não foi possível eliminar a modalidadeDto.", Severity.Error);
+                Snackbar.Add("Não foi possível eliminar a modalidade.", Severity.Error);
             }
         }
         catch (Exception e)
