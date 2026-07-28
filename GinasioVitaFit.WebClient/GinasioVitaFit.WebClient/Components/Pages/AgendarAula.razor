@@ -87,7 +87,7 @@
 
     <MudDataGrid Items="@_listaAulas2" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobalAgendadas">
         <ToolBarContent>
-            <MudText Typo="Typo.h6">Horário de AulaDtos Agendadas</MudText>
+            <MudText Typo="Typo.h6">Horário de Aula Agendadas</MudText>
             <MudSpacer />
             <!-- Campo de Pesquisa Rápida -->
             <MudTextField @bind-Value="_pesquisa2" Placeholder="Pesquisar por modalidade, instrutor ou sala..." 
@@ -290,7 +290,7 @@
         StateHasChanged();
     }
 
-    private async void OnValueChanged(SocioDto s)
+    private void OnValueChanged(SocioDto s)
     {
         Id = s.Id;
         UpdateLists();
