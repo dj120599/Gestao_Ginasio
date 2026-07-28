@@ -280,7 +280,7 @@
                             
             if (resposta != null && resposta.IsSuccessStatusCode)
             {
-                Snackbar.Add(_isEdicao ? "Dados atualizados com sucesso!" : "SocioDto registado com sucesso!", Severity.Success);
+                Snackbar.Add(_isEdicao ? "Dados atualizados com sucesso!" : "Socio registado com sucesso!", Severity.Success);
                 await Task.Delay(500);
                 _isOpen = false;
                 await OnSubmetido.InvokeAsync();

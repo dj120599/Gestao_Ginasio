@@ -13,7 +13,7 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8 mb-5" >
     <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Warning"><b>Agendar Aulas</b></MudText>
     <MudItem xs="12" sm="4" Class="mb-5">
-        <MudSelect T="SocioDto" ValueChanged="OnValueChanged" AdornmentColor="Color.Warning"  Label="SocioDtos"  Placeholder="Escolha um Sócio." Required="true">
+        <MudSelect T="SocioDto" ValueChanged="OnValueChanged" AdornmentColor="Color.Warning"  Label="Socios"  Placeholder="Escolha um Sócio." Required="true">
             @foreach (SocioDto selectItem in _listaSocios)
             {
                 <MudSelectItem T="SocioDto" Value="@(selectItem)">@selectItem.Name</MudSelectItem>
@@ -34,7 +34,7 @@
             <PropertyColumn Property="x => x.Modalidade.Name" Title="Modalidades" />
             <PropertyColumn Property="x => x.Instrutor.Name" Title="Instrutores" />
             <PropertyColumn Property="x => x.Sala.Name" Title="Salas / Espaço" />
-            <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Máz." Filterable="false"/>
+            <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Max." Filterable="false"/>
 
             <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
             
@@ -87,18 +87,18 @@
 
     <MudDataGrid Items="@_listaAulas2" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobalAgendadas">
         <ToolBarContent>
-            <MudText Typo="Typo.h6">Horário de AulaDtos Agendadas</MudText>
+            <MudText Typo="Typo.h6">Horário de Aula Agendadas</MudText>
             <MudSpacer />
             <!-- Campo de Pesquisa Rápida -->
-            <MudTextField @bind-Value="_pesquisa2" Placeholder="Pesquisar por modalidadeDto, instrutorDto ou sala..." 
+            <MudTextField @bind-Value="_pesquisa2" Placeholder="Pesquisar por modalidade, instrutor ou sala..." 
                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0"
                           Clearable="true" />
         </ToolBarContent>
         <Columns>
-            <PropertyColumn Property="x => x.Modalidade.Name" Title="ModalidadeDto" />
-            <PropertyColumn Property="x => x.Instrutor.Name" Title="InstrutorDto" />
-            <PropertyColumn Property="x => x.Sala.Name" Title="SalaDto / Espaço" />
-            <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Máz." />
+            <PropertyColumn Property="x => x.Modalidade.Name" Title="Modalidade" />
+            <PropertyColumn Property="x => x.Instrutor.Name" Title="Instrutor" />
+            <PropertyColumn Property="x => x.Sala.Name" Title="Sala / Espaço" />
+            <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Max." />
 
             <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
             <TemplateColumn Title="Data">
@@ -195,8 +195,8 @@
 
         var mbox = new MessageBoxOptions
         {
-            Title = "Adicionar AulaDto",
-            Message = $"Tem a certeza que deseja adicionar a aulaDto de {aulaDto.Modalidade.Name} á sua agenda?",
+            Title = "Adicionar Aula",
+            Message = $"Tem a certeza que deseja adicionar a aula de {aulaDto.Modalidade.Name} á sua agenda?",
             YesText = "Sim",
             CancelText = "Cancelar"
         };
@@ -222,17 +222,17 @@
             
             if (aulas.IsSuccessful)
             {
-                Snackbar.Add("AulaDto Adicionada com sucesso!", Severity.Success);
+                Snackbar.Add("Aula Adicionada com sucesso!", Severity.Success);
             }
             else
             {
-                Snackbar.Add("Ocorreu um Erro na Adição da Aula1!", Severity.Error);
+                Snackbar.Add("Ocorreu um Erro na Adição da Aula!", Severity.Error);
             }
 
         }
         else
         {
-            Snackbar.Add("Ocorreu um Erro na Adição da Aula2!", Severity.Error);
+            Snackbar.Add("Ocorreu um Erro na Adição da Aula!", Severity.Error);
         }
         
         UpdateLists();
@@ -247,8 +247,8 @@
 
         var mbox = new MessageBoxOptions
         {
-            Title = "Desistir AulaDto",
-            Message = $"Tem a certeza que deseja desistir da aulaDto de {aulaDto.Modalidade.Name}?",
+            Title = "Desistir Aula",
+            Message = $"Tem a certeza que deseja desistir da aula de {aulaDto.Modalidade.Name}?",
             YesText = "Sim",
             CancelText = "Não"
         };
@@ -273,24 +273,24 @@
 
             if (aulas.IsSuccessful)
             {
-                Snackbar.Add("AulaDto Desistida com sucesso!", Severity.Success);
+                Snackbar.Add("Aula Desistida com sucesso!", Severity.Success);
             }
             else
             {
-                Snackbar.Add("Ocorreu um Erro na desistencia da AulaDto!", Severity.Error);
+                Snackbar.Add("Ocorreu um Erro na desistencia da Aul!", Severity.Error);
             }
 
         }
         else
         {
-            Snackbar.Add("Ocorreu um Erro na desistencia da AulaDto!", Severity.Error);
+            Snackbar.Add("Ocorreu um Erro na desistencia da Aula!", Severity.Error);
         }
 
         UpdateLists();
         StateHasChanged();
     }
 
-    private async void OnValueChanged(SocioDto s)
+    private void OnValueChanged(SocioDto s)
     {
         Id = s.Id;
         UpdateLists();

@@ -4,6 +4,7 @@
 @using GinasioVitaFit.WebClient.Components.Pages.Aulas.Componentes
 @using MudBlazor
 @inject IGinasioVitaFitService GinasioService
+@inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @rendermode InteractiveServer
 
@@ -70,15 +71,25 @@
                     </CellTemplate>
                 </TemplateColumn>
 
-                <!-- 5. Vagas Totais -->
-                <PropertyColumn Property="x => x.Capacidade" Title="Vagas Totais" />
+                <TemplateColumn Title="Aberto">
+                    <CellTemplate >
+                        @if (@context.Item.IsOpen)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Warning"/>
+                        }
+                        else
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Close"  Color="Color.Warning"/>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
 
                 <!-- 6. Ações (Editar e Apagar) -->
                 <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
                     <CellTemplate>
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 center">
                             <MudIconButton Size="Size.Small"
-                                           Icon="@Icons.Material.Rounded.OpenInNew"
+                                           Icon="@Icons.Material.Rounded.Info"
                                            Class="text-amber-500!"
                                            OnClick="@(() => AbrirModalInfo(context.Item))" />
 
@@ -90,11 +101,16 @@
                             <MudIconButton Size="Size.Small"
                                            Icon="@Icons.Material.Filled.Delete"
                                            Style="color: #666666;"
-                                           OnClick="@(() => ExecutarEliminacaoReal(context.Item.Id))" />
+                                           OnClick="@(() => ExecutarEliminacaoReal(context.Item))" />
                         </div>
                     </CellTemplate>
                 </TemplateColumn>
             </Columns>
+            <PagerContent >
+                <div class="bg-warning">
+                    <MudDataGridPager Items="@listaAulas"/>
+                </div>
+            </PagerContent>
         </MudDataGrid>
     </div>
 </MudContainer>
@@ -155,26 +171,50 @@
         await CarregarAulas();
     }
 
-    private async Task ExecutarEliminacaoReal(int idAula)
+    private async Task ExecutarEliminacaoReal(AulaDto Aula)
     {
         try
         {
-            // 1. CHAMA O SERVICE REAL: Usa o método exato de apagar que está no teu IGinasioVitaFitService (ex: DeleteAula)
-            var resposta = await GinasioService.DeleteAula(idAula);
-            
-            if (resposta != null && resposta.IsSuccessStatusCode)
+            var parameters = new DialogParameters<MudMessageBox>();
+
+            var mbox = new MessageBoxOptions
             {
-                Snackbar.Add("AulaDto cancelada com sucesso!", Severity.Success);
+                Title = "Desistir Aula",
+                Message = $"Tem a certeza que deseja desistir da aula de {Aula.Modalidade.Name}?",
+                YesText = "Sim",
+                CancelText = "Não"
+            };
+
+            parameters.Add(x => x.MarkupMessage, new Microsoft.AspNetCore.Components.MarkupString(mbox.Message));
+            parameters.Add(x => x.YesText, mbox.YesText);
+            parameters.Add(x => x.CancelText, mbox.CancelText);
+
+            var dialog = await DialogService.ShowAsync<MudMessageBox>(mbox.Title, parameters);
+            var result = await dialog.Result;
+            
+            if (!result.Canceled && result.Data is bool confirmar && confirmar)
+            {
+                // 1. CHAMA O SERVICE REAL: Usa o método exato de apagar que está no teu IGinasioVitaFitService (ex: DeleteAula)
+                var resposta = await GinasioService.DeleteAula(Aula.Id);
+            
+                if (resposta != null && resposta.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Aula cancelada com sucesso!", Severity.Success);
                 
                
-                await Task.Delay(500); 
-                await CarregarAulas();
+                    await Task.Delay(500); 
+                    await CarregarAulas();
+                }
+                else
+                {
+                    var erroTexto = resposta?.ReasonPhrase ?? "Erro desconhecido";
+                    Snackbar.Add($"Erro ao cancelar: {erroTexto}", Severity.Error);
+                    await CarregarAulas();
+                }
             }
             else
             {
-                var erroTexto = resposta?.ReasonPhrase ?? "Erro desconhecido";
-                Snackbar.Add($"Erro ao cancelar: {erroTexto}", Severity.Error);
-                await CarregarAulas();
+                Snackbar.Add("Ocorreu um Erro na desistencia da Aula!", Severity.Error);
             }
         }
         catch (Exception ex)
