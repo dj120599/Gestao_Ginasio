@@ -340,6 +340,8 @@
 
             if (socios.IsSuccessStatusCode)
                 _socios = socios.Content ?? new List<SocioDto>();
+            else
+                _socios = new();
         }
         catch (Exception ex)
         {
