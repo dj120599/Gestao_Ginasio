@@ -29,19 +29,17 @@
                     <DataAnnotationsValidator/>
 
                     <!-- CABEÇALHO DO MODAL -->
-                    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                        <div class="flex flex-row items-center gap-2">
-                            <MudIcon
-                                Icon="@(_isEdicao ? Icons.Material.Filled.Edit : Icons.Material.Filled.CalendarMonth)"
-                                Class="mr-2 text-amber-500" />
-                            <h3 class="m-0 text-xl font-bold text-gray-800">
-                                @(_isEdicao ? "Editar Dados da Aula" : "Marcar Nova Aula")
-                            </h3>
-                        </div>
+                    <div class="flex flex-row items-center gap-2 border-b border-gray-200 px-6 py-5!">
+                        <MudIcon
+                            Icon="@(_isEdicao ? Icons.Material.Filled.Edit : Icons.Material.Filled.CalendarMonth)"
+                            Class="mr-2 text-amber-500"/>
+                        <h3 class="m-0 text-xl font-bold text-gray-800">
+                            @(_isEdicao ? "Editar Dados da Aula" : "Marcar Nova Aula")
+                        </h3>
                     </div>
 
                     <!-- CORPO DO FORMULÁRIO -->
-                    <div class="px-6 py-4" style="max-height: 70vh; overflow-y: auto;">
+                    <div class="p-6!" style="max-height: 70vh; overflow-y: auto;">
                         <MudGrid>
 
                             <!-- 1. DROPDOWN DE MODALIDADES -->
