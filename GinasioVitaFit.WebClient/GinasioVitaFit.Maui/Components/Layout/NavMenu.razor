@@ -1,27 +1,49 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">GinasioVitaFit.Maui</a>
-    </div>
-</div>
+﻿<div class="nav-scrollable min-h-dvh min-w-3xs py-3" onclick="ToggleNavMenu">
+    <nav class="flex flex-col flex-1 px-2">
+        <div class="link-nav text-amber-500 py-2">
+            <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" class="text-3xl!"/>
+            <p class="font-bold! text-2xl! m-0">VitaFit</p>
+        </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
+        <span class="h-px bg-gray-200 my-4"/>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+        <div class="">
+            <!-- 1. Home Page -->
+            <NavLink href="" class="link-nav hover:bg-amber-300/10 group" Match="NavLinkMatch.All">
+                <MudIcon Icon="@Icons.Material.Outlined.Dashboard" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Dashboard</p>
+            </NavLink>
+
+            <!-- 2. Aula Page -->
+            <NavLink href="Horario" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Aulas</p>
+            </NavLink>
+            
+            <!-- 3. Agendar Aula Page -->
+            <NavLink href="AgendarAula" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Filled.EditCalendar" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Agendar Aula</p>
+            </NavLink>
+
+            <!-- 4. Instrutor Page -->
+            <NavLink href="InstrutorPage" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Filled.PeopleAlt" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Instrutores</p>
+            </NavLink>
+            
+            <!-- 5. Socios Page -->
+            <NavLink href="SocioPage" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Filled.PeopleAlt" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Sócios</p>
+            </NavLink>
+
+            <!-- 6. Modalidade Page -->
+            <NavLink href="modalidades" class="link-nav hover:bg-amber-300/10 group">
+                <MudIcon Icon="@Icons.Material.Rounded.SportsTennis" class="group-hover:text-amber-600"/>
+                <p class="paragraph group-hover:text-amber-600!">Modalidades</p>
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
+
     </nav>
 </div>
