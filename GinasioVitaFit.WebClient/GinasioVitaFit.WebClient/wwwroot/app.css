@@ -12,12 +12,17 @@
     font-style: italic;
 }
 
-/*html, body {*/
-/*    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;*/
-/*}*/
-
-html, body {
+html, body, .mud-theme-default, .mud-typography, 
+.mud-table-cell, .mud-input-slot, .mud-button-label {
     font-family: "Hanken Grotesk", sans-serif !important;
+}
+
+.mud-table-pager-white,
+.mud-table-pager-white .mud-select-input,
+.mud-table-pager-white .mud-icon-root,
+.mud-table-pagination-caption {
+    color: #ffffff !important;
+    font-weight: 500 !important;
 }
 
 a, .btn-link {
