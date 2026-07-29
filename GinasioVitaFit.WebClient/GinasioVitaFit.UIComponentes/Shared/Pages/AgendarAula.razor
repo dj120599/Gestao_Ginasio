@@ -1,0 +1,356 @@
+@using GinasioVitaFit.Shared.Models;
+@using GinasioVitaFit.Shared.Services;
+
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject IGinasioVitaFitService VitaFitDbContext;
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8 mb-5" >
+    <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Warning"><b>Agendar Aulas</b></MudText>
+    <MudItem xs="12" sm="4" Class="mb-5">
+        <MudSelect T="SocioDto" ValueChanged="OnValueChanged" AdornmentColor="Color.Warning"  Label="Socios"  Placeholder="Escolha um Sócio." Required="true">
+            @foreach (SocioDto selectItem in _listaSocios)
+            {
+                <MudSelectItem T="SocioDto" Value="@(selectItem)">@selectItem.Name</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudDataGrid Items="@_listaAulas1" Filterable="true" SortMode="SortMode.Multiple"Class="mb-5" QuickFilter="@FiltroGlobalTotal">
+        
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Horário de Aulas Disponiveis</MudText>
+            <MudSpacer/>
+            <!-- Campo de Pesquisa Rápida -->
+            <MudTextField @bind-Value="_pesquisa" Placeholder="Pesquisar por modalidade, instrutor ou sala..."
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0"
+                          Clearable="true"/>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="x => x.Modalidade.Name" Title="Modalidades" />
+            <PropertyColumn Property="x => x.Instrutor.Name" Title="Instrutores" />
+            <PropertyColumn Property="x => x.Sala.Name" Title="Salas / Espaço" />
+            <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Max." Filterable="false"/>
+
+            <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
+            
+            <TemplateColumn Title="Data">
+                <CellTemplate>
+                    @context.Item.Inicio.ToString("dd/MM/yyyy")
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Início">
+                <CellTemplate>
+                    @context.Item.Inicio.ToString("HH:mm")
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Fim">
+                <CellTemplate>
+                    @context.Item.Fim.ToString("HH:mm")
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Aberto">
+                <CellTemplate >
+                    @if (@context.Item.IsOpen)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Warning"/>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Close"  Color="Color.Warning"/>
+                    }
+                </CellTemplate>
+            </TemplateColumn>
+
+            <!-- Coluna de Ações (Eliminar de forma lógica com o campo Delete) -->
+            <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudIconButton Size="Size.Small"
+                                   Icon="@Icons.Material.Filled.Add"
+                                   Color="Color.Success"
+                                   Disabled="@OpenAula(context.Item)"
+                                   OnClick="@(() => AdicionarAula(context.Item))" />
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        
+        <PagerContent >
+            <div class="bg-warning">
+                <MudDataGridPager Items="@_listaAulas1"/>
+            </div>
+        </PagerContent>
+    </MudDataGrid>
+
+    <MudDataGrid Items="@_listaAulas2" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobalAgendadas">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Horário de Aula Agendadas</MudText>
+            <MudSpacer />
+            <!-- Campo de Pesquisa Rápida -->
+            <MudTextField @bind-Value="_pesquisa2" Placeholder="Pesquisar por modalidade, instrutor ou sala..." 
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0"
+                          Clearable="true" />
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="x => x.Modalidade.Name" Title="Modalidade" />
+            <PropertyColumn Property="x => x.Instrutor.Name" Title="Instrutor" />
+            <PropertyColumn Property="x => x.Sala.Name" Title="Sala / Espaço" />
+            <PropertyColumn Property="x => x.Capacidade" Title="Capacidade Max." />
+
+            <!-- Formatação das Datas/Horas para o utilizador ler facilmente -->
+            <TemplateColumn Title="Data">
+                <CellTemplate>
+                    @context.Item.Inicio.ToString("dd/MM/yyyy")
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Início">
+                <CellTemplate>
+                    @context.Item.Inicio.ToString("HH:mm")
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Fim">
+                <CellTemplate>
+                    @context.Item.Fim.ToString("HH:mm")
+                </CellTemplate>
+            </TemplateColumn>
+
+            <!-- Coluna de Ações (Eliminar de forma lógica com o campo Delete) -->
+            <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudIconButton Size="Size.Small"
+                                   Icon="@Icons.Material.Filled.ExitToApp"
+                                   Color="Color.Error"
+                                   OnClick="@(() => DesistirAula(context.Item))" />
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        
+        <PagerContent >
+            <div class="bg-warning">
+                <MudDataGridPager Items="@_listaAulas2"/>
+            </div>
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    
+    [Parameter]
+    public int? Id { get; set; }
+
+    private List<AulaDto> _listaAulas1 = new List<AulaDto>();
+    private List<AulaDto> _listaAulas2 = new List<AulaDto>();
+    
+    private List<SocioDto> _listaSocios = new List<SocioDto>();
+    private SocioDto _socioDto;
+    private string _pesquisa = "";
+    private string _pesquisa2 = "";
+    
+    private List<bool> _listabool = new List<bool>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAllLists();
+        
+        await base.OnInitializedAsync();
+    }
+
+    private async Task GetAllLists()
+    {
+        var aulas = await VitaFitDbContext.GetAulas();
+        
+        if (aulas.IsSuccessful)
+        {
+            _listaAulas1 = aulas.Content ?? new List<AulaDto>();
+        }      
+        
+        var socios = await VitaFitDbContext.GetSocios();
+        _listaSocios = socios.Content ?? new List<SocioDto>();
+    }
+
+    private bool FiltroGlobalTotal(AulaDto aulaDto)
+    {
+        if (string.IsNullOrWhiteSpace(_pesquisa)) return true;
+        if (aulaDto.Modalidade?.Name.Contains(_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aulaDto.Instrutor?.Name.Contains(_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aulaDto.Sala?.Name.Contains(_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        return false;
+    }
+    
+    private bool FiltroGlobalAgendadas(AulaDto aulaDto)
+    {
+        if (string.IsNullOrWhiteSpace(_pesquisa2)) return true;
+        if (aulaDto.Modalidade?.Name.Contains(_pesquisa2, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aulaDto.Instrutor?.Name.Contains(_pesquisa2, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (aulaDto.Sala?.Name.Contains(_pesquisa2, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        return false;
+    }
+
+    private async Task AdicionarAula(AulaDto aulaDto)
+    {
+        var parameters = new DialogParameters<MudMessageBox>();
+
+        var mbox = new MessageBoxOptions
+        {
+            Title = "Adicionar Aula",
+            Message = $"Tem a certeza que deseja adicionar a aula de {aulaDto.Modalidade.Name} á sua agenda?",
+            YesText = "Sim",
+            CancelText = "Cancelar"
+        };
+
+        parameters.Add(x => x.MarkupMessage, new Microsoft.AspNetCore.Components.MarkupString(mbox.Message));
+        parameters.Add(x => x.YesText, mbox.YesText);
+        parameters.Add(x => x.CancelText, mbox.CancelText);
+
+        var dialog = await DialogService.ShowAsync<MudMessageBox>(mbox.Title, parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is bool confirmar && confirmar)
+        {
+            AulaSociosDto aulaSociosDto = new AulaSociosDto
+            {
+                AulaId = aulaDto.Id,
+                SocioId = Id.Value
+            };
+
+
+            var aulas = await VitaFitDbContext.AddSocioToAula(aulaSociosDto);
+
+            
+            if (aulas.IsSuccessful)
+            {
+                Snackbar.Add("Aula Adicionada com sucesso!", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Ocorreu um Erro na Adição da Aula!", Severity.Error);
+            }
+
+        }
+        else
+        {
+            Snackbar.Add("Ocorreu um Erro na Adição da Aula!", Severity.Error);
+        }
+        
+        UpdateLists();
+        StateHasChanged();
+    }
+
+
+
+    private async Task DesistirAula(AulaDto aulaDto)
+    {
+        var parameters = new DialogParameters<MudMessageBox>();
+
+        var mbox = new MessageBoxOptions
+        {
+            Title = "Desistir Aula",
+            Message = $"Tem a certeza que deseja desistir da aula de {aulaDto.Modalidade.Name}?",
+            YesText = "Sim",
+            CancelText = "Não"
+        };
+
+        parameters.Add(x => x.MarkupMessage, new Microsoft.AspNetCore.Components.MarkupString(mbox.Message));
+        parameters.Add(x => x.YesText, mbox.YesText);
+        parameters.Add(x => x.CancelText, mbox.CancelText);
+
+        var dialog = await DialogService.ShowAsync<MudMessageBox>(mbox.Title, parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is bool confirmar && confirmar)
+        {
+
+            AulaSociosDto aulaSociosDto = new AulaSociosDto
+            {
+                AulaId = aulaDto.Id,
+                SocioId = Id.Value
+            };
+
+            var aulas = await VitaFitDbContext.DeleteSocio_Soft(aulaSociosDto);
+
+            if (aulas.IsSuccessful)
+            {
+                Snackbar.Add("Aula Desistida com sucesso!", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Ocorreu um Erro na desistencia da Aul!", Severity.Error);
+            }
+
+        }
+        else
+        {
+            Snackbar.Add("Ocorreu um Erro na desistencia da Aula!", Severity.Error);
+        }
+
+        UpdateLists();
+        StateHasChanged();
+    }
+
+    private void OnValueChanged(SocioDto s)
+    {
+        Id = s.Id;
+        UpdateLists();
+    }
+
+    private async void UpdateLists()
+    {
+        _listaAulas2.Clear();
+        _listabool.Clear();
+        
+        var aulas = await VitaFitDbContext.GetAulas();
+        _listaAulas1 = aulas.Content ?? new List<AulaDto>();
+        
+        var aulas2 = await VitaFitDbContext.GetAllAulasFromSocio(Id.Value);
+        var aulsocios = aulas2.Content ?? new List<AulaSociosDto>();
+
+        if (aulsocios != null)
+        {
+            foreach (AulaSociosDto aulsoc in aulsocios)
+            {
+
+                var aula1 = await VitaFitDbContext.GetAula(aulsoc.AulaId);
+                AulaDto aulaDto = aula1.Content ?? new AulaDto(); 
+                _listaAulas2.Add(aulaDto);
+
+            }
+
+            foreach (AulaDto aul in _listaAulas2)
+            {
+                for (int i = 0; i < _listaAulas1.Count; i++)
+                {
+                    if ((_listaAulas1[i].Modalidade.Name == aul.Modalidade.Name) &&
+                        (_listaAulas1[i].Instrutor.Name == aul.Instrutor.Name) &&
+                        (_listaAulas1[i].Sala.Name == aul.Sala.Name))
+                    {
+                        _listaAulas1.RemoveAt(i);
+
+                    }
+                }
+            }
+        }
+        StateHasChanged();
+    }
+
+    private bool OpenAula(AulaDto aulaDto)
+    {
+        bool result = false;
+            
+            if (Id.HasValue && aulaDto.IsOpen)
+            {
+                result = false;
+            }
+            else if (Id.HasValue)
+            {
+                result = true;
+            }
+            else if (aulaDto.IsOpen)
+            {
+                result = true;
+            }
+            else
+            {
+                result = true;
+            }
+
+        return result;
+    }
+}

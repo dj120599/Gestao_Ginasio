@@ -1,0 +1,300 @@
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using MudBlazor
+@inject IGinasioVitaFitService GinasioService
+@inject ISnackbar Snackbar
+
+@if (_isOpen)
+{
+    <!-- OVERLAY ESCURO DE FUNDO ARTESANAL -->
+    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-in-out;">
+        
+        <!-- CARD DO MODAL FLUTUANTE -->
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 overflow-hidden" style="border-top: 6px solid #FF6B00; color: black;" @onclick:stopPropagation>
+            
+            @if (_isLoading)
+            {
+                <div class="flex flex-col items-center justify-center py-16">
+                    <div style="width: 48px; height: 48px; border: 4px solid #FF6B00; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p class="mt-4 text-gray-500 font-bold">A processar dados...</p>
+                </div>
+            }
+            else
+            {
+                <!-- EDITFORM COM VALIDAÇÕES NATIVAS (REQUISITO ANTÓNIO TRELLO) -->
+                <EditForm Model="@_novaAulaDto" OnValidSubmit="SubmeterFormulario">
+                    <DataAnnotationsValidator />
+
+                    <!-- CABEÇALHO DO MODAL -->
+                    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                        <h3 class="text-xl font-bold text-gray-800">
+                            <MudIcon Icon="@(_isEdicao ? Icons.Material.Filled.Edit : Icons.Material.Filled.CalendarMonth)" Class="mr-2" Style="color: #FF6B00;" />
+                            @(_isEdicao ? "Editar Dados da Aula" : "Marcar Nova Aula")
+                        </h3>
+                        <button type="button" @onclick="Hide" class="p-2 text-gray-400 hover:text-gray-600 transition cursor-pointer">
+                            <MudIcon Icon="@Icons.Material.Filled.Close" />
+                        </button>
+                    </div>
+
+                    <!-- CORPO DO FORMULÁRIO -->
+                    <div class="px-6 py-4" style="max-height: 70vh; overflow-y: auto;">
+                         <MudGrid>
+                            
+                            <!-- 1. DROPDOWN DE MODALIDADES -->
+                            <MudItem xs="12" sm="6">
+                                <MudSelect T="int" 
+                                           Label="Modalidade Associada" 
+                                           Value="_novaAulaDto.ModalidadeId" 
+                                           ValueChanged="OnModalidadeChanged"
+                                           For="@(() => _novaAulaDto.ModalidadeId)" 
+                                           AnchorOrigin="Origin.BottomCenter">
+                                    <MudSelectItem Value="0" Disabled="true">Selecione uma modalidade...</MudSelectItem>
+                                    @if (listaModalidades != null)
+                                    {
+                                        @foreach (var mod in listaModalidades)
+                                        {
+                                            <MudSelectItem Value="@mod.Id">@mod.Name</MudSelectItem>
+                                        }
+                                    }
+                                </MudSelect>
+                            </MudItem>
+
+                            <!-- 2. DROPDOWN DE INSTRUTORES FILTRADO E BLOQUEADO (REQUISITO TRELLO) -->
+                            <MudItem xs="12" sm="6">
+                                <MudSelect T="int" 
+                                           Label="Instrutor Técnico" 
+                                           @bind-Value="_novaAulaDto.InstrutorId" 
+                                           Disabled="@(_novaAulaDto.ModalidadeId == 0)"
+                                           For="@(() => _novaAulaDto.InstrutorId)" 
+                                           AnchorOrigin="Origin.BottomCenter">
+                                    <MudSelectItem Value="0" Disabled="true">
+                                        @(_novaAulaDto.ModalidadeId == 0 ? "Escolha primeiro uma modalidade..." : "Selecione um instrutor qualificado...")
+                                    </MudSelectItem>
+                                    @if (listaInstrutoresFiltrados != null)
+                                    {
+                                        @foreach (var inst in listaInstrutoresFiltrados)
+                                        {
+                                            <MudSelectItem Value="@inst.Id">@inst.Name</MudSelectItem>
+                                        }
+                                    }
+                                </MudSelect>
+                            </MudItem>
+
+                            <!-- CORREÇÃO: DROPDOWN DE SELEÇÃO DE SALA EXIGIDO PELO TEU COLEGAS NO MODELO -->
+                            <MudItem xs="12" sm="6">
+                                
+                                <MudSelect T="int" Label="Sala / Espaço" 
+                                           @bind-Value="_novaAulaDto.SalaId" 
+                                           For="@(() => _novaAulaDto.SalaId)" 
+                                           Text="Escolha uma sala."
+                                           AnchorOrigin="Origin.BottomCenter">
+                                @if (listaSalas != null)
+                                {
+                                    @foreach (var inst in listaSalas)
+                                    {
+                                        <MudSelectItem Value="@inst.Id">@inst.Name</MudSelectItem>
+                                    }
+                                }
+                                </MudSelect>
+                            </MudItem>
+
+                            <!-- 4. CAPACIDADE DE VAGAS -->
+                            <MudItem xs="12" sm="6">
+                                <MudNumericField T="int" Label="Vagas Máximas (Capacidade)" Min="1" @bind-Value="_novaAulaDto.Capacidade" For="@(() => _novaAulaDto.Capacidade)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Groups" />
+                            </MudItem>
+
+                            <!-- 5. COMPONENTES DE DATA E HORA DE INÍCIO -->
+                            <MudItem xs="12" sm="4">
+                                <MudDatePicker Label="Data da Aula" @bind-Date="_dataAula" Required="true" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="12" sm="4">
+                                <MudTimePicker Label="Hora de Início" @bind-Time="_horaInicio" Required="true" Color="Color.Primary" />
+                            </MudItem>
+
+                            <!-- 6. HORA DE FIM -->
+                            <MudItem xs="12" sm="4">
+                                <MudTimePicker Label="Hora de Fim" @bind-Time="_horaFim" Required="true" Color="Color.Primary" />
+                            </MudItem>
+
+                        </MudGrid>
+                    </div>
+
+                    <!-- RODAPÉ DE AÇÕES -->
+                    <div class="flex justify-end gap-4 px-6 py-4 border-t border-gray-100 bg-gray-50">
+                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Hide" Style="border-radius: 6px; font-weight: bold;">Cancelar</MudButton>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Style="background-color: #FF6B00; color: white; font-weight: bold; border-radius: 6px;" StartIcon="@Icons.Material.Filled.Save">
+                            @(_isEdicao ? "Atualizar" : "Gravar Aula")
+                        </MudButton>
+                    </div>
+                </EditForm>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private AulaDto _novaAulaDto = new AulaDto { Capacidade = 20 };
+    
+    private bool _isOpen = false;
+    private bool _isLoading = false;
+    private bool _isEdicao = false;
+
+    // Variáveis locais auxiliares para mapear as datas nos pickers
+    private DateTime? _dataAula = DateTime.Today;
+    private TimeSpan? _horaInicio = new TimeSpan(10, 0, 0);
+    private TimeSpan? _horaFim = new TimeSpan(11, 0, 0);
+
+    // CORREÇÃO DOS NOMES: Declaração limpa e sem gralhas de digitação
+    private List<ModalidadeDto> listaModalidades = new();
+    private List<InstrutorDto> listaInstrutores = new();
+    private List<SalaDto> listaSalas = new();
+    private List<InstrutorDto> listaInstrutoresFiltrados = new();
+
+    [Parameter] public EventCallback OnSubmetido { get; set; }
+
+    public async Task Show()
+    {
+        _isEdicao = false;
+        _isOpen = true;
+        _isLoading = true;
+        
+        _dataAula = DateTime.Today;
+        _horaInicio = new TimeSpan(DateTime.Now.Hour, 0, 0);
+        _horaFim = _horaInicio.Value.Add(TimeSpan.FromHours(1));
+        
+        _novaAulaDto = new AulaDto { Capacidade = 20, ModalidadeId = 0, InstrutorId = 0, SalaId = 0 };
+        listaInstrutoresFiltrados = new List<InstrutorDto>();
+        StateHasChanged();
+
+        await CarregarDadosAuxiliares();
+        
+        _isLoading = false;
+        StateHasChanged();
+    }
+
+    public async Task ShowEditar(AulaDto aulaDtoParaEditar)
+    {
+        _isEdicao = true;
+        _isOpen = true;
+        _isLoading = true;
+        StateHasChanged();
+
+        await CarregarDadosAuxiliares();
+
+        _dataAula = aulaDtoParaEditar.Inicio.Date;
+        _horaInicio = aulaDtoParaEditar.Inicio.TimeOfDay;
+        _horaFim = aulaDtoParaEditar.Fim.TimeOfDay;
+        
+        _novaAulaDto = aulaDtoParaEditar;
+        
+        listaInstrutoresFiltrados = listaInstrutores.ToList();
+        _isLoading = false;
+        StateHasChanged();
+    }
+
+    public void Hide()
+    {
+        _isOpen = false;
+        StateHasChanged();
+    }
+
+    private async Task CarregarDadosAuxiliares()
+    {
+        try
+        {
+            dynamic resMod = await GinasioService.GetAllModalidades();
+            if (resMod != null)
+            {
+                List<ModalidadeDto> mods = resMod.Content ?? resMod;
+                listaModalidades = mods.ToList();
+            }
+
+            dynamic resInst = await GinasioService.GetAllInstrutores();
+            if (resInst != null)
+            {
+                List<InstrutorDto> insts = resInst.Content ?? resInst;
+                listaInstrutores = insts.ToList();
+            }
+            
+            dynamic resSala = await GinasioService.GetAllSalas();
+            if (resSala != null)
+            {
+                List<SalaDto> salas = resSala.Content ?? resSala;
+                listaSalas = salas.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Aviso de carregamento: {ex.Message}", Severity.Warning);
+        }
+    }
+
+    // REGRA DO TRELLO: Disparada reativamente ao mudar a modalidadeDto no ecrã
+    private void OnModalidadeChanged(int novaModalidadeId)
+    {
+        _novaAulaDto.ModalidadeId = novaModalidadeId;
+        _novaAulaDto.InstrutorId = 0; 
+
+        if (novaModalidadeId == 0)
+        {
+            listaInstrutoresFiltrados = new List<InstrutorDto>();
+        }
+        else
+        {
+            listaInstrutoresFiltrados = listaInstrutores.ToList();
+        }
+        
+        StateHasChanged();
+    }
+
+    private async Task SubmeterFormulario()
+    {
+        if (_novaAulaDto.ModalidadeId == 0 || _novaAulaDto.InstrutorId == 0)
+        {
+            Snackbar.Add("Por favor, selecione uma modalidade e um instrutor!", Severity.Warning);
+            return;
+        }
+
+        if (_dataAula == null || _horaInicio == null || _horaFim == null)
+        {
+            Snackbar.Add("Por favor, preencha as datas e horários corretamente!", Severity.Warning);
+            return;
+        }
+
+        _novaAulaDto.Inicio = _dataAula.Value.Date.Add(_horaInicio.Value);
+        _novaAulaDto.Fim = _dataAula.Value.Date.Add(_horaFim.Value);
+
+        _isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            HttpResponseMessage? resposta;
+
+            if (_isEdicao)
+                resposta = await GinasioService.UpdateAula(_novaAulaDto);
+            else
+                resposta = await GinasioService.AddAula(_novaAulaDto);
+
+            if (resposta != null && resposta.IsSuccessStatusCode)
+            {
+                Snackbar.Add(_isEdicao ? "Aula atualizada com sucesso!" : "Aula agendada com sucesso!", Severity.Success);
+                await Task.Delay(500);
+                _isOpen = false;
+                await OnSubmetido.InvokeAsync();
+            }
+            else
+            {
+                Snackbar.Add("Erro ao comunicar com a API", Severity.Error);
+                _isLoading = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
+            _isLoading = false;
+        }
+        
+        StateHasChanged();
+    }
+}
