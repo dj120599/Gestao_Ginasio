@@ -2,118 +2,118 @@
 @using GinasioVitaFit.Shared.Models
 @using GinasioVitaFit.Shared.Services
 @using GinasioVitaFit.WebClient.Components.Pages.Aulas.Componentes
-@using MudBlazor
 @inject IGinasioVitaFitService GinasioService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @rendermode InteractiveServer
 
-<MudThemeProvider Theme="@temaLaranja" />
-<MudSnackbarProvider />
+@* <MudThemeProvider Theme="@temaLaranja" /> *@
+<MudSnackbarProvider/>
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
-    
+<div class="flex flex-col mb-8 gap-2">
+
     <!-- CABEÇALHO SUPERIOR LARANJA -->
-    <div style="background: white; border-top: 6px solid #FF6B00; border-radius: 8px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 24px;">
-        <div class="d-flex justify-space-between align-center">
-            <div>
-                <MudText Typo="Typo.h4" Style="color: #FF6B00; font-weight: bold;">Horário de Aulas</MudText>
-                <MudText Typo="Typo.subtitle2" Style="color: #333333; font-weight: 500;">Planeie o mapa de aulas e faça a gestão das vagas disponíveis</MudText>
+    <div class="mb-6!">
+        <div class="flex flex-col md:flex-row gap-y-2 justify-between md:items-start">
+            <div class="flex flex-col">
+                <h1 class="text-gray-800!">Aulas Marcadas</h1>
+                <p class="m-0 text-gray-800! text-sm!">
+                    Planeie o mapa de aulas e faça a gestão das vagas
+                    disponíveis
+                </p>
             </div>
-            
-            <MudButton Variant="Variant.Filled" 
-                       Style="background-color: #FF6B00; color: white; font-weight: bold; min-width: 180px;" 
-                       OnClick="AbrirModalAgendamento"
-                       StartIcon="@Icons.Material.Filled.CalendarMonth">
-                + MARCAR AULA
-            </MudButton>
+
+            <button
+                @onclick="AbrirModalAgendamento"
+                class="flex items-center! justify-center! font-bold! gap-2 
+                  bg-amber-500! hover:bg-amber-600! text-white px-8! py-3 rounded-lg 
+                    shadow-md hover:shadow-lg transition-all duration-300">
+                <MudIcon Icon="@Icons.Material.Filled.CalendarMonth"/>
+                <p class="m-0">Marca Aula</p>
+            </button>
         </div>
     </div>
 
     <!-- INJEÇÃO DO COMPONENTE ARTESANAL COM CAMINHO TRANCADO -->
-    <GinasioVitaFit.WebClient.Components.Pages.Aulas.Componentes.AddAulasComponente 
-        @ref="modalAgendar" 
-        OnSubmetido="RecarregarGradeHorario" />
+    <AddAulasComponente
+        @ref="modalAgendar"
+        OnSubmetido="RecarregarGradeHorario"/>
 
     <!-- TABELA MAPA DE HORÁRIOS -->
-    <div style="background: white; border-radius: 8px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-        <MudDataGrid Items="@listaAulas" Filterable="true" SortMode="SortMode.Multiple">
-            <ToolBarContent>
-                <MudText Typo="Typo.h6" Style="color: #333; font-weight: bold;">Aulas Marcadas</MudText>
-                <MudSpacer />
-            </ToolBarContent>
-            <Columns>
-                <!-- 1. Data da AulaDto -->
-                <TemplateColumn Title="Data">
-                    <CellTemplate>
-                        @context.Item.Inicio.ToString("dd/MM/yyyy")
-                    </CellTemplate>
-                </TemplateColumn>
+    <MudDataGrid Items="@listaAulas" Filterable="true" SortMode="SortMode.Multiple">
+        <Columns>
+            <!-- 4. CORREÇÃO: Nova Coluna do InstrutorDto (Usa a propriedade estrangeira Name ou Nome do instrutorDto) -->
+            <TemplateColumn Title="Instrutor">
+                <CellTemplate>
+                    @(context.Item.Instrutor != null ? context.Item.Instrutor.Name : $"Cód. {context.Item.InstrutorId}")
+                </CellTemplate>
+            </TemplateColumn>
+            
+            <!-- 3. CORREÇÃO: Nova Coluna da ModalidadeDto (Usa a propriedade estrangeira que o teu colega criou) -->
+            <TemplateColumn Title="Modalidades">
+                <CellTemplate>
+                    @(context.Item.Modalidade != null ? context.Item.Modalidade.Name : $"Cód. {context.Item.ModalidadeId}")
+                </CellTemplate>
+            </TemplateColumn>
+            
+            <!-- 1. Data da Aula -->
+            <TemplateColumn Title="Data">
+                <CellTemplate>
+                    @context.Item.Inicio.ToString("dd/MM/yyyy")
+                </CellTemplate>
+            </TemplateColumn>
 
-                <!-- 2. Horário de Início e Fim -->
-                <TemplateColumn Title="Horário">
-                    <CellTemplate>
-                        @($"{context.Item.Inicio.ToString("HH:mm")} - {context.Item.Fim.ToString("HH:mm")}")
-                    </CellTemplate>
-                </TemplateColumn>
+            <!-- 2. Horário de Início e Fim -->
+            <TemplateColumn Title="Horário">
+                <CellTemplate>
+                    @($"{context.Item.Inicio.ToString("HH:mm")} - {context.Item.Fim.ToString("HH:mm")}")
+                </CellTemplate>
+            </TemplateColumn>
 
-                <!-- 3. CORREÇÃO: Nova Coluna da ModalidadeDto (Usa a propriedade estrangeira que o teu colega criou) -->
-                <TemplateColumn Title="Modalidades">
-                    <CellTemplate>
-                        @(context.Item.Modalidade != null ? context.Item.Modalidade.Name : $"Cód. {context.Item.ModalidadeId}")
-                    </CellTemplate>
-                </TemplateColumn>
+            <TemplateColumn Title="Aberto">
+                <CellTemplate>
+                    @if (context.Item.IsOpen)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Warning"/>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Close" Color="Color.Warning"/>
+                    }
+                </CellTemplate>
+            </TemplateColumn>
 
-                <!-- 4. CORREÇÃO: Nova Coluna do InstrutorDto (Usa a propriedade estrangeira Name ou Nome do instrutorDto) -->
-                <TemplateColumn Title="Instrutor">
-                    <CellTemplate>
-                        @(context.Item.Instrutor != null ? context.Item.Instrutor.Name : $"Cód. {context.Item.InstrutorId}")
-                    </CellTemplate>
-                </TemplateColumn>
+            <!-- 6. Ações (Editar e Apagar) -->
+            <TemplateColumn Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <div class="d-flex gap-2 center">
+                        <MudIconButton Size="Size.Small"
+                                       Icon="@Icons.Material.Outlined.Info"
+                                       Class="text-gray-500!"
+                                       OnClick="@(() => AbrirModalInfo(context.Item))"/>
 
-                <TemplateColumn Title="Aberto">
-                    <CellTemplate >
-                        @if (@context.Item.IsOpen)
-                        {
-                            <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Warning"/>
-                        }
-                        else
-                        {
-                            <MudIcon Icon="@Icons.Material.Filled.Close"  Color="Color.Warning"/>
-                        }
-                    </CellTemplate>
-                </TemplateColumn>
+                        <MudIconButton Size="Size.Small"
+                                       Icon="@Icons.Material.Filled.Edit"
+                                       Class="text-amber-500!"
+                                       OnClick="@(() => modalAgendar.ShowEditar(context.Item))"/>
 
-                <!-- 6. Ações (Editar e Apagar) -->
-                <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
-                    <CellTemplate>
-                        <div class="d-flex gap-2 center">
-                            <MudIconButton Size="Size.Small"
-                                           Icon="@Icons.Material.Rounded.Info"
-                                           Class="text-amber-500!"
-                                           OnClick="@(() => AbrirModalInfo(context.Item))" />
-
-                            <MudIconButton Size="Size.Small"
-                                           Icon="@Icons.Material.Filled.Edit"
-                                           Style="color: #FF6B00;"
-                                           OnClick="@(() => modalAgendar.ShowEditar(context.Item))" />
-
-                            <MudIconButton Size="Size.Small"
-                                           Icon="@Icons.Material.Filled.Delete"
-                                           Style="color: #666666;"
-                                           OnClick="@(() => ExecutarEliminacaoReal(context.Item))" />
-                        </div>
-                    </CellTemplate>
-                </TemplateColumn>
-            </Columns>
-            <PagerContent >
-                <div class="bg-warning">
-                    <MudDataGridPager Items="@listaAulas"/>
-                </div>
-            </PagerContent>
-        </MudDataGrid>
-    </div>
-</MudContainer>
+                        <MudIconButton Size="Size.Small"
+                                       Icon="@Icons.Material.Filled.Delete"
+                                       Class="text-rose-600!"
+                                       OnClick="@(() => ExecutarEliminacaoReal(context.Item))"/>
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <div class="bg-amber-500">
+                <MudDataGridPager
+                    Items="@listaAulas"
+                    Class="font-bold! mud-table-pager-white"/>
+            </div>
+        </PagerContent>
+    </MudDataGrid>
+</div>
 
 <AulaModalComponente
     @ref="_modal"
@@ -122,17 +122,7 @@
 @code {
     private AulaModalComponente? _modal;
     private List<AulaDto> listaAulas = new();
-    private GinasioVitaFit.WebClient.Components.Pages.Aulas.Componentes.AddAulasComponente modalAgendar = default!;
-
-    private MudTheme temaLaranja = new MudTheme()
-    {
-        PaletteLight = new PaletteLight()
-        {
-            Primary = "#FF6B00",
-            Success = "#4CAF50",
-            Error = "#FF6B00"
-        }
-    };
+    private AddAulasComponente modalAgendar = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -146,7 +136,7 @@
             var resposta = await GinasioService.GetAulas();
             if (resposta != null && resposta.IsSuccessStatusCode)
             {
-                listaAulas = resposta.Content?? new();
+                listaAulas = resposta.Content ?? new();
             }
         }
         catch (Exception ex)
@@ -154,7 +144,7 @@
             Snackbar.Add($"Aviso de rede: {ex.Message}", Severity.Info);
         }
     }
-    
+
     private async Task AbrirModalInfo(AulaDto aula)
     {
         await _modal!.Show(aula);
@@ -191,18 +181,18 @@
 
             var dialog = await DialogService.ShowAsync<MudMessageBox>(mbox.Title, parameters);
             var result = await dialog.Result;
-            
+
             if (!result.Canceled && result.Data is bool confirmar && confirmar)
             {
                 // 1. CHAMA O SERVICE REAL: Usa o método exato de apagar que está no teu IGinasioVitaFitService (ex: DeleteAula)
                 var resposta = await GinasioService.DeleteAula(Aula.Id);
-            
+
                 if (resposta != null && resposta.IsSuccessStatusCode)
                 {
                     Snackbar.Add("Aula cancelada com sucesso!", Severity.Success);
-                
-               
-                    await Task.Delay(500); 
+
+
+                    await Task.Delay(500);
                     await CarregarAulas();
                 }
                 else
@@ -223,4 +213,5 @@
             await CarregarAulas();
         }
     }
+
 }
