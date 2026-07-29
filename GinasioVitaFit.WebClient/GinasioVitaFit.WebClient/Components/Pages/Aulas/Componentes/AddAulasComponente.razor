@@ -7,15 +7,18 @@
 @if (_isOpen)
 {
     <!-- OVERLAY ESCURO DE FUNDO ARTESANAL -->
-    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-in-out;">
-        
+    <div
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-in-out;">
+
         <!-- CARD DO MODAL FLUTUANTE -->
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 overflow-hidden" style="border-top: 6px solid #FF6B00; color: black;" @onclick:stopPropagation>
-            
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 overflow-hidden" style="color: black;"
+             @onclick:stopPropagation>
+
             @if (_isLoading)
             {
                 <div class="flex flex-col items-center justify-center py-16">
-                    <div style="width: 48px; height: 48px; border: 4px solid #FF6B00; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <div
+                        style="width: 48px; height: 48px; border: 4px solid #FF6B00; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
                     <p class="mt-4 text-gray-500 font-bold">A processar dados...</p>
                 </div>
             }
@@ -23,30 +26,31 @@
             {
                 <!-- EDITFORM COM VALIDAÇÕES NATIVAS (REQUISITO ANTÓNIO TRELLO) -->
                 <EditForm Model="@_novaAulaDto" OnValidSubmit="SubmeterFormulario">
-                    <DataAnnotationsValidator />
+                    <DataAnnotationsValidator/>
 
                     <!-- CABEÇALHO DO MODAL -->
                     <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                        <h3 class="text-xl font-bold text-gray-800">
-                            <MudIcon Icon="@(_isEdicao ? Icons.Material.Filled.Edit : Icons.Material.Filled.CalendarMonth)" Class="mr-2" Style="color: #FF6B00;" />
-                            @(_isEdicao ? "Editar Dados da Aula" : "Marcar Nova Aula")
-                        </h3>
-                        <button type="button" @onclick="Hide" class="p-2 text-gray-400 hover:text-gray-600 transition cursor-pointer">
-                            <MudIcon Icon="@Icons.Material.Filled.Close" />
-                        </button>
+                        <div class="flex flex-row items-center gap-2">
+                            <MudIcon
+                                Icon="@(_isEdicao ? Icons.Material.Filled.Edit : Icons.Material.Filled.CalendarMonth)"
+                                Class="mr-2 text-amber-500" />
+                            <h3 class="m-0 text-xl font-bold text-gray-800">
+                                @(_isEdicao ? "Editar Dados da Aula" : "Marcar Nova Aula")
+                            </h3>
+                        </div>
                     </div>
 
                     <!-- CORPO DO FORMULÁRIO -->
                     <div class="px-6 py-4" style="max-height: 70vh; overflow-y: auto;">
-                         <MudGrid>
-                            
+                        <MudGrid>
+
                             <!-- 1. DROPDOWN DE MODALIDADES -->
                             <MudItem xs="12" sm="6">
-                                <MudSelect T="int" 
-                                           Label="Modalidade Associada" 
-                                           Value="_novaAulaDto.ModalidadeId" 
+                                <MudSelect T="int"
+                                           Label="Modalidade Associada"
+                                           Value="_novaAulaDto.ModalidadeId"
                                            ValueChanged="OnModalidadeChanged"
-                                           For="@(() => _novaAulaDto.ModalidadeId)" 
+                                           For="@(() => _novaAulaDto.ModalidadeId)"
                                            AnchorOrigin="Origin.BottomCenter">
                                     <MudSelectItem Value="0" Disabled="true">Selecione uma modalidade...</MudSelectItem>
                                     @if (listaModalidades != null)
@@ -61,11 +65,11 @@
 
                             <!-- 2. DROPDOWN DE INSTRUTORES FILTRADO E BLOQUEADO (REQUISITO TRELLO) -->
                             <MudItem xs="12" sm="6">
-                                <MudSelect T="int" 
-                                           Label="Instrutor Técnico" 
-                                           @bind-Value="_novaAulaDto.InstrutorId" 
+                                <MudSelect T="int"
+                                           Label="Instrutor Técnico"
+                                           @bind-Value="_novaAulaDto.InstrutorId"
                                            Disabled="@(_novaAulaDto.ModalidadeId == 0)"
-                                           For="@(() => _novaAulaDto.InstrutorId)" 
+                                           For="@(() => _novaAulaDto.InstrutorId)"
                                            AnchorOrigin="Origin.BottomCenter">
                                     <MudSelectItem Value="0" Disabled="true">
                                         @(_novaAulaDto.ModalidadeId == 0 ? "Escolha primeiro uma modalidade..." : "Selecione um instrutor qualificado...")
@@ -82,47 +86,60 @@
 
                             <!-- CORREÇÃO: DROPDOWN DE SELEÇÃO DE SALA EXIGIDO PELO TEU COLEGAS NO MODELO -->
                             <MudItem xs="12" sm="6">
-                                
-                                <MudSelect T="int" Label="Sala / Espaço" 
-                                           @bind-Value="_novaAulaDto.SalaId" 
-                                           For="@(() => _novaAulaDto.SalaId)" 
+
+                                <MudSelect T="int" Label="Sala / Espaço"
+                                           @bind-Value="_novaAulaDto.SalaId"
+                                           For="@(() => _novaAulaDto.SalaId)"
                                            Text="Escolha uma sala."
                                            AnchorOrigin="Origin.BottomCenter">
-                                @if (listaSalas != null)
-                                {
-                                    @foreach (var inst in listaSalas)
+                                    @if (listaSalas != null)
                                     {
-                                        <MudSelectItem Value="@inst.Id">@inst.Name</MudSelectItem>
+                                        @foreach (var inst in listaSalas)
+                                        {
+                                            <MudSelectItem Value="@inst.Id">@inst.Name</MudSelectItem>
+                                        }
                                     }
-                                }
                                 </MudSelect>
                             </MudItem>
 
                             <!-- 4. CAPACIDADE DE VAGAS -->
                             <MudItem xs="12" sm="6">
-                                <MudNumericField T="int" Label="Vagas Máximas (Capacidade)" Min="1" @bind-Value="_novaAulaDto.Capacidade" For="@(() => _novaAulaDto.Capacidade)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Groups" />
+                                <MudNumericField T="int" Label="Vagas Máximas (Capacidade)" Min="1"
+                                                 @bind-Value="_novaAulaDto.Capacidade"
+                                                 For="@(() => _novaAulaDto.Capacidade)" Adornment="Adornment.Start"
+                                                 AdornmentIcon="@Icons.Material.Filled.Groups"/>
                             </MudItem>
 
                             <!-- 5. COMPONENTES DE DATA E HORA DE INÍCIO -->
                             <MudItem xs="12" sm="4">
-                                <MudDatePicker Label="Data da Aula" @bind-Date="_dataAula" Required="true" Color="Color.Primary" />
+                                <MudDatePicker Label="Data da Aula" @bind-Date="_dataAula" Required="true"
+                                               Color="Color.Primary"/>
                             </MudItem>
                             <MudItem xs="12" sm="4">
-                                <MudTimePicker Label="Hora de Início" @bind-Time="_horaInicio" Required="true" Color="Color.Primary" />
+                                <MudTimePicker Label="Hora de Início" @bind-Time="_horaInicio" Required="true"
+                                               Color="Color.Primary"/>
                             </MudItem>
 
                             <!-- 6. HORA DE FIM -->
                             <MudItem xs="12" sm="4">
-                                <MudTimePicker Label="Hora de Fim" @bind-Time="_horaFim" Required="true" Color="Color.Primary" />
+                                <MudTimePicker Label="Hora de Fim" @bind-Time="_horaFim" Required="true"
+                                               Color="Color.Primary"/>
                             </MudItem>
 
                         </MudGrid>
                     </div>
 
                     <!-- RODAPÉ DE AÇÕES -->
-                    <div class="flex justify-end gap-4 px-6 py-4 border-t border-gray-100 bg-gray-50">
-                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Hide" Style="border-radius: 6px; font-weight: bold;">Cancelar</MudButton>
-                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Style="background-color: #FF6B00; color: white; font-weight: bold; border-radius: 6px;" StartIcon="@Icons.Material.Filled.Save">
+                    <div class="flex justify-end gap-4 px-6 py-4 border-t border-gray-100">
+                        <button @onclick="Hide"
+                                Class="rounded-md! uppercase! font-bold! text-gray-500! px-3
+                                    hover:text-gray-700! hover:bg-gray-200/40! transition-colors duration-300">
+                            cancelar
+                        </button>
+                        <MudButton ButtonType="ButtonType.Submit"
+                                   Class="bg-amber-500! hover:bg-amber-600! px-4! 
+                                    text-white font-bold! rounded-md"
+                                   StartIcon="@Icons.Material.Filled.Save">
                             @(_isEdicao ? "Atualizar" : "Gravar Aula")
                         </MudButton>
                     </div>
@@ -134,7 +151,7 @@
 
 @code {
     private AulaDto _novaAulaDto = new AulaDto { Capacidade = 20 };
-    
+
     private bool _isOpen = false;
     private bool _isLoading = false;
     private bool _isEdicao = false;
@@ -157,17 +174,17 @@
         _isEdicao = false;
         _isOpen = true;
         _isLoading = true;
-        
+
         _dataAula = DateTime.Today;
         _horaInicio = new TimeSpan(DateTime.Now.Hour, 0, 0);
         _horaFim = _horaInicio.Value.Add(TimeSpan.FromHours(1));
-        
+
         _novaAulaDto = new AulaDto { Capacidade = 20, ModalidadeId = 0, InstrutorId = 0, SalaId = 0 };
         listaInstrutoresFiltrados = new List<InstrutorDto>();
         StateHasChanged();
 
         await CarregarDadosAuxiliares();
-        
+
         _isLoading = false;
         StateHasChanged();
     }
@@ -184,9 +201,9 @@
         _dataAula = aulaDtoParaEditar.Inicio.Date;
         _horaInicio = aulaDtoParaEditar.Inicio.TimeOfDay;
         _horaFim = aulaDtoParaEditar.Fim.TimeOfDay;
-        
+
         _novaAulaDto = aulaDtoParaEditar;
-        
+
         listaInstrutoresFiltrados = listaInstrutores.ToList();
         _isLoading = false;
         StateHasChanged();
@@ -215,7 +232,7 @@
                 List<InstrutorDto> insts = resInst.Content ?? resInst;
                 listaInstrutores = insts.ToList();
             }
-            
+
             dynamic resSala = await GinasioService.GetAllSalas();
             if (resSala != null)
             {
@@ -233,7 +250,7 @@
     private void OnModalidadeChanged(int novaModalidadeId)
     {
         _novaAulaDto.ModalidadeId = novaModalidadeId;
-        _novaAulaDto.InstrutorId = 0; 
+        _novaAulaDto.InstrutorId = 0;
 
         if (novaModalidadeId == 0)
         {
@@ -243,7 +260,7 @@
         {
             listaInstrutoresFiltrados = listaInstrutores.ToList();
         }
-        
+
         StateHasChanged();
     }
 
@@ -294,7 +311,8 @@
             Snackbar.Add($"Erro: {ex.Message}", Severity.Error);
             _isLoading = false;
         }
-        
+
         StateHasChanged();
     }
+
 }
