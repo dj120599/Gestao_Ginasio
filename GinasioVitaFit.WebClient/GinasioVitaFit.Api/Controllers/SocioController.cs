@@ -122,7 +122,7 @@ public class SocioController: Controller
         
         return Ok("Sócio actualizada com sucesso.");
     }
-    [HttpDelete("Sociosoftdelete/{id}")]
+    [HttpPut("Sociosoftdelete/{id}")]
     public async Task<IResult> DeleteSocio_Soft(int id)
     {
         if (_context.Socios is not null)
@@ -140,8 +140,10 @@ public class SocioController: Controller
                     .Where(a => a.SocioId == id)
                     .ToListAsync();
 
-                // Apaga em lote todas as inscrições deste sócio
-                _context.AulaSocios.RemoveRange(aulasDoIdSocio);
+                foreach (var _socios in aulasDoIdSocio)
+                {
+                    _socios.IsDeleted = true;
+                }
             }
 
             // 3. Faz o Soft Delete do sócio principal
