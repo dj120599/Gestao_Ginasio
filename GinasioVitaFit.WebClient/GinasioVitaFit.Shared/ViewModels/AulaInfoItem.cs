@@ -1,4 +1,4 @@
-namespace GinasioVitaFit.WebClient.Components.Pages.Aulas.Models;
+namespace GinasioVitaFit.Shared.ViewModels;
 
 public class AulaInfoItem
 {

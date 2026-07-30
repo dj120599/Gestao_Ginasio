@@ -1,0 +1,207 @@
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using GinasioVitaFit.UIComponentes.Shared.Pages.Socios.Componentes
+
+
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject IGinasioVitaFitService GinasioService
+@inject NavigationManager Navigation
+
+<MudThemeProvider Theme="@temaLaranja" />
+<MudSnackbarProvider />
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    <!-- CONTAINER SUPERIOR LARANJA -->
+    <div style="background: white; border-top: 6px solid #FF6B00; border-radius: 8px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 24px;">
+        <div class="d-flex justify-space-between align-center">
+            <div>
+                <MudText Typo="Typo.h4" Style="color: #FF6B00; font-weight: bold;">Gestão de Sócios</MudText>
+                <MudText Typo="Typo.subtitle2" Style="color: #333333; font-weight: 500;">Gerencie a equipa técnica e registe novos profissionais no mesmo ecrã</MudText>
+            </div>
+            
+            <!-- O botão agora dispara o método Show() dentro do componente -->
+            <MudButton Variant="Variant.Filled" 
+                       Style="background-color: #FF6B00; color: white; font-weight: bold; min-width: 180px;" 
+                       OnClick="AbrirModalSocio"
+                       StartIcon="@Icons.Material.Filled.PersonAdd">
+                + NOVO SÓCIO
+            </MudButton>
+        </div>
+    </div>
+    
+    <!-- INJEÇÃO DO COMPONENTE FLUTUANTE COM REFERÊNCIA (Instanciação oculta que aguarda o Show) -->
+    <AddSocioComponenteUI 
+        @ref="modalAdicionar" 
+        OnSubmetido="RecarregarTabelaAposGravar" />
+    
+    <MudDataGrid Items="@listaSocios" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Sócios Registados</MudText>
+            <MudSpacer/>
+
+            <!-- Barra de Pesquisa Rápida -->
+            <MudTextField @bind-Value="pesquisa"
+                          Placeholder="Pesquisar por nome ou email..."
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Class="mt-0"
+                          Clearable="true"/>
+        </ToolBarContent>
+
+        <Columns>
+            <!-- 1. Coluna Avatar -->
+            <TemplateColumn Title="Foto" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudAvatar Image="@context.Item.ImageUrl" Alt="Foto" Size="Size.Medium"/>
+                </CellTemplate>
+            </TemplateColumn>
+
+            <!-- 2. Colunas de Propriedades Diretas -->
+            <PropertyColumn Property="x => x.Name" Title="Nome Completo"/>
+            <PropertyColumn Property="x => x.Email" Title="Email"/>
+            <PropertyColumn Property="x => x.Contacto" Title="Contacto"/>
+
+            <!-- 3. Coluna Data de Nascimento Formatada -->
+            <TemplateColumn Title="Nascimento">
+                <CellTemplate>
+                    @context.Item.Nascimento.ToString("dd/MM/yyyy")
+                </CellTemplate>
+            </TemplateColumn>
+
+            <!-- 4. Coluna PlanoDto -->
+            <PropertyColumn Property="x => x.Plano.Name" Title="Plano"/>
+
+            <!-- 5. Coluna de Ações -->
+            <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudIconButton Size="Size.Small"
+                                   Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Warning"
+                                   OnClick="@(() => modalAdicionar.ShowEditar(context.Item))"/>
+                    <MudIconButton Size="Size.Small"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   OnClick="@(() => ConfirmarEliminacao(context.Item))"/>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent >
+            <div class="bg-warning">
+                <MudDataGridPager Items="@listaSocios"/>
+            </div>
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    private List<SocioDto> listaSocios = new List<SocioDto>();
+    private string pesquisa = "";
+    
+    private bool exibirPopupConfirmacao = false;
+    private SocioDto? SocioSelecionado;
+    
+    private AddSocioComponenteUI modalAdicionar = default!;
+
+    private MudTheme temaLaranja = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#FF6B00",
+            Success = "#4CAF50",
+            Error = "#FF6B00"
+        }
+    };
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarSocios();
+    }
+
+    private async Task CarregarSocios()
+    {
+        try
+        {
+            // Abordagem dynamic que resolve conflitos de tipo com o Refit
+            dynamic resposta = await GinasioService.GetSocios(); 
+            
+            if (resposta != null)
+            {
+                listaSocios = resposta.Content ?? resposta;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Aviso de ligação: {ex.Message}. A carregar dados locais...", Severity.Info);
+            
+            // Dados simulados caso a API ainda não tenha registos ou o método GET falhe
+            listaSocios = new List<SocioDto>
+            {
+                new() { Id = 1, Name = "Sócio Exemplo 1", Email = "socio1@ginasio.com", Contacto = "911111111", Nascimento = new DateOnly(1995, 5, 20), PlanoId = 1, ImageUrl = "/images/modalidade-placeholder.png" },
+                new() { Id = 2, Name = "Sócio Exemplo 2", Email = "socio2@ginasio.com", Contacto = "922222222", Nascimento = new DateOnly(1998, 10, 12), PlanoId = 2, ImageUrl = "/images/modalidade-placeholder.png" }
+            };
+        }
+
+        StateHasChanged();
+    }
+
+    private bool FiltroGlobal(SocioDto socioDto)
+    {
+        if (string.IsNullOrWhiteSpace(pesquisa)) return true;
+        
+        if (socioDto.Name?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (socioDto.Email?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        
+        return false;
+    }
+    
+    private async Task ConfirmarEliminacao(SocioDto socioDto)
+    {
+        var parameters = new DialogParameters<MudMessageBox>();
+        
+        var mbox = new MudBlazor.MessageBoxOptions
+        {
+            Title = "Eliminar Sócio",
+            // Ajustado para .ModalidadeDto.Name
+            Message = $"Tem a certeza que deseja eliminar o Socio, {socioDto.Name}?",
+            YesText = "Eliminar",
+            CancelText = "Cancelar"
+        };
+    
+        parameters.Add(x => x.MarkupMessage, new Microsoft.AspNetCore.Components.MarkupString(mbox.Message));
+        parameters.Add(x => x.YesText, mbox.YesText);
+        parameters.Add(x => x.CancelText, mbox.CancelText);
+        
+        var dialog = await DialogService.ShowAsync<MudMessageBox>(mbox.Title, parameters);
+        var result = await dialog.Result;
+        
+        if (!result.Canceled && result.Data is bool confirmar && confirmar)
+        { 
+            var aulas = await GinasioService.DeleteSocio_Soft(socioDto.Id);
+            
+            if (aulas.IsSuccessful)
+            {
+                Snackbar.Add("Socio eliminado com sucesso!", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Ocorreu um Erro na eliminação do Socio!", Severity.Error);
+            }
+            await CarregarSocios();
+        }
+        
+        await CarregarSocios();
+    }
+
+    private void AbrirModalSocio()
+    {
+        modalAdicionar.Show();
+    }
+
+    private async Task RecarregarTabelaAposGravar()
+    {
+        await Task.Delay(500);
+        await CarregarSocios();
+    }
+
+}

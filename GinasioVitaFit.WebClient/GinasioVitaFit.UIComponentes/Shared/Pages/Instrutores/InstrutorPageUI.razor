@@ -1,0 +1,230 @@
+@using GinasioVitaFit.Shared.Models
+@using GinasioVitaFit.Shared.Services
+@using GinasioVitaFit.UIComponentes.Shared.Pages.Instrutores.Componentes
+@using MudBlazor
+@inject IGinasioVitaFitService GinasioService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<MudThemeProvider Theme="@temaLaranja" />
+<MudSnackbarProvider />
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    
+    <!-- CONTAINER SUPERIOR LARANJA -->
+    <div style="background: white; border-top: 6px solid #FF6B00; border-radius: 8px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 24px;">
+        <div class="d-flex justify-space-between align-center">
+            <div>
+                <MudText Typo="Typo.h4" Style="color: #FF6B00; font-weight: bold;">Gestão de Instrutores</MudText>
+                <MudText Typo="Typo.subtitle2" Style="color: #333333; font-weight: 500;">Gerencie a equipa técnica e registe novos profissionais no mesmo ecrã</MudText>
+            </div>
+            
+            <!-- O botão agora dispara o método Show() dentro do componente -->
+            <MudButton Variant="Variant.Filled" 
+                       Style="background-color: #FF6B00; color: white; font-weight: bold; min-width: 180px;" 
+                       OnClick="AbrirModalArtesanal"
+                       StartIcon="@Icons.Material.Filled.PersonAdd">
+                + NOVO INSTRUTOR
+            </MudButton>
+        </div>
+    </div>
+
+    <!-- INJEÇÃO DO COMPONENTE FLUTUANTE COM REFERÊNCIA (Instanciação oculta que aguarda o Show) -->
+    <AddInstrutorComponenteUI 
+        @ref="modalAdicionar" 
+        OnSubmetido="RecarregarTabelaAposGravar" />
+
+    <!-- POPUP NATIVO DE CONFIRMAÇÃO (SOFT DELETE) -->
+    @if (exibirPopupConfirmacao)
+    {
+        <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; border-top: 6px solid #FF6B00; padding: 24px; border-radius: 8px; max-width: 420px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.25); text-align: center; color: black;">
+                <MudIcon Icon="@Icons.Material.Filled.Warning" Style="color: #FF6B00; font-size: 3rem;" Class="mb-2" />
+                <h3 style="margin-top: 0; font-weight: bold; color: #333;">Eliminar Instrutor</h3>
+                <p style="margin: 16px 0; color: #666; font-size: 15px;">Tem a certeza que deseja eliminar o(a) instrutor(a) <b style="color: #FF6B00;">@instrutorSelecionado?.Name</b>? Isto irá remover todas as suas aula agendadas.</p>
+                <div style="display: flex; justify-content: space-between; margin-top: 24px; gap: 12px;">
+                    <button @onclick="FecharPopup" style="flex: 1; background: #eeeeee; color: #333; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">CANCELAR</button>
+                    <button @onclick="ExecutarEliminacaoReal" style="flex: 1; background: #FF6B00; color: white; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">ELIMINAR</button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- TABELA PRINCIPAL -->
+     <div style="background: white; border-radius: 8px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <MudDataGrid Items="@listaInstrutores" Filterable="true" SortMode="SortMode.Multiple" QuickFilter="@FiltroGlobal">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6" Style="color: #333; font-weight: bold;">Membros da Equipa</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="pesquisa" Placeholder="Pesquisar por nome ou email..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0" Clearable="true" Style="max-width: 300px;" />
+            </ToolBarContent>
+            <Columns>
+                <TemplateColumn Title="Foto" Sortable="false" Filterable="false">
+                    <CellTemplate>
+                        <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #eeeeee;">
+                            <!-- TAG HTML PURA: Ignora o bloqueio do Blazor Server e força a renderização da internet -->
+                            <img src="@(string.IsNullOrWhiteSpace(context.Item.ImageUrl) ? "default.png" : context.Item.ImageUrl)"
+                                 alt="Foto"
+                                 style="width: 100%; height: 100%; object-fit: cover;"
+                                 onerror="this.src='default.png';" />
+                        </div>
+                    </CellTemplate>
+                </TemplateColumn>
+                
+                <PropertyColumn Property="x => x.Name" Title="Nome Completo" />
+                <PropertyColumn Property="x => x.Email" Title="Email" />
+                <PropertyColumn Property="x => x.Contacto" Title="Contacto" />
+                
+                <TemplateColumn Title="Ações" Sortable="false" Filterable="false">
+                    <CellTemplate>
+                        <div class="d-flex gap-2">
+                            <!-- BOTÃO DE EDITAR: Dispara o ShowEditar do Modal -->
+                            <MudIconButton Size="Size.Small" 
+                                           Icon="@Icons.Material.Filled.Edit" 
+                                           Style="color: #FF6B00;" 
+                                           OnClick="@(() => modalAdicionar.ShowEditar(context.Item))" />
+
+                            <MudIconButton Size="Size.Small" 
+                                           Icon="@Icons.Material.Filled.Delete" 
+                                           Style="color: #666666;" 
+                                           OnClick="@(() => ConfirmarEliminacao(context.Item))" />
+                        </div>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </div>
+</MudContainer>
+
+@code {
+    private List<InstrutorDto> listaInstrutores = new List<InstrutorDto>();
+    private string pesquisa = "";
+    private bool exibirPopupConfirmacao = false;
+    private InstrutorDto? instrutorSelecionado;
+
+    // Referência direta para o componente flutuante
+    private AddInstrutorComponenteUI modalAdicionar = default!;
+
+    private MudTheme temaLaranja = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#FF6B00",
+            Success = "#4CAF50",
+            Error = "#FF6B00"
+        }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarInstrutores();
+    }
+
+    private async Task CarregarInstrutores()
+    {
+        try
+        {
+            dynamic resposta = await GinasioService.GetAllInstrutores(); 
+            if (resposta != null)
+            {
+                listaInstrutores = resposta.Content ?? resposta;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Aviso de ligação: {ex.Message}.", Severity.Info);
+        }
+
+        if (listaInstrutores != null)
+        {
+            listaInstrutores = listaInstrutores.ToList();
+        }
+        else
+        {
+            listaInstrutores = new List<InstrutorDto>();
+        }
+        StateHasChanged();
+    }
+
+    // Aciona a abertura do modal forçando o método Show interno do componente
+    private void AbrirModalArtesanal()
+    {
+        modalAdicionar.Show();
+    }
+
+    private async Task RecarregarTabelaAposGravar()
+    {
+        await Task.Delay(500);
+        await CarregarInstrutores();
+    }
+
+    private void ConfirmarEliminacao(InstrutorDto instrutorDto)
+    {
+        instrutorSelecionado = instrutorDto;
+        exibirPopupConfirmacao = true;
+        StateHasChanged();
+    }
+
+    private void FecharPopup()
+    {
+        exibirPopupConfirmacao = false;
+        instrutorSelecionado = null;
+        StateHasChanged();
+    }
+
+    private async Task ExecutarEliminacaoReal()
+    {
+        if (instrutorSelecionado == null) return;
+        var idInstrutor = instrutorSelecionado.Id;
+
+        exibirPopupConfirmacao = false;
+        StateHasChanged();
+
+        try
+        {
+// DISPARO NATIVO À PROVA DE FALHAS: Cria um cliente HTTP para falar com a API igual ao Postman
+            using var httpClient = new HttpClient();
+
+// Monta a URL exata do Postman (Lê a porta dinâmica da vossa API diretamente do NavigationManager)
+            string rotaCompleta = $"https://localhost:7134/Instrutorsoftdelete/{idInstrutor}";
+
+// Envia o pedido DELETE puro para a API online
+            var respostaNativa = await httpClient.DeleteAsync(rotaCompleta);
+
+            if (respostaNativa.IsSuccessStatusCode)
+            {
+                Snackbar.Add("InstrutorDto e as suas aulas associadas foram desativados!", Severity.Success);
+
+// Dá 500ms para a BDオンライン processar as alterações
+                await Task.Delay(500);
+
+// Recarrega a tabela limpa
+                await CarregarInstrutores();
+            }
+            else
+            {
+                Snackbar.Add($"Erro na API: {(int)respostaNativa.StatusCode} - {respostaNativa.ReasonPhrase}", Severity.Error);
+                await CarregarInstrutores();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro na ligação direta: {ex.Message}", Severity.Error);
+            await CarregarInstrutores();
+        }
+        finally
+        {
+            instrutorSelecionado = null;
+        }
+}
+
+    private bool FiltroGlobal(InstrutorDto instrutorDto)
+    {
+        if (string.IsNullOrWhiteSpace(pesquisa)) return true;
+        if (instrutorDto.Name?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        if (instrutorDto.Email?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false) return true;
+        return false;
+    }
+}
+
+       
