@@ -1,0 +1,232 @@
+@using GinasioVitaFit.Shared.Services
+@using GinasioVitaFit.Shared.Models
+@inject IGinasioVitaFitService GinasioVitaFitService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+@using GinasioVitaFit.UIComponentes.Shared.Pages.Modalidades.Componentes
+
+<div class="flex flex-col mb-8 gap-2">
+
+    <div class="flex flex-1 items-center justify-between">
+        <h1 class="text-slate-800!">
+            Modalidades
+        </h1>
+
+        <button
+            @onclick="AbrirModalAdd"
+            class="flex items-center! justify-center! font-bold! gap-2 bg-amber-500! hover:bg-amber-600!
+               text-white px-5 py-3 rounded-lg shadow-md hover:shadow-lg
+               transition-all duration-300">
+            <MudIcon Icon="@Icons.Material.Filled.Add"/>
+            <p class="m-0 hidden sm:block">
+                Nova Modalidade
+            </p>
+        </button>
+    </div>
+
+    <div class="flex justify-between gap-2 *:px-3! *:py-2! *:shadow-xs!">
+        <div class="flex flex-row items-center justify-center gap-2 text-slate-500
+                border-2 border-slate-200/80! rounded-lg">
+            <MudIcon Icon="@Icons.Material.Outlined.Info" class="w-4! sm:w-5!"/>
+            <span class="whitespace-nowrap text-xs">
+                @_modalidades.Count modalidade(s)
+            </span>
+        </div>
+
+        <div class="group flex flex-row items-center sm:min-w-80 text-slate-500 px-2 gap-2 
+                border-2 border-slate-200/80! focus-within:border-amber-300! 
+                rounded-lg transition-colors duration-300">
+            <label for="inputSearch"
+                   class="group-focus-within:text-amber-500! transition-colors duration-300">
+                <MudIcon Icon="@Icons.Material.Outlined.Search"/>
+            </label>
+            <input
+                id="inputSearch"
+                class="border-0 focus:outline-none w-full"
+                placeholder="Pesquisar Modalidades..."/>
+        </div>
+    </div>
+</div>
+
+@if (_isLoading)
+{
+    <div class="flex justify-center items-center py-20">
+        <div class="flex flex-col gap-2">
+            <div class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-4 text-gray-500">
+                A carregar...
+            </p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="w-full h-[calc(100vh-220px)] overflow-y-auto mt-3">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            @foreach (var modalidade in _modalidades)
+            {
+                <div
+                    class="group flex flex-col w-full max-w-xl bg-white rounded-2xl 
+                        shadow-sm border border-slate-100 overflow-hidden xl:h-44
+                        xl:flex-row">
+
+                    <div class="w-full h-48 xl:w-2/5 xl:h-44 shrink-0">
+                        <img
+                            src="@modalidade.ImageUrl"
+                            alt="@modalidade.Id"
+                            class="w-full h-full object-cover 
+                            transition-transform duration-300 group-hover:scale-105"/>
+                    </div>
+
+                    <div class="w-full xl:w-3/5 p-4 flex flex-col justify-between">
+
+                        <div class="flex items-center justify-between">
+                            <span class="flex flex-row items-center gap-2 text-xs whitespace-nowrap">
+                                <MudIcon
+                                    Icon="@Icons.Material.TwoTone.CalendarMonth"
+                                    class="text-amber-500"/>
+                                <p class="m-0 text-slate-400">
+                                    @modalidade.CreatedDate.ToString("dd MMM yyyy", new System.Globalization.CultureInfo("pt-PT"))
+                                </p>
+                            </span>
+                            <span
+                                class="flex flex-row items-center leading-none gap-1 px-3 py-1 
+                                    text-[10px] text-amber-500 bg-amber-500/15 rounded-full
+                                    uppercase tracking-wider">
+                                <MudIcon
+                                    Icon="@Icons.Material.Outlined.WorkspacePremium"
+                                    class="inline-block"/>
+                                <p class="m-0 text-amber-600 font-semibold">@modalidade.Dificuldade.Name</p>
+                            </span>
+                        </div>
+
+                        <div class="mt-1">
+                            <h3 class="text-xl font-bold text-slate-800 capitalize leading-tight">
+                                @modalidade.Name
+                            </h3>
+                            <p class="text-xs font-medium text-slate-400 mt-0.5 line-clamp-2 xl:line-clamp-1">
+                                @modalidade.Description
+                            </p>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button
+                                @onclick="() => AbrirModalEdit(modalidade)"
+                                class="p-1 rounded-lg text-slate-700 hover:bg-gray-100!
+                                hover:text-blue-600! transition-colors">
+                                <MudIcon
+                                    Icon="@Icons.Material.Outlined.Edit"
+                                    class="text-amber-500"/>
+                            </button>
+                            <button
+                                @onclick="() => OnDeleteModalidade(modalidade.Id)"
+                                class="p-1 rounded-lg text-slate-700 hover:bg-gray-100!
+                                hover:text-blue-600 transition-colors">
+                                <MudIcon
+                                    Icon="@Icons.Material.Outlined.Delete"
+                                    class="text-red-600"/>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+}
+<ModalidadeModalComponenteUI
+    @ref="_modal"
+    ImagensExistentes="_imagensExistentes"
+    ModalidadeChanged="CarregarDados"
+/>
+
+@code {
+    private bool _isLoading = true;
+    private ModalidadeModalComponenteUI? _modal;
+
+    private List<ModalidadeDto> _modalidades = new();
+    private List<string> _imagensExistentes = new();
+
+    private async Task CarregarDados()
+    {
+        _isLoading = true;
+        
+        var modalidades = await GinasioVitaFitService.GetAllModalidades();
+
+        if (modalidades.IsSuccessStatusCode)
+        {
+            _modalidades = modalidades.Content ?? new List<ModalidadeDto>();
+
+            _imagensExistentes = _modalidades
+                .Where(m =>
+                    !string.IsNullOrEmpty(m.ImageUrl)
+                    && !m.ImageUrl.Contains("placeholder")
+                    && m.ImageUrl != "something")
+                .Select(m => m.ImageUrl)
+                .Distinct()
+                .ToList();
+        }
+
+        _isLoading = false;
+        
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        await CarregarDados();
+    }
+
+    private async Task AbrirModalAdd()
+    {
+        await _modal!.Show();
+    }
+
+    private async Task AbrirModalEdit(ModalidadeDto modalidadeDto)
+    {
+        await _modal!.Show(modalidadeDto);
+    }
+
+    private async Task OnDeleteModalidade(int id)
+    {
+        try
+        {
+            var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            bool? resultConfirm = await DialogService.ShowMessageBoxAsync(
+                "Eliminar Modalidade?",
+                "Tem a certeza que deseja eliminar esta modalidade?",
+                yesText: "Sim, Eliminar",
+                cancelText: "Não, Cancelar",
+                options: options);
+
+            if (resultConfirm != true) return;
+
+            var result = await GinasioVitaFitService.DeleteModalidade_Soft(id);
+
+            if (result.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Modalidade eliminada com sucesso!", Severity.Success, config =>
+                {
+                    config.VisibleStateDuration = 1500;
+                    config.HideTransitionDuration = 200;
+                });
+
+                await CarregarDados();
+            }
+            else
+            {
+                Snackbar.Add("Não foi possível eliminar a modalidade.", Severity.Error);
+            }
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add($"Erro ao eliminar: {e.Message}", Severity.Error);
+        }
+    }
+
+}
