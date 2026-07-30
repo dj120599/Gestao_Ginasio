@@ -29,4 +29,10 @@
       <ProjectReference Include="..\GinasioVitaFit.Shared\GinasioVitaFit.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Update="wwwroot\uploads\pilates.jpeg">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>
