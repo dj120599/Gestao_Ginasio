@@ -54,7 +54,10 @@ public class SalaController: Controller
                     .Where(a => a.SalaId == id)
                     .ToListAsync();
 
-                _context.Aulas.RemoveRange(aulasDaSala);
+                foreach (var _aulas in aulasDaSala)
+                {
+                    _aulas.IsDeleted = true;
+                }
             }
 
             // 3. Soft Delete: Apenas marca a sala como eliminada

@@ -9,8 +9,8 @@
 
     <div class="d-flex align-center justify-space-between mb-6">
         <div>
-            <MudText Typo="Typo.h4" Class="font-weight-bold" Style="color: #212121; font-family: 'Poppins', sans-serif;">
-                Dashboard  <span style="color: #CC4A00;">VitaFit</span>
+            <MudText Typo="Typo.h4" Class="font-weight-bold text-gray-900" Style="">
+                Dashboard  <span class="text-amber-500">VitaFit</span>
             </MudText>
             <MudText Typo="Typo.body2" Style="color: #666666;"></MudText>
         </div>
@@ -27,10 +27,12 @@
 
                 <MudItem xs="12">
                     <MudPaper Class="pa-6 rounded-xl" Style="background: linear-gradient(135deg, #FFF0E6 0%, #E6F8FF 100%); border: 1px solid #FFE0CC; position: relative; overflow: hidden; height: 140px;" Elevation="2">
-                        <MudButton Variant="Variant.Filled" Style="background-color: #FF6B00; color: #FFFFFF;" Class="rounded-pill px-5 font-weight-bold" Size="Size.Medium" OnClick="AbrirJanelaInstrutores">
-                            VER DETALHES DA EQUIPA
+                        <MudButton Variant="Variant.Filled" Class="bg-amber-500! text-white uppercase! rounded-pill px-5 font-bold!" Size="Size.Medium" OnClick="AbrirJanelaInstrutores">
+                            Ver detalhes da equipa
                         </MudButton>
-                        <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Style="position: absolute; right: 20px; top: 10px; font-size: 120px; color: #FF6B00; opacity: 0.12;" />
+                        <MudIcon 
+                            Icon="@Icons.Material.Filled.FitnessCenter" 
+                            Style="position: absolute; right: 20px; top: 10px; font-size: 120px; color: #FF6B00; opacity: 0.12;" />
                     </MudPaper>
                 </MudItem>
 
@@ -38,9 +40,9 @@
                     <MudPaper Class="pa-4 rounded-xl d-flex align-center justify-space-between" Style="background-color: #FFFFFF; border: 1px solid #E0E0E0;" Elevation="2">
                         <div>
                             <MudText Typo="Typo.caption" Style="color: #666666;" Class="font-weight-medium">Sócios Ativos</MudText>
-                            <MudText Typo="Typo.h5" Class="font-weight-bold mt-1" Style="color: #FF6B00;">@_totalSociosAtivos</MudText>
+                            <MudText Typo="Typo.h5" Class="font-weight-bold mt-1 text-gray-900!">@_totalSociosAtivos</MudText>
                         </div>
-                        <MudIcon Icon="@Icons.Material.Filled.People" Style="color: #00B0FF;" Size="Size.Large" />
+                        <MudIcon Icon="@Icons.Material.Filled.People" Class="text-amber-500!" Size="Size.Large" />
                     </MudPaper>
                 </MudItem>
 
@@ -48,9 +50,9 @@
                     <MudPaper Class="pa-4 rounded-xl d-flex align-center justify-space-between" Style="background-color: #FFFFFF; border: 1px solid #E0E0E0;" Elevation="2">
                         <div>
                             <MudText Typo="Typo.caption" Style="color: #666666;" Class="font-weight-medium">Total Aulas Hoje</MudText>
-                            <MudText Typo="Typo.h5" Class="font-weight-bold mt-1" Style="color: #212121;">@_totalAulas</MudText>
+                            <MudText Typo="Typo.h5" Class="font-weight-bold mt-1 text-gray-900!">@_totalAulas</MudText>
                         </div>
-                        <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Style="color: #FF6B00;" Size="Size.Large" />
+                        <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Class="text-amber-500!" Size="Size.Large" />
                     </MudPaper>
                 </MudItem>
 
@@ -58,9 +60,9 @@
                     <MudPaper Class="pa-4 rounded-xl d-flex align-center justify-space-between" Style="background-color: #FFFFFF; border: 1px solid #E0E0E0;" Elevation="2">
                         <div>
                             <MudText Typo="Typo.caption" Style="color: #666666;" Class="font-weight-medium">Ocupação Geral</MudText>
-                            <MudText Typo="Typo.h5" Class="font-weight-bold mt-1" Style="color: #00B0FF;">@_taxaOcupacaoMedia%</MudText>
+                            <MudText Typo="Typo.h5" Class="font-weight-bold mt-1 text-gray-900!">@_taxaOcupacaoMedia%</MudText>
                         </div>
-                        <MudIcon Icon="@Icons.Material.Filled.Analytics" Style="color: #FF6B00;" Size="Size.Large" />
+                        <MudIcon Icon="@Icons.Material.Filled.Analytics" Class="text-amber-500!" Size="Size.Large" />
                     </MudPaper>
                 </MudItem>
 
@@ -122,7 +124,7 @@
                 <MudText Typo="Typo.caption" Style="color: #666666;" Class="mb-4">As modalidades com mais inscrições no sistema.</MudText>
                 <div class="text-center mb-4">
                     <MudText Typo="Typo.caption" Style="color: #666666; letter-spacing: 2px; font-weight: 600;">INSCRITOS</MudText>
-                    <MudText Typo="Typo.h3" Class="font-weight-bold" Style="color: #FF6B00;">@VerObterSoma()</MudText>
+                    <MudText Typo="Typo.h3" Class="font-weight-bold text-amber-500!">@VerObterSoma()</MudText>
                 </div>
                 <div class="d-flex justify-space-around pt-3" style="border-top: 1px solid #E2E8F0;">
                     @foreach (var leg in _legendaModalidades)

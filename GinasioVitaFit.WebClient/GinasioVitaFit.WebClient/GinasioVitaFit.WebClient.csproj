@@ -18,5 +18,9 @@
       <ProjectReference Include="..\GinasioVitaFit.Shared\GinasioVitaFit.Shared.csproj" />
       <ProjectReference Include="..\GinasioVitaFit.UIComponentes\GinasioVitaFit.UIComponentes.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\fonts\HankenGrotesk\HankenGrotesk-Italic-VariableFont_wght.ttf" />
+      <_ContentIncludedByDefault Remove="wwwroot\fonts\HankenGrotesk\HankenGrotesk-VariableFont_wght.ttf" />
+    </ItemGroup>
 
 </Project>
