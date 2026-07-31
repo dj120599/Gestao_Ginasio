@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GinasioVitaFit.Api.Data;
 using GinasioVitaFit.Api.Entities;
-using GinasioVitaFit.Api.Models;
+using GinasioVitaFit.Shared.Models;
 
 namespace GinasioVitaFit.Api.Controllers;
 
@@ -20,7 +20,7 @@ public class PlanoController: Controller
         
     }
     
-    [HttpGet("/plano")]
+    [HttpGet("/Plano")]
     public async Task<IActionResult> GetPlanos()
     {
         if (_context.Planos is not null)
@@ -28,8 +28,10 @@ public class PlanoController: Controller
             var categories = await _context.Planos
                 .ToListAsync();
             
-            if(categories.Any())
-                return Ok(categories);
+            List<PlanoDto> PlanosMapped = _mapper.Map<List<PlanoDto>>(categories);
+            
+            if(PlanosMapped.Any())
+                return Ok(PlanosMapped);
         }
 
         return NotFound();
@@ -47,14 +49,14 @@ public class PlanoController: Controller
             var plano = await _context.Planos.FirstOrDefaultAsync(t => t.Id == id);
 
             if(plano is null)
-                return Results.NotFound("Plano não foi encontrado");
+                return Results.NotFound("PlanoDto não foi encontrado");
             
             plano.IsDeleted = true;
             
             
             await _context.SaveChangesAsync();
             
-            return Results.Ok("Plano apagado com Successo.");
+            return Results.Ok("PlanoDto apagado com Successo.");
         }
         return Results.Empty;
     }

@@ -68,7 +68,7 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasIndex("SalaId");
 
-                    b.ToTable("Aulas");
+                    b.ToTable("Aulas", (string)null);
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.AulaSocios", b =>
@@ -90,7 +90,7 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasKey("AulaId", "SocioId");
 
-                    b.ToTable("AulaSocios");
+                    b.ToTable("AulaSocios", (string)null);
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Dificuldade", b =>
@@ -116,7 +116,7 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Dificuldades");
+                    b.ToTable("Dificuldades", (string)null);
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Instrutor", b =>
@@ -154,7 +154,7 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Instrutores");
+                    b.ToTable("Instrutores", (string)null);
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.InstrutorMod", b =>
@@ -176,7 +176,9 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasKey("InstrutorId", "ModalidadeId");
 
-                    b.ToTable("InstrutorMods");
+                    b.HasIndex("ModalidadeId");
+
+                    b.ToTable("InstrutorMods", (string)null);
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Modalidade", b =>
@@ -201,6 +203,9 @@ namespace GinasioVitaFit.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("InstrutorId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -215,7 +220,9 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasIndex("DificuldadeId");
 
-                    b.ToTable("Modalidades");
+                    b.HasIndex("InstrutorId");
+
+                    b.ToTable("Modalidades", (string)null);
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Plano", b =>
@@ -241,7 +248,7 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Planos");
+                    b.ToTable("Planos", (string)null);
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Sala", b =>
@@ -267,7 +274,7 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Salas");
+                    b.ToTable("Salas", (string)null);
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Socio", b =>
@@ -319,7 +326,7 @@ namespace GinasioVitaFit.Api.Migrations
 
                     b.HasIndex("PlanoId");
 
-                    b.ToTable("Socios");
+                    b.ToTable("Socios", (string)null);
                 });
 
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Aula", b =>
@@ -349,6 +356,25 @@ namespace GinasioVitaFit.Api.Migrations
                     b.Navigation("Sala");
                 });
 
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.InstrutorMod", b =>
+                {
+                    b.HasOne("GinasioVitaFit.Api.Entities.Instrutor", "Instrutor")
+                        .WithMany()
+                        .HasForeignKey("InstrutorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GinasioVitaFit.Api.Entities.Modalidade", "Modalidade")
+                        .WithMany()
+                        .HasForeignKey("ModalidadeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Instrutor");
+
+                    b.Navigation("Modalidade");
+                });
+
             modelBuilder.Entity("GinasioVitaFit.Api.Entities.Modalidade", b =>
                 {
                     b.HasOne("GinasioVitaFit.Api.Entities.Dificuldade", "Dificuldade")
@@ -356,6 +382,10 @@ namespace GinasioVitaFit.Api.Migrations
                         .HasForeignKey("DificuldadeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("GinasioVitaFit.Api.Entities.Instrutor", null)
+                        .WithMany("Modalidades")
+                        .HasForeignKey("InstrutorId");
 
                     b.Navigation("Dificuldade");
                 });
@@ -369,6 +399,11 @@ namespace GinasioVitaFit.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Plano");
+                });
+
+            modelBuilder.Entity("GinasioVitaFit.Api.Entities.Instrutor", b =>
+                {
+                    b.Navigation("Modalidades");
                 });
 #pragma warning restore 612, 618
         }

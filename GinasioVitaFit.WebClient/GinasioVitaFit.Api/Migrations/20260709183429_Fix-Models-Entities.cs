@@ -17,7 +17,7 @@ namespace GinasioVitaFit.Api.Migrations
 
             migrationBuilder.DropPrimaryKey(
                 name: "PK_AulaSocios",
-                table: "AulaSocios");
+                table: "AulaSociosDto");
 
             migrationBuilder.DropColumn(
                 name: "Id",
@@ -25,7 +25,7 @@ namespace GinasioVitaFit.Api.Migrations
 
             migrationBuilder.DropColumn(
                 name: "Id",
-                table: "AulaSocios");
+                table: "AulaSociosDto");
 
             migrationBuilder.DropColumn(
                 name: "ImagemUrl",
@@ -48,12 +48,12 @@ namespace GinasioVitaFit.Api.Migrations
 
             migrationBuilder.RenameColumn(
                 name: "SocioID",
-                table: "AulaSocios",
+                table: "AulaSociosDto",
                 newName: "SocioId");
 
             migrationBuilder.RenameColumn(
                 name: "AulaID",
-                table: "AulaSocios",
+                table: "AulaSociosDto",
                 newName: "AulaId");
 
             migrationBuilder.AlterColumn<DateOnly>(
@@ -78,7 +78,7 @@ namespace GinasioVitaFit.Api.Migrations
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_AulaSocios",
-                table: "AulaSocios",
+                table: "AulaSociosDto",
                 columns: new[] { "AulaId", "SocioId" });
         }
 
@@ -91,7 +91,7 @@ namespace GinasioVitaFit.Api.Migrations
 
             migrationBuilder.DropPrimaryKey(
                 name: "PK_AulaSocios",
-                table: "AulaSocios");
+                table: "AulaSociosDto");
 
             migrationBuilder.DropColumn(
                 name: "IsOpen",
@@ -114,12 +114,12 @@ namespace GinasioVitaFit.Api.Migrations
 
             migrationBuilder.RenameColumn(
                 name: "SocioId",
-                table: "AulaSocios",
+                table: "AulaSociosDto",
                 newName: "SocioID");
 
             migrationBuilder.RenameColumn(
                 name: "AulaId",
-                table: "AulaSocios",
+                table: "AulaSociosDto",
                 newName: "AulaID");
 
             migrationBuilder.AlterColumn<DateTime>(
@@ -140,7 +140,7 @@ namespace GinasioVitaFit.Api.Migrations
 
             migrationBuilder.AddColumn<int>(
                 name: "Id",
-                table: "AulaSocios",
+                table: "AulaSociosDto",
                 type: "int",
                 nullable: false,
                 defaultValue: 0)
@@ -160,7 +160,7 @@ namespace GinasioVitaFit.Api.Migrations
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_AulaSocios",
-                table: "AulaSocios",
+                table: "AulaSociosDto",
                 column: "Id");
         }
     }

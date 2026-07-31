@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GinasioVitaFit.Api.Data;
 using GinasioVitaFit.Api.Entities;
-using GinasioVitaFit.Api.Models;
+using GinasioVitaFit.Shared.Models;
 
 namespace GinasioVitaFit.Api.Controllers;
 
@@ -20,7 +20,7 @@ public class SocioController: Controller
         
     }
     
-    [HttpGet("/socios")]
+    [HttpGet("/Socios")]
     public async Task<IActionResult> GetSocios()
     {
         if (_context.Socios is not null)
@@ -30,48 +30,55 @@ public class SocioController: Controller
                 Include(s => s.Plano).
                 ToListAsync();
             
-            if(socios.Any())
-                return Ok(socios);
+            
+            List<SocioDto> SociosMapped = _mapper.Map<List<SocioDto>>(socios);
+            
+            if(SociosMapped.Any())
+                return Ok(SociosMapped);
         }
 
         return NotFound();
     }
     
-    [HttpGet("/socio/{id}")]
+    [HttpGet("/Socio/{id}")]
     public async Task<IActionResult> GetSocio(int id)
     {
         if (_context.Socios is not null)
         {
             var socio = await _context.Socios.
+                Include(s => s.Plano).
                 FirstOrDefaultAsync(s => s.Id == id && s.IsDeleted.Equals(false));
             
-            if(socio is not null)
-                return Ok(socio);
+            var SocioMapped = _mapper.Map<Socio,SocioDto>(socio);
+            
+            if(SocioMapped is not null)
+                return Ok(SocioMapped);
         }
 
         return NotFound();
     }
 //Metodo POSt com mapeamento automatico
-    [HttpPost("/socio")]
+    [HttpPost("/Socio")]
     public async Task<IResult> AddSocio([FromBody] SocioDto? socio)
     {
         if (socio is  null)
             return Results.BadRequest();
         
-        var mapper = _mapper.Map<Models.SocioDto,Entities.Socio>(socio);
-        mapper.CreatedDate = DateTime.UtcNow;
-        mapper.UpdatedDate = DateTime.UtcNow;
+        var SocioMapped = _mapper.Map<SocioDto,Socio>(socio);
+        
+        SocioMapped.CreatedDate = DateTime.UtcNow;
+        SocioMapped.UpdatedDate = DateTime.UtcNow;
         
         var products =  _context.Socios;
         
         if (products is not null)
         {
-            products.Add(mapper);
+            products.Add(SocioMapped);
             
             try
             {
                 await _context.SaveChangesAsync();
-                return Results.Ok("Socio adicionado com Successo.");
+                return Results.Ok("SocioDto adicionado com Successo.");
             }
             catch (Exception e)
             {
@@ -82,7 +89,7 @@ public class SocioController: Controller
         return Results.Empty;
     }
     
-    [HttpPut("/socio")]
+    [HttpPut("/Socio")]
     public async Task<IActionResult> UpdateSocio([FromBody] SocioDto? socio)
     {
         if (socio is null)
@@ -91,12 +98,15 @@ public class SocioController: Controller
         if(_context.Socios is null)
             return Empty;
 
-        var oldproduct = await _context.Socios.FirstOrDefaultAsync(a => a.Id == socio.Id);
+        var SocioMapped = _mapper.Map<SocioDto,Socio>(socio);
+        SocioMapped.UpdatedDate = DateTime.UtcNow;
+        
+        var oldproduct = await _context.Socios.FirstOrDefaultAsync(a => a.Id == SocioMapped.Id);
 
         if(oldproduct is null)
-            return NotFound("O Socio não foi encontrado");
+            return NotFound("O SocioDto não foi encontrado");
         
-        socio.Adapt(oldproduct);
+        SocioMapped.Adapt(oldproduct);
         
         var result = await _context.SaveChangesAsync();
         
@@ -112,26 +122,37 @@ public class SocioController: Controller
         
         return Ok("Sócio actualizada com sucesso.");
     }
-    
-    [HttpDelete("socio_softdelete/{id}")]
+    [HttpPut("Sociosoftdelete/{id}")]
     public async Task<IResult> DeleteSocio_Soft(int id)
     {
-        if (id == null)
-            return Results.Empty;
-        
         if (_context.Socios is not null)
         {
+            // 1. Procura o sócio principal pelo ID recebido
             var socio = await _context.Socios.FirstOrDefaultAsync(t => t.Id == id);
-
-            if(socio is null)
+        
+            if (socio is null)
                 return Results.NotFound("Sócio não foi encontrado");
-            
+
+            // 2. REQUISITO DO CARTÃO: Remove todas as linhas correspondentes na tabela AulaSocios
+            if (_context.AulaSocios is not null)
+            {
+                var aulasDoIdSocio = await _context.AulaSocios
+                    .Where(a => a.SocioId == id)
+                    .ToListAsync();
+
+                foreach (var _socios in aulasDoIdSocio)
+                {
+                    _socios.IsDeleted = true;
+                }
+            }
+
+            // 3. Faz o Soft Delete do sócio principal
             socio.IsDeleted = true;
-            
-            
+        
+            // Grava todas as alterações na base de dados
             await _context.SaveChangesAsync();
-            
-            return Results.Ok("Sócio apagado com Successo.");
+        
+            return Results.Ok("Sócio desativado e as suas inscrições em aulas foram removidas.");
         }
         return Results.Empty;
     }

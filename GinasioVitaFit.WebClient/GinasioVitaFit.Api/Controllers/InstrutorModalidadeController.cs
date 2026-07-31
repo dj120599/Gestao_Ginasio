@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GinasioVitaFit.Api.Data;
 using GinasioVitaFit.Api.Entities;
-using GinasioVitaFit.Api.Models;
+using GinasioVitaFit.Shared.Models;
 
 namespace GinasioVitaFit.Api.Controllers;
 
@@ -20,42 +20,63 @@ public class InstrutorModalidadeController : Controller
         
     }
     
-    [HttpGet("/modalidadesinstr/{id}")]
+    [HttpGet("/Modalidadesinstr/{id}")]
     public async Task<IActionResult> GetAllModalidadesFromInstrutor(int id)
     {
         if (_context.InstrutorMods is not null)
         {
             var modalidades = await _context.InstrutorMods.
+                Include(a => a.Instrutor).
+                Include(a => a.Modalidade).
                 Where(a => a.InstrutorId == id && a.IsDeleted.Equals(false)).
                 ToListAsync();
             
-            if(modalidades.Any())
-                return Ok(modalidades);
+            
+            List<InstrutorModDto> Aulasmapped = _mapper.Map<List<InstrutorModDto>>(modalidades);
+            
+            if(Aulasmapped.Any())
+                return Ok(Aulasmapped);
         }
 
         return NotFound();
     }
 
-    [HttpPost("/instrutormod")]
+    [HttpPost("/Instrutormod")]
     public async Task<IResult> AddModalidadeToInstrutor([FromBody] InstrutorModDto? instrutormod)
     {
         if (instrutormod is  null)
             return Results.BadRequest();
         
-        var mapper = _mapper.Map<Models.InstrutorModDto,Entities.InstrutorMod>(instrutormod);
-        mapper.CreatedDate = DateTime.UtcNow;
-        mapper.UpdatedDate = DateTime.UtcNow;
+        var MappedInstrutormod = _mapper.Map<InstrutorModDto,InstrutorMod>(instrutormod);
+        
+        var oldinstrutormod = await _context.InstrutorMods.
+            FirstOrDefaultAsync(a => a.InstrutorId == MappedInstrutormod.InstrutorId
+                                     && a.ModalidadeId == MappedInstrutormod.ModalidadeId
+                                     && a.IsDeleted.Equals(true));
         
         var instrutoremods =  _context.InstrutorMods;
         
         if (instrutoremods is not null)
         {
-            instrutoremods.Add(mapper);
+            if (oldinstrutormod != null)
+            {
+                MappedInstrutormod.CreatedDate = DateTime.UtcNow;
+                MappedInstrutormod.UpdatedDate = DateTime.UtcNow;
+                MappedInstrutormod.IsDeleted = false;
+                MappedInstrutormod.Adapt(oldinstrutormod);
+            }
+            else
+            {
+                MappedInstrutormod.CreatedDate = DateTime.UtcNow;
+                MappedInstrutormod.UpdatedDate = DateTime.UtcNow;
+                
+                instrutoremods.Add(MappedInstrutormod);
+            }
             
             try
             {
                 await _context.SaveChangesAsync();
-                return Results.Ok("Modalidade adicionada ao Instrutor com Successo.");
+                return Results.Ok("ModalidadeDto adicionada ao InstrutorDto com Successo.");
             }
             catch (Exception e)
             {
@@ -80,14 +101,14 @@ public class InstrutorModalidadeController : Controller
             var instrutor = await _context.InstrutorMods.FirstOrDefaultAsync(t => t.InstrutorId == id && t.ModalidadeId == modalidade);
 
             if(instrutor is null)
-                return Results.NotFound("Modalidade não foi encontrado");
+                return Results.NotFound("ModalidadeDto não foi encontrado");
             
             instrutor.IsDeleted = true;
             
             
             await _context.SaveChangesAsync();
             
-            return Results.Ok("Modalidade apagado com Successo.");
+            return Results.Ok("ModalidadeDto apagado com Successo.");
         }
         return Results.Empty;
     }

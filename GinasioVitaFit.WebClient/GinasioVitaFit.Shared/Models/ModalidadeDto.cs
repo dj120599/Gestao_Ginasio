@@ -1,0 +1,32 @@
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+
+namespace GinasioVitaFit.Shared.Models;
+
+public class ModalidadeDto
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+    
+    [Required(ErrorMessage = "Nome da modalidade é obrigatório.")]
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = String.Empty;
+    
+    [Required(ErrorMessage = "Descrição da modalidade é obrigatória.")]
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = String.Empty;
+    
+    [Range(1, int.MaxValue, ErrorMessage = "Escolha uma dificuldade.")]
+    [JsonPropertyName("dificuldadeId")]
+    public int DificuldadeId { get; set; }
+    
+    [JsonPropertyName("dificuldade")]
+    public DificuldadeDto Dificuldade { get; set; }
+    
+    [JsonPropertyName("imageUrl")]
+    public string ImageUrl { get; set; } = "/images/modalidade-placeholder.png";
+    
+    [JsonPropertyName("createdDate")]
+    public DateTime CreatedDate { get; set;}
+    
+}

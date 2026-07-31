@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GinasioVitaFit.Api.Data;
 using GinasioVitaFit.Api.Entities;
-using GinasioVitaFit.Api.Models;
+using GinasioVitaFit.Shared.Models;
 
 namespace GinasioVitaFit.Api.Controllers;
 
@@ -20,7 +20,7 @@ public class AulaController: Controller
         
     }
     
-     [HttpGet("/aulas")]
+     [HttpGet("/Aulas")]
     public async Task<IActionResult> GetAulas()
     {
         if (_context.Aulas is not null)
@@ -33,52 +33,57 @@ public class AulaController: Controller
                 Include(a => a.Sala).
                 ToListAsync();
             
-            if(aulas.Any())
-                return Ok(aulas);
+            List<AulaDto> Aulasmapped = _mapper.Map<List<AulaDto>>(aulas);
+            
+            if(Aulasmapped.Any())
+                return Ok(Aulasmapped);
         }
 
         return NotFound();
     }
     
-    [HttpGet("/aula/{id}")]
+    [HttpGet("/Aula/{id}")]
     public async Task<IActionResult> GetAula(int id)
     {
         if (_context.Aulas is not null)
         {
-            var aulas = await _context.Aulas.
+            var aula = await _context.Aulas.
                 Include(a => a.Instrutor).
                 Include(a => a.Modalidade).
                 Include(a => a.Sala).
                 FirstOrDefaultAsync(a => a.Id == id && a.IsDeleted.Equals(false));
             
-            if(aulas is not null)
-                return Ok(aulas);
+            var aulamapped = _mapper.Map<Aula,AulaDto>(aula);
+            
+            if(aulamapped is not null)
+                return Ok(aulamapped);
         }
 
         return NotFound();
     }
     
     //Metodo POSt com mapeamento automatico
-    [HttpPost("/aula")]
+    [HttpPost("/Aula")]
     public async Task<IResult> AddAula([FromBody] AulaDto? aula)
     {
         if (aula is  null)
             return Results.BadRequest();
         
-        var mapper = _mapper.Map<Models.AulaDto,Entities.Aula>(aula);
-        mapper.CreatedDate = DateTime.UtcNow;
-        mapper.UpdatedDate = DateTime.UtcNow;
+        var aulamapped = _mapper.Map<AulaDto,Entities.Aula>(aula);
+        aulamapped.CreatedDate = DateTime.UtcNow;
+        aulamapped.UpdatedDate = DateTime.UtcNow;
+        aulamapped.IsOpen = true;
         
         var products =  _context.Aulas;
         
         if (products is not null)
         {
-            products.Add(mapper);
+            products.Add(aulamapped);
             
             try
             {
                 await _context.SaveChangesAsync();
-                return Results.Ok("Aula adicionada com Successo.");
+                return Results.Ok("AulaDto adicionada com Successo.");
             }
             catch (Exception e)
             {
@@ -89,7 +94,7 @@ public class AulaController: Controller
         return Results.Empty;
     }
     
-    [HttpPut("/aula")]
+    [HttpPut("/Aula")]
     public async Task<IActionResult> UpdateAula([FromBody] AulaDto? aula)
     {
         if (aula is null)
@@ -101,9 +106,10 @@ public class AulaController: Controller
         var oldproduct = await _context.Aulas.FirstOrDefaultAsync(a => a.Id == aula.Id);
 
         if(oldproduct is null)
-            return NotFound("A Aula não foi encontrado");
+            return NotFound("A AulaDto não foi encontrado");
         
-        aula.Adapt(oldproduct);
+        var aulamapped = _mapper.Map<AulaDto,Entities.Aula>(aula);
+        aulamapped.Adapt(oldproduct);
         
         var result = await _context.SaveChangesAsync();
         
@@ -117,10 +123,10 @@ public class AulaController: Controller
             return NotFound(e.Message);
         }
         
-        return Ok("Aula actualizada com sucesso.");
+        return Ok("AulaDto actualizada com sucesso.");
     }
     
-    [HttpDelete("aula_softdelete/{id}")]
+    [HttpDelete("Aulasoftdelete/{id}")]
     public async Task<IResult> DeleteAula_Soft(int id)
     {
         if (id == null)
@@ -131,7 +137,7 @@ public class AulaController: Controller
             var aula = await _context.Aulas.FirstOrDefaultAsync(t => t.Id == id);
 
             if(aula is null)
-                return Results.NotFound("Aula não foi encontrado");
+                return Results.NotFound("AulaDto não foi encontrado");
             
             aula.IsDeleted = true;
             
@@ -142,7 +148,7 @@ public class AulaController: Controller
                     ToListAsync();
 
                 if (oldAulaSocios is null)
-                    return Results.NotFound("Aula Agendada não foi encontrado");
+                    return Results.NotFound("AulaDto Agendada não foi encontrado");
 
                 foreach (AulaSocios oldAulaSocio in oldAulaSocios)
                 {
@@ -156,7 +162,7 @@ public class AulaController: Controller
 
             await _context.SaveChangesAsync();
             
-            return Results.Ok("Aula apagada com Successo.");
+            return Results.Ok("AulaDto apagada com Successo.");
         }
         return Results.Empty;
     }
