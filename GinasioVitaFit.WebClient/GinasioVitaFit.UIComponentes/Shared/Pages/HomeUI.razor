@@ -1,7 +1,9 @@
-﻿
+﻿@using GinasioVitaFit.Shared.Models
 @using GinasioVitaFit.Shared.Services
 @using MudBlazor
 @inject IGinasioVitaFitService GinasioService
+@implements IDisposable
+
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-6 mb-8">
 
@@ -15,7 +17,7 @@
         <div class="d-flex align-center">
             <MudIcon Icon="@Icons.Material.Filled.Notifications" Class="mr-4" Style="color: #00B0FF;" />
             <MudAvatar Color="Color.Primary" Size="Size.Medium" Class="mr-2">VF</MudAvatar>
-            <MudText Typo="Typo.body2" Class="font-weight-bold" Style="color: #212121;">Gestor VitaFit</MudText>
+            <MudText Typo="Typo.body2" Class="font-weight-bold" Style="color: #212121;">VitaFit</MudText>
         </div>
     </div>
 
@@ -68,26 +70,45 @@
                         <MudText Typo="Typo.caption" Style="color: #00B0FF;" Class="font-weight-bold">Tempo Real</MudText>
                     </div>
                     <MudGrid>
-                        @foreach (AulaOcupacao aula in _topAulas)
+                        @foreach (var aula in _topAulas)
                         {
-                        <MudItem xs="12" sm="6" md="4">
-                            <MudPaper Class="rounded-xl overflow-hidden" Style="background-color: #FFFFFF; border: 1px solid #E2E8F0; height: 100%;" Elevation="2">
-                                <div style="position: relative; width: 100%; height: 150px; overflow: hidden;">
-                                    <img src="@aula.FotoInstructor" style="width: 100%; height: 150px; object-fit: cover; object-position: center top;" />
-                                    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 55%);"></div>
-                                    <div style="position: absolute; bottom: 8px; left: 8px; right: 8px; z-index: 10;">
-                                        <MudText Typo="Typo.caption" Style="color: #FFFFFF; font-weight: 800; text-shadow: 0 1px 3px rgba(0,0,0,0.9); display: block;">@aula.Nome</MudText>
-                                        <MudText Typo="Typo.caption" Style="color: rgba(255,255,255,0.75); font-size: 10px;">👤 @aula.Instrutor</MudText>
+                            <MudItem xs="12" sm="6" md="4">
+                                <MudPaper Class="rounded-xl overflow-hidden" Elevation="2">
+                                    <div style="position:relative;">
+
+                                       
+                                        <img src="@aula.FotoModalidade" alt="Imagem da aula" style="width:100%;height:140px;object-fit:cover;" />
+
+                                        <div style="position:absolute;top:8px;left:8px;">
+                                            <MudChip T="string" Color="Color.Info" Size="Size.Small">
+                                                @aula.Percentagem% Lotação
+                                            </MudChip>
+                                        </div>
                                     </div>
-                                    <div style="position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.6); padding: 2px 8px; border-radius: 20px; z-index: 10;">
-                                        <MudText Typo="Typo.caption" Style="color: #00E5FF;" Class="font-weight-bold">@aula.Percentagem% Lotação</MudText>
+
+                                    <div class="pa-3">
+
+                                        <MudText Typo="Typo.subtitle2">
+                                            @aula.Nome
+                                        </MudText>
+
+                                        <MudText Typo="Typo.caption">
+                                            @aula.Instrutor
+                                        </MudText>
+
                                     </div>
-                                </div>
-                                <div class="pa-2 px-3">
-                                    <MudProgressLinear Color="@aula.Cor" Value="@aula.Percentagem" Class="rounded-pill" Size="Size.Small" />
-                                </div>
-                            </MudPaper>
-                        </MudItem>
+
+                                    <div class="px-3 pb-3">
+
+                                        <MudProgressLinear Value="@aula.Percentagem"
+                                                           Rounded="true"
+                                                           Color="Color.Primary" />
+
+                                    </div>
+
+                                </MudPaper>
+
+                            </MudItem>
                         }
                     </MudGrid>
                 </MudItem>
@@ -119,70 +140,80 @@
         </MudItem>
     </MudGrid>
 
-    <MudGrid Class="mt-6" Spacing="3">
-        <MudItem xs="12" md="4">
-            <MudPaper Class="pa-6 rounded-xl d-flex flex-column" Style="border: 1px solid #E2E8F0; background-color: #FFFFFF; min-height: 400px; height: 100%;" Elevation="2">
-                <div class="d-flex align-center mb-4">
-                    <MudIcon Icon="@Icons.Material.Filled.Schedule" Style="color: #FF6B00;" Class="mr-2" />
-                    <MudText Typo="Typo.subtitle1" Class="font-weight-bold" Style="color: #212121;">📅 Agenda do Próprio Dia</MudText>
-                </div>
-                <MudTimeline TimelinePosition="TimelinePosition.Start" Class="mt-2">
-                    @foreach (var agenda in _agendaDia)
-                    {
-                    <MudTimelineItem Color="@agenda.CorTimeline" Size="Size.Small">
-                        <div>
-                            <MudText Typo="Typo.body2" Class="font-weight-bold" Style="color: #212121;">@agenda.NomeAula</MudText>
-                            <MudText Typo="Typo.caption" Style="color: #666666;">@agenda.Horario | 👤 @agenda.Instrutor</MudText>
+  <MudGrid Class="mt-4">
+    <!-- COLUNA DA ESQUERDA: AGENDA DO DIA -->
+    <MudItem xs="12" md="6">
+        <MudPaper Class="pa-4 rounded-xl" Elevation="2" Style="height: 100%;">
+            <MudText Typo="Typo.h6" Class="mb-3">📅 Agenda do Próprio Dia</MudText>
+            <MudList T="string" Dense="true">
+                @if (!_agendaDoDia.Any())
+                {
+                    <MudListItem>Sem aulas agendadas para hoje.</MudListItem>
+                }
+                @foreach (var agenda in _agendaDoDia)
+                {
+                    <MudListItem>
+                        <div class="d-flex justify-space-between align-center">
+                            <MudChip T="string" Color="Color.Primary" Size="Size.Small" Variant="Variant.Text">
+                                <b>@agenda.Hora</b>
+                            </MudChip>
+                            <MudText Typo="Typo.body2" Class="font-weight-bold">@agenda.Modalidade</MudText>
+                            <MudText Typo="Typo.caption" Class="text-muted">@agenda.Instrutor</MudText>
                         </div>
-                    </MudTimelineItem>
-                    }
-                </MudTimeline>
-            </MudPaper>
-        </MudItem>
+                    </MudListItem>
+                }
+            </MudList>
+        </MudPaper>
+    </MudItem>
 
-        <MudItem xs="12" md="4">
-            <MudPaper Class="pa-6 rounded-xl d-flex flex-column" Style="border: 1px solid #E2E8F0; background-color: #FFFFFF; min-height: 400px; height: 100%;" Elevation="2">
-                <div class="d-flex align-center mb-4">
-                    <MudIcon Icon="@Icons.Material.Filled.DynamicFeed" Style="color: #00B0FF;" Class="mr-2" />
-                    <MudText Typo="Typo.subtitle1" Class="font-weight-bold" Style="color: #212121;">🔔 Central de Avisos Rápidos</MudText>
+    <!-- COLUNA DA DIREITA: META DE SÓCIOS + AVISOS RÁPIDOS -->
+    <MudItem xs="12" md="6">
+        <MudStack Spacing="4">
+            
+            <!-- 1. CARTÃO DA META DE SÓCIOS -->
+            <MudPaper Class="pa-4 rounded-xl" Elevation="2">
+                <div class="d-flex justify-space-between align-center mb-1">
+                    <MudText Typo="Typo.subtitle1" Class="font-weight-bold">🎯 Meta de Sócios Ativos</MudText>
+                    <MudText Typo="Typo.body2" Class="font-weight-bold" Style="color: #FF6B00;">
+                        @_totalSociosAtivos / @_metaSocios Sócios
+                    </MudText>
                 </div>
-                <MudStack Spacing="3">
-                    @foreach (var aviso in _feedAvisos)
+                
+                <MudProgressLinear Value="@PercentagemMeta" 
+                                   Color="Color.Warning" 
+                                   Rounded="true" 
+                                   Size="Size.Large" 
+                                   Class="my-2" />
+                                   
+                <div class="d-flex justify-end mt-1">
+                    <MudText Typo="Typo.caption" Class="text-muted">
+                        Alcançámos <b>@PercentagemMeta%</b> do nosso objetivo mensal!
+                    </MudText>
+                </div>
+            </MudPaper>
+
+            <!-- 2. CARTÃO DA CENTRAL DE AVISOS RÁPIDOS -->
+            <MudPaper Class="pa-4 rounded-xl" Elevation="2">
+                <MudText Typo="Typo.subtitle1" Class="font-weight-bold mb-3">⚡ Central de Avisos Rápidos</MudText>
+                <MudStack Spacing="2">
+                    @if (!_avisosRapidos.Any())
                     {
-                    <div class="pa-4 rounded-lg d-flex align-center" style="@($"background-color:{aviso.FundoHex};border:1px solid {aviso.BordaHex};")">
-                        <MudIcon Icon="@aviso.IconeAviso" Size="Size.Small" Style="@($"color:{aviso.TextoHex};margin-right:10px;flex-shrink:0;")" />
-                        <MudText Typo="Typo.body2" Style="@($"color:{aviso.TextoHex};font-weight:bold;")">@aviso.Mensagem</MudText>
-                    </div>
+                        <MudAlert Severity="Severity.Normal" Dense="true">O ginásio está a funcionar sem alertas pendentes.</MudAlert>
+                    }
+                    @foreach (var aviso in _avisosRapidos)
+                    {
+                        <MudAlert Severity="@(aviso.Cor == Color.Error ? Severity.Error : aviso.Cor == Color.Success ? Severity.Success : Severity.Info)" 
+                                  Dense="true" 
+                                  Variant="Variant.Outlined">
+                            @aviso.Mensagem
+                        </MudAlert>
                     }
                 </MudStack>
             </MudPaper>
-        </MudItem>
 
-        <MudItem xs="12" md="4">
-            <MudPaper Class="pa-6 rounded-xl d-flex flex-column justify-space-between" Style="border: 1px solid #E2E8F0; background-color: #FFFFFF; min-height: 400px; height: 100%;" Elevation="2">
-                <div>
-                    <div class="d-flex align-center mb-3">
-                        <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Style="color: #4CAF50;" Class="mr-2" />
-                        <MudText Typo="Typo.subtitle1" Class="font-weight-bold" Style="color: #212121;">🚀 Objetivo Mensal VitaFit</MudText>
-                    </div>
-                    <MudText Typo="Typo.body2" Style="color: #666666;" Class="mb-4">Meta estabelecida pela administração para angariação de novas subscrições ativas.</MudText>
-                </div>
-                <div class="my-auto py-2">
-                    <div class="d-flex align-center justify-space-between mb-2">
-                        <MudText Typo="Typo.body2" Style="color: #666666;" Class="font-weight-bold">Progresso</MudText>
-                        <MudText Typo="Typo.body2" Style="color: #4CAF50;" Class="font-weight-bold">@_totalSociosAtivos / @_metaSocios Sócios</MudText>
-                    </div>
-                    <MudProgressLinear Color="Color.Success" Value="@PercentagemMeta" Class="rounded-pill mb-2" Size="Size.Large" Striped="true" />
-                    <MudText Typo="Typo.body2" Class="font-weight-bold text-right d-block" Style="color: #212121;">
-                        Faltam @(_metaSocios - _totalSociosAtivos) sócios para a meta (@PercentagemMeta%)
-                    </MudText>
-                </div>
-                <div class="pt-3 text-center" style="border-top: 1px solid #F0F0F0;">
-                    <MudText Typo="Typo.caption" Style="color: #9E9E9E; font-style: italic;">* Dados baseados no mês corrente.</MudText>
-                </div>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
+        </MudStack>
+    </MudItem>
+</MudGrid>
 
 </MudContainer>
 
@@ -194,7 +225,9 @@
                 <MudIcon Icon="@Icons.Material.Filled.Analytics" Class="mr-2" style="vertical-align: text-bottom;" />
                 Relatório Detalhado VitaFit (BD)
             </MudText>
-            <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="FecharJanela" />
+            <MudIconButton
+                Icon="@Icons.Material.Filled.Close"
+                OnClick="FecharJanela" />
         </div>
 
         <div class="mb-4">
@@ -230,25 +263,34 @@
             <MudStack Spacing="3">
                 @foreach (var inst in _listaInstrutores)
                 {
-                <MudPaper Class="pa-4 rounded-lg" Style="background-color: #FAFAFA; border: 1px solid #E2E8F0;" Elevation="0">
-                    <div class="d-flex align-center justify-space-between mb-2">
-                        <div class="d-flex align-center">
-                            <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Style="color: #FF6B00; font-size: 36px;" Class="mr-2" />
-                            <div>
-                                <MudText Typo="Typo.body1" Class="font-weight-bold" Style="color: #212121; line-height: 1.2;">@inst.Nome</MudText>
-                                <MudText Typo="Typo.caption" Style="color: #00B0FF;" Class="font-weight-bold">★ @inst.Especialidade</MudText>
+                    // Calculamos a lotação primeiro
+                    var lotacao = _topAulas.FirstOrDefault(a => a.Instrutor == inst.Name)?.Percentagem ?? 0;
+
+                    // SÓ DESENHA O CARTÃO SE A LOTAÇÃO FOR MAIOR QUE ZERO!
+                    @if (lotacao > 0)
+                    {
+                        <MudPaper Class="pa-4 rounded-lg" Style="background-color: #FAFAFA; border: 1px solid #E2E8F0;" Elevation="0">
+                            <div class="d-flex align-center justify-space-between mb-2">
+                                <div class="d-flex align-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Style="color: #FF6B00; font-size: 36px;" Class="mr-2" />
+                                    <div>
+                                        <MudText Typo="Typo.body1" Class="font-weight-bold" Style="color: #212121; line-height: 1.2;">@inst.Name</MudText>
+                                        <MudText Typo="Typo.caption" Style="color: #00B0FF;" Class="font-weight-bold">
+                                            ★ @(inst.Modalidades != null && inst.Modalidades.Any() ? string.Join(", ", inst.Modalidades.Select(m => m.Name)) : "Geral")
+                                        </MudText>
+                                    </div>
+                                </div>
+                                <MudChip T="string" Color="Color.Dark" Size="Size.Small" Variant="Variant.Filled" Style="background-color: #212121; color: #FFFFFF;" Class="font-weight-bold">
+                                    @lotacao% Lotação
+                                </MudChip>
                             </div>
-                        </div>
-                        <MudChip T="string" Color="Color.Dark" Size="Size.Small" Variant="Variant.Filled" Style="background-color: #212121; color: #FFFFFF;" Class="font-weight-bold">
-                            @(_topAulas.FirstOrDefault(a => a.Instrutor == inst.Nome)?.Percentagem ?? 0)% Lotação
-                        </MudChip>
-                    </div>
-                    <MudDivider Class="mb-2" />
-                    <MudText Typo="Typo.caption" Style="color: #666666;">
-                        <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Small" Class="mr-1" style="vertical-align: text-bottom;" />
-                        Próxima Aula: <span style="color: #212121; font-weight: bold;">@ObterAulaDoInstrutor(inst.Nome)</span>
-                    </MudText>
-                </MudPaper>
+                            <MudDivider Class="mb-2" />
+                            <MudText Typo="Typo.caption" Style="color: #666666;">
+                                <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Small" Class="mr-1" style="vertical-align: text-bottom;" />
+                                Próxima Aula: <span style="color: #212121; font-weight: bold;">@ObterAulaDoInstrutor(inst.Name)</span>
+                            </MudText>
+                        </MudPaper>
+                    }
                 }
             </MudStack>
         </div>
@@ -256,341 +298,370 @@
     </MudPaper>
 </MudOverlay>
 
-@code {
+@code
+{
     private int _totalSociosAtivos;
     private int _totalAulas;
     private int _taxaOcupacaoMedia;
-    private double[] _graficoDados = Array.Empty<double>();
-    private string[] _graficoEtiquetas = Array.Empty<string>();
 
-    private int _metaSocios = 20;
-    private int PercentagemMeta => _metaSocios > 0 ? (int)Math.Round((double)_totalSociosAtivos / _metaSocios * 100) : 0;
+    private int _metaSocios = 50; // Altere para o valor que desejar (ex: 50 ou 100 sócios
+    private double _percentagemMetaSocios;
 
-    private List<AulaOcupacao> _topAulas = new();
+    private bool _popupAberto;
+    private int _totalInscritos;
 
-    private List<InstrutorModel> _listaInstrutores = new()
-    {
-        new() { Nome = "Marco Silva", Especialidade = "Crossfit & HIIT" },
-        new() { Nome = "Carla Costa", Especialidade = "Musculação & Força" },
-        new() { Nome = "Ricardo Dias", Especialidade = "Zumba & Dança" },
-        new() { Nome = "Sofia Santos", Especialidade = "Ciclismo Indoor" },
-        new() { Nome = "Inês Rocha", Especialidade = "Pilates & Flexibilidade" }
-    };
-
-    private List<AulaCriticaModel> _aulasCriticas = new();
-    private List<AgendaModel> _agendaDia = new();
-
-    private List<AvisoModel> _feedAvisos = new()
-    {
-        new() { Mensagem = "Subscrições validadas com sucesso no sistema.", IconeAviso = Icons.Material.Filled.CheckCircle, FundoHex = "#E8F5E9", BordaHex = "#A5D6A7", TextoHex = "#2E7D32" },
-        new() { Mensagem = "Manutenção preventiva agendada para as passadeiras amanhã às 08h.", IconeAviso = Icons.Material.Filled.Build, FundoHex = "#FFF9C4", BordaHex = "#FFF59D", TextoHex = "#F57F17" },
-        new() { Mensagem = "Atenção: modalidades com lotação crítica detetadas.", IconeAviso = Icons.Material.Filled.Error, FundoHex = "#FFE0B2", BordaHex = "#FFCC80", TextoHex = "#E65100" }
-    };
+    private CancellationTokenSource? _cts;
 
     private List<LegendaModalidade> _legendaModalidades = new();
+    private List<AgendaDia> _agendaDoDia = new();
+    private List<FeedAviso> _feedAvisos = new();
+    private List<AulaCritica> _aulasCriticas = new();
+    private List<InstrutorDto> _listaInstrutores = new(); 
+    
 
-    public class LegendaModalidade
+    private List<AulaDto> _aulas = new();
+    private List<SocioDto> _socios = new();
+    private List<InstrutorDto> _instrutores = new();
+    private List<ModalidadeDto> _modalidades = new();
+
+    private List<AulaOcupacao> _topAulas = new();
+    private List<AlocacaoInstrutor> _alocacaoInstrutores = new();
+    
+    private int PercentagemMeta =>
+        _metaSocios == 0
+            ? 0
+            : (int)Math.Round((double)_totalSociosAtivos / _metaSocios * 100);
+
+    private void AbrirJanelaInstrutores()
     {
-        public string Nome { get; set; } = "";
-        public string Cor { get; set; } = "";
-        public string TextCor { get; set; } = "";
-        public int Total { get; set; }
+        _popupAberto = true;
     }
 
-    private bool _popupAberto = false;
-
-    private void CarregarFallbackDados()
+    private void FecharJanela()
     {
-        _taxaOcupacaoMedia = 68;
-        _graficoDados = new double[] { 120, 95, 175 };
-        _graficoEtiquetas = new string[] { "Musculação", "Crossfit", "Outros" };
-        _topAulas = new()
-        {
-            new() { Nome = "Crossfit Hard WOD", Instrutor = "Marco Silva", FotoInstructor = "/uploads/crossfit.jpg", Percentagem = 93, Cor = MudBlazor.Color.Error },
-            new() { Nome = "Musculação Hipertrofia", Instrutor = "Carla Costa", FotoInstructor = "/uploads/musculação.jpg", Percentagem = 90, Cor = MudBlazor.Color.Primary },
-            new() { Nome = "Zumba Fitness", Instrutor = "Ricardo Dias", FotoInstructor = "/uploads/zumba.jpg", Percentagem = 86, Cor = MudBlazor.Color.Info },
-            new() { Nome = "Ciclismo High Speed", Instrutor = "Sofia Santos", FotoInstructor = "/uploads/ciclismo.jpg", Percentagem = 84, Cor = MudBlazor.Color.Primary },
-            new() { Nome = "Pilates Clínico", Instrutor = "Inês Rocha", FotoInstructor = "/uploads/pilates.jpeg", Percentagem = 75, Cor = MudBlazor.Color.Info }
-        };
-        _agendaDia = new()
-        {
-            new() { Horario = "17:30", NomeAula = "Pilates Clínico", Instrutor = "Inês Rocha", CorTimeline = MudBlazor.Color.Info },
-            new() { Horario = "18:45", NomeAula = "Crossfit WOD", Instrutor = "Marco Silva", CorTimeline = MudBlazor.Color.Primary },
-            new() { Horario = "20:00", NomeAula = "Zumba Dance", Instrutor = "Ricardo Dias", CorTimeline = MudBlazor.Color.Warning }
-        };
-        _aulasCriticas = _topAulas.Where(a => a.Percentagem >= 90)
-            .Select(a => new AulaCriticaModel { Nome = a.Nome, Taxa = a.Percentagem }).ToList();
+        _popupAberto = false;
     }
 
-    private string GetFallbackImage(string nomeAula, string nomeModalidade)
+    private string ObterAulaDoInstrutor(string nome)
     {
-        string busca = (nomeAula + " " + nomeModalidade).ToLower();
-        if (busca.Contains("crossfit")) return "/uploads/crossfit.jpg";
-        if (busca.Contains("zumba")) return "/uploads/zumba.jpg";
-        if (busca.Contains("ciclismo")) return "/uploads/ciclismo.jpg";
-        if (busca.Contains("pilates")) return "/uploads/pilates.jpeg";
-        if (busca.Contains("musculação") || busca.Contains("musculacao")) return "/uploads/musculação.jpg";
-        if (busca.Contains("taekwondo")) return "/uploads/taekwondo.jpeg";
-        if (busca.Contains("ioga") || busca.Contains("yoga")) return "/uploads/yoga_jpeg.jpeg";
-        return "/uploads/musculação.jpg";
+        var aula = _topAulas.FirstOrDefault(x => x.Instrutor == nome);
+
+        return aula?.Nome ?? "Sem aulas";
     }
 
     protected override async Task OnInitializedAsync()
     {
-        try
+        await CarregarDashboard();
+
+        _cts = new CancellationTokenSource();
+
+        _ = AtualizacaoAutomatica(_cts.Token);
+    }
+
+    private async Task CarregarDashboard()
+    {
+        var respostaAulas = await GinasioService.GetAulas();
+        var respostaSocios = await GinasioService.GetSocios();
+        var respostaInstrutores = await GinasioService.GetAllInstrutores();
+        var respostaModalidades = await GinasioService.GetAllModalidades();
+
+        if (respostaAulas.IsSuccessStatusCode && respostaAulas.Content != null)
+            _aulas = respostaAulas.Content;
+
+        if (respostaSocios.IsSuccessStatusCode && respostaSocios.Content != null)
+            _socios = respostaSocios.Content;
+
+        if (respostaInstrutores.IsSuccessStatusCode && respostaInstrutores.Content != null)
+            _instrutores = respostaInstrutores.Content;
+
+        if (respostaModalidades.IsSuccessStatusCode && respostaModalidades.Content != null)
+            _modalidades = respostaModalidades.Content;
+
+        _totalSociosAtivos = _socios.Count;
+
+        _totalAulas = _aulas.Count;
+
+        _taxaOcupacaoMedia = await CalcularOcupacaoMedia();
+
+        // ===== TOP 5 AULAS =====
+
+        _topAulas.Clear();
+
+        _totalInscritos = 0;
+
+        foreach (var aula in _aulas)
         {
-// Sócios
-            var respostaSocios = await GinasioService.GetSocios();
-            if (respostaSocios is { IsSuccessStatusCode: true, Content: not null })
+            var inscritos = await ObterNumeroInscritos(aula.Id);
+
+            _totalInscritos += inscritos;
+
+            var percentagem = aula.Capacidade == 0
+                ? 0
+                : (int)Math.Round((double)inscritos / aula.Capacidade * 100);
+
+            Color cor = Color.Success;
+
+            if (percentagem >= 90)
+                cor = Color.Error;
+            else if (percentagem >= 70)
+                cor = Color.Warning;
+
+            _topAulas.Add(new AulaOcupacao
             {
-                _totalSociosAtivos = respostaSocios.Content.Count;
-                Console.WriteLine($"DEBUG Socios: {_totalSociosAtivos}");
+                Aula = aula,
+                Nome = ObterNomeModalidade(aula.ModalidadeId),
+                Instrutor = ObterNomeInstrutor(aula.InstrutorId),
+                FotoInstructor = "/images/avatar.png",
+                FotoModalidade = ObterImagemModalidade(aula.ModalidadeId),
+                Inscritos = inscritos,
+                Capacidade = aula.Capacidade,
+                Percentagem = percentagem,
+                Cor = cor
+            });
+        }
+
+        _topAulas = _topAulas
+            .Where(x => !string.Equals(x.Nome, "Cardio", StringComparison.OrdinalIgnoreCase)) // 1. Remove o Cardio
+            .GroupBy(x => x.Nome) // 2. Agrupa pelo nome para não repetir modalidades
+            .Select(g => g.OrderByDescending(x => x.Percentagem).First()) // 3. Escolhe a aula mais cheia de cada modalidade
+            .OrderByDescending(x => x.Percentagem) // 4. Ordena as modalidades pela maior ocupação
+            .Take(5) // 5. Garante as Top 5 modalidades únicas
+            .ToList();
+
+        _listaInstrutores.Clear();
+
+        foreach (var inst in _instrutores)
+        {
+            // 1. Procura todas as aulas associadas a este instrutor específico
+            var aulasDoInstrutor = _aulas.Where(a => a.InstrutorId == inst.Id).ToList();
+
+            int totalInscritosDoInstrutor = 0;
+
+            // 2. Soma os inscritos reais de cada uma das aulas dele
+            foreach (var aula in aulasDoInstrutor)
+            {
+                totalInscritosDoInstrutor += await ObterNumeroInscritos(aula.Id);
             }
-            else
+
+            // 3. Só adiciona o instrutor ao pop-up se ele tiver 1 ou mais alunos inscritos hoje
+            if (totalInscritosDoInstrutor > 0)
             {
-                Console.WriteLine($"DEBUG Socios ERRO: {respostaSocios?.StatusCode} | {respostaSocios?.Error?.Content}");
+                _listaInstrutores.Add(inst);
+            }
+        }
+
+        _agendaDoDia = _aulas
+            .Where(a => a.InstrutorId != 0) // 1. Ignora aulas que não têm ID de instrutor (ou mude para != null se for nullable)
+            .OrderBy(a => a.Inicio) 
+            .Take(5) 
+            .Select(a => new AgendaDia
+            {
+                Hora = a.Inicio.ToString("HH:mm"),
+                Modalidade = ObterNomeModalidade(a.ModalidadeId),
+                Instrutor = ObterNomeInstrutor(a.InstrutorId)
+            })
+            // 2. Filtro de segurança caso o método de obter nome retorne "Sem Instrutor"
+            .Where(x => x.Instrutor != "Sem Instrutor") 
+            .ToList();
+
+        // ===== 2. GERAR CENTRAL DE AVISOS RÁPIDOS =====
+        _avisosRapidos.Clear();
+
+        // Aviso 1: Alerta automático de vagas críticas no Top 5
+        var aulaCritica = _topAulas.FirstOrDefault(x => x.Percentagem >= 90);
+        if (aulaCritica != null)
+        {
+            _avisosRapidos.Add(new AvisoRapido
+            {
+                Mensagem = $"A aula de {aulaCritica.Nome} está quase cheia ({aulaCritica.Percentagem}%).",
+                Cor = Color.Error,
+                Icone = Icons.Material.Filled.Warning
+            });
+        }
+
+        // Aviso 2: Novas inscrições globais no sistema
+        if (_totalInscritos > 0)
+        {
+            _avisosRapidos.Add(new AvisoRapido
+            {
+                Mensagem = $"Temos um total de {_totalInscritos} inscrições ativas para gerir hoje.",
+                Cor = Color.Success,
+                Icone = Icons.Material.Filled.CheckCircle
+            });
+        }
+    }
+
+        
+
+        private async Task<int> CalcularOcupacaoMedia()
+        {
+            if (_aulas.Count == 0)
+                return 0;
+
+            int soma = 0;
+
+            foreach (var aula in _aulas)
+            {
+                soma += await ObterPercentagemOcupacao(aula);
             }
 
-// Aulas
-            var respostaAulas = await GinasioService.GetAulas();
-            if (respostaAulas is { IsSuccessStatusCode: true, Content: not null })
+            return soma / _aulas.Count;
+        }
+
+        private async Task<int> ObterNumeroInscritos(int aulaId)
+        {
+            var resposta = await GinasioService.GetAllSociosFromAula(aulaId);
+
+            if (resposta.StatusCode == System.Net.HttpStatusCode.NotFound)
+                return 0;
+
+            if (!resposta.IsSuccessStatusCode || resposta.Content == null)
+                return 0;
+
+            return resposta.Content.Count;
+        }
+
+        private int VerObterSoma()
+        {
+            return _totalInscritos;
+        }
+
+        private async Task<int> ObterPercentagemOcupacao(AulaDto aula)
+        {
+            if (aula.Capacidade <= 0)
+                return 0;
+
+            var inscritos = await ObterNumeroInscritos(aula.Id);
+
+            return (int)Math.Round((double)inscritos / aula.Capacidade * 100);
+        }
+
+        private IEnumerable<AulaDto> AulasHoje =>
+            _aulas
+                .Where(a => a.Inicio.Date == DateTime.Today)
+                .OrderBy(a => a.Inicio);
+
+        private IEnumerable<InstrutorDto> Instrutores =>
+            _instrutores;
+
+        private IEnumerable<ModalidadeDto> Modalidades =>
+            _modalidades;
+
+        private string ObterNomeInstrutor(int id)
+        {
+            var instrutor = _instrutores.FirstOrDefault(i => i.Id == id);
+            return instrutor?.Name ?? "Sem Instrutor";
+        }
+        
+        private string ObterAulaDoInstrutor(int instrutorId)
+        {
+            // Procura nas aulas do sistema a primeira aula associada a este instrutor
+            var aulaProxima = _aulas.FirstOrDefault(a => a.InstrutorId == instrutorId);
+    
+            if (aulaProxima != null)
             {
-                var aulasRealBD = respostaAulas.Content;
-                _totalAulas = aulasRealBD.Count;
-                Console.WriteLine($"DEBUG Aulas: {_totalAulas}");
+                // Vai buscar o nome da modalidade dessa aula
+                var nomeModalidade = ObterNomeModalidade(aulaProxima.ModalidadeId);
+                return $"{nomeModalidade}";
+            }
+    
+            return "Sem aulas agendadas";
+        }
 
-                _topAulas = aulasRealBD
-                    .Select(a =>
-                    {
-                        dynamic d = a;
-                        string nomeAula = d.Nome ?? d.NomeAula ?? "Aula";
-                        string nomeInstrutor = d.NomeInstrutor ?? "Instrutor VitaFit";
-                        string modalidade = d.NomeModalidade ?? "Geral";
-                        int inscritos = 0;
-                        try
-                        {
-                            inscritos = (int)(d.Inscritos ?? 0);
-                        }
-                        catch
-                        {
-                        }
+        private string ObterNomeModalidade(int id)
+        {
+            var modalidade = _modalidades.FirstOrDefault(m => m.Id == id);
+            return modalidade?.Name ?? "Modalidade";
+        }
 
-                        int capacidade = 0;
-                        try
-                        {
-                            capacidade = (int)(d.Capacidade ?? 0);
-                        }
-                        catch
-                        {
-                        }
+        private string ObterImagemModalidade(int id)
+        {
+            var modalidade = _modalidades.FirstOrDefault(m => m.Id == id);
+            return modalidade?.ImageUrl ?? "/uploads/musculacao.jpg";
+        }
 
-                        int taxa = capacidade > 0 ? (int)Math.Round((double)inscritos / capacidade * 100) : 0;
-                        return new AulaOcupacao
-                        {
-                            Nome = nomeAula,
-                            Instrutor = nomeInstrutor,
-                            IconeModalidade = modalidade,
-                            FotoInstructor = GetFallbackImage(nomeAula, modalidade),
-                            Percentagem = taxa,
-                            Cor = taxa >= 90 ? MudBlazor.Color.Error : MudBlazor.Color.Primary
-                        };
-                    })
-                    .OrderByDescending(a => a.Percentagem)
-                    .Take(5)
-                    .ToList();
+        private async Task AtualizacaoAutomatica(CancellationToken token)
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
 
-                if (!_topAulas.Any())
+            while (await timer.WaitForNextTickAsync(token))
+            {
+                await InvokeAsync(async () =>
                 {
-                    CarregarFallbackDados();
-                }
-                else
-                {
-                    _taxaOcupacaoMedia = (int)_topAulas.Average(a => a.Percentagem);
-                    _aulasCriticas = _topAulas
-                        .Where(a => a.Percentagem >= 90)
-                        .Select(a => new AulaCriticaModel { Nome = a.Nome, Taxa = a.Percentagem })
-                        .ToList();
-
-                    _graficoDados = _topAulas
-                        .GroupBy(a => a.IconeModalidade)
-                        .Select(g => (double)g.Sum(a => a.Percentagem))
-                        .Take(3)
-                        .ToArray();
-
-                    _graficoEtiquetas = _topAulas
-                        .GroupBy(a => a.IconeModalidade)
-                        .Select(g => g.Key)
-                        .Take(3)
-                        .ToArray();
-
-                    _agendaDia = _topAulas.Take(3)
-                        .Select((a, index) => new AgendaModel
-                        {
-                            Horario = index == 0 ? "17:30" : index == 1 ? "18:45" : "20:00",
-                            NomeAula = a.Nome,
-                            Instrutor = a.Instrutor,
-                            CorTimeline = index == 0 ? MudBlazor.Color.Info : index == 1 ? MudBlazor.Color.Primary : MudBlazor.Color.Warning
-                        }).ToList();
-                }
-            }
-            else
-            {
-                Console.WriteLine($"DEBUG Aulas ERRO: {respostaAulas?.StatusCode} | {respostaAulas?.Error?.Content}");
-                CarregarFallbackDados();
-            }
-
-// Instrutores
-            try
-            {
-                var respostaInstrutores = await GinasioService.GetAllInstrutores();
-                Console.WriteLine($"DEBUG Instrutores Status: {respostaInstrutores?.StatusCode}");
-                if (respostaInstrutores is { IsSuccessStatusCode: true, Content: not null } && respostaInstrutores.Content.Any())
-                {
-                    _listaInstrutores = respostaInstrutores.Content.Select(i => new InstrutorModel
-                    {
-                        Nome = i.Name ?? "Instrutor",
-                        Especialidade = i.Modalidades?.FirstOrDefault()?.Name ?? "Treino Avançado"
-                    }).ToList();
-                    Console.WriteLine($"DEBUG Instrutores OK: {_listaInstrutores.Count}");
-                }
-                else
-                {
-                    Console.WriteLine($"DEBUG Instrutores vazio ou erro - usando fallback");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"DEBUG Instrutores EXCEÇÃO: {ex.Message}");
-            }
-
-// Modalidades
-            try
-            {
-                var cores = new[] { "#FF6B00", "#00B0FF", "#9E9E9E" };
-                var coresTexto = new[] { "#212121", "#212121", "#666666" };
-
-                if (respostaAulas is { IsSuccessStatusCode: true, Content: not null })
-                {
-                    var aulas = respostaAulas.Content;
-                    Console.WriteLine($"DEBUG primeira aula modalidade: {aulas.FirstOrDefault()?.Modalidade?.Name ?? "NULL"}");
-
-                    var agrupado = aulas
-                        .Where(a => a.Modalidade != null && !string.IsNullOrEmpty(a.Modalidade.Name))
-                        .GroupBy(a => a.Modalidade.Name)
-                        .Select(g => new { Nome = g.Key, Total = g.Count() })
-                        .OrderByDescending(x => x.Total)
-                        .Take(3)
-                        .ToList();
-
-                    if (agrupado.Any())
-                    {
-                        _legendaModalidades = agrupado
-                            .Select((m, i) => new LegendaModalidade
-                            {
-                                Nome = m.Nome,
-                                Cor = cores[i],
-                                TextCor = coresTexto[i],
-                                Total = m.Total
-                            }).ToList();
-                    }
-                    else
-                    {
-                        Console.WriteLine("DEBUG Modalidade é NULL em todas as aulas - usando ModalidadeId");
-                        var agrupadoPorId = aulas
-                            .GroupBy(a => a.ModalidadeId)
-                            .Select(g => new { Id = g.Key, Total = g.Count() })
-                            .OrderByDescending(x => x.Total)
-                            .Take(3)
-                            .ToList();
-
-                        _legendaModalidades = agrupadoPorId
-                            .Select((m, i) => new LegendaModalidade
-                            {
-                                Nome = $"Modalidade {m.Id}",
-                                Cor = cores[i],
-                                TextCor = coresTexto[i],
-                                Total = m.Total
-                            }).ToList();
-                    }
-
-                    Console.WriteLine($"DEBUG Modalidades final: {_legendaModalidades.Count}");
+                    await CarregarDashboard();
                     StateHasChanged();
-                }
+                });
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"DEBUG Modalidades ERRO: {ex.Message}");
-            }
-
-// Avisos
-            _feedAvisos = new()
-            {
-                new() { Mensagem = $"Atividade detetada: {_totalSociosAtivos} subscrições validadas com sucesso no sistema.", IconeAviso = Icons.Material.Filled.CheckCircle, FundoHex = "#E8F5E9", BordaHex = "#A5D6A7", TextoHex = "#2E7D32" },
-                new() { Mensagem = "Manutenção preventiva agendada para o parque de passadeiras amanhã às 08h.", IconeAviso = Icons.Material.Filled.Build, FundoHex = "#FFF9C4", BordaHex = "#FFF59D", TextoHex = "#F57F17" },
-                new() { Mensagem = $"Alerta: {_aulasCriticas.Count} modalidades atingiram o estado crítico de lotação máxima.", IconeAviso = Icons.Material.Filled.Error, FundoHex = "#FFE0B2", BordaHex = "#FFCC80", TextoHex = "#E65100" }
-            };
         }
-        catch (Exception ex)
+
+        public void Dispose()
         {
-            Console.WriteLine($"ERRO GERAL OnInitializedAsync: {ex.Message}");
-            CarregarFallbackDados();
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
-    }
 
-    private void AbrirJanelaInstrutores() => _popupAberto = true;
-    private void FecharJanela() => _popupAberto = false;
-    private string VerObterSoma() => _totalAulas.ToString();
+        public class AulaOcupacao
+        {
+            public string Nome { get; set; } = "";
+            public string Instrutor { get; set; } = "";
+            public string FotoInstructor { get; set; } = "";
+            public string FotoModalidade { get; set; } = "/images/modalidade-placeholder.png";
+            public int Inscritos { get; set; }
+            public int Capacidade { get; set; }
+            public int Percentagem { get; set; }
+            public MudBlazor.Color Cor { get; set; }
+            public AulaDto Aula { get; set; } = default!;
+        }
 
-    private string ObterAulaDoInstrutor(string nomeInstrutor)
-    {
-        var aula = _topAulas.FirstOrDefault(a => a.Instrutor == nomeInstrutor);
-        return aula != null ? aula.Nome : "Sem aulas alocadas hoje";
-    }
+        public class LegendaModalidade
+        {
+            public string Nome { get; set; } = "";
+            public int Total { get; set; }
+            public string Cor { get; set; } = "";
+            public string TextCor { get; set; } = "";
+        }
 
-    private MudBlazor.Color GetMudColor(int percentagem) => percentagem switch
-    {
-        >= 92 => MudBlazor.Color.Error,
-        >= 85 => MudBlazor.Color.Primary,
-        _ => MudBlazor.Color.Info
-    };
+        public class AgendaDia
+        {
+            public string Hora { get; set; } = string.Empty;
+            public string Modalidade { get; set; } = string.Empty;
+            public string Instrutor { get; set; } = string.Empty;
+        }
 
-    public class AgendaModel
-    {
-        public string Horario { get; set; } = "";
-        public string NomeAula { get; set; } = "";
-        public string Instrutor { get; set; } = "";
-        public MudBlazor.Color CorTimeline { get; set; }
-    }
-
-    public class AvisoModel
-    {
-        public string Mensagem { get; set; } = "";
-        public string IconeAviso { get; set; } = "";
-        public string FundoHex { get; set; } = "";
-        public string BordaHex { get; set; } = "";
-        public string TextoHex { get; set; } = "";
-    }
-
-    public class AulaOcupacao
-    {
-        public string Nome { get; set; } = "";
-        public string Instrutor { get; set; } = "";
-        public string IconeModalidade { get; set; } = "";
-        public string FotoInstructor { get; set; } = "";
-        public int Percentagem { get; set; }
-        public MudBlazor.Color Cor { get; set; }
-    }
-
-    public class InstrutorModel
-    {
-        public string Nome { get; set; } = "";
-        public string Especialidade { get; set; } = "";
-    }
-
-    public class AulaCriticaModel
-    {
-        public string Nome { get; set; } = "";
-        public int Taxa { get; set; }
-    }
-
+public class AvisoRapido
+{
+public string Mensagem { get; set; } = string.Empty;
+public Color Cor { get; set; } = Color.Info;
+public string Icone { get; set; } = Icons.Material.Filled.Info;
 }
+private List<AvisoRapido> _avisosRapidos = new();
+
+        public class FeedAviso
+        {
+            public string Mensagem { get; set; } = "";
+            public string FundoHex { get; set; } = "";
+            public string BordaHex { get; set; } = "";
+            public string TextoHex { get; set; } = "";
+            public string IconeAviso { get; set; } = "";
+        }
+
+        public class AulaCritica
+        {
+            public string Nome { get; set; } = "";
+            public int Taxa { get; set; }
+        }
+
+        public class InstrutorResumo
+        {
+            public string Nome { get; set; } = "";
+            public string Especialidade { get; set; } = "";
+        }
+        
+        public class AlocacaoInstrutor
+        {
+            public string Nome { get; set; } = string.Empty;
+            public int TotalAulas { get; set; }
+        }
+
+    }
+    
