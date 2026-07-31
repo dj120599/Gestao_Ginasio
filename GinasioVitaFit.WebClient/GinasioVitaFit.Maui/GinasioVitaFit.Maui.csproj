@@ -80,4 +80,16 @@
       <ProjectReference Include="..\GinasioVitaFit.UIComponentes\GinasioVitaFit.UIComponentes.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AdditionalFiles Include="Components\Pages\Aulas\AulasPage.razor" />
+      <AdditionalFiles Include="Components\Pages\Aulas\Componentes\AddAulasComponente.razor" />
+      <AdditionalFiles Include="Components\Pages\Aulas\Componentes\AulaModalComponente.razor" />
+      <AdditionalFiles Include="Components\Pages\Instrutores\Componentes\AddInstrutorComponente.razor" />
+      <AdditionalFiles Include="Components\Pages\Instrutores\InstrutorPage.razor" />
+      <AdditionalFiles Include="Components\Pages\Modalidades\Componentes\ModalidadeModalComponente.razor" />
+      <AdditionalFiles Include="Components\Pages\Modalidades\ModalidadePage.razor" />
+      <AdditionalFiles Include="Components\Pages\Socios\Componentes\AddSocioComponente.razor" />
+      <AdditionalFiles Include="Components\Pages\Socios\SocioPage.razor" />
+    </ItemGroup>
+
 </Project>
