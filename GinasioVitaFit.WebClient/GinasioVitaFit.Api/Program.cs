@@ -1,5 +1,6 @@
 using Mapster;
 using GinasioVitaFit.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,12 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<IVitaFitDbContext, VitaFitDbContext>();
+builder.Services.AddDbContext<IVitaFitDbContext, VitaFitDbContext>((serviceProvider, options) =>
+{
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
 builder.Services.AddMapster();
 
 var app = builder.Build();
