@@ -5,6 +5,12 @@ namespace GinasioVitaFit.Api.Data;
 
 public class VitaFitDbContext: DbContext, IVitaFitDbContext
 {
+    
+    public VitaFitDbContext(DbContextOptions<VitaFitDbContext> options)
+            : base(options)
+        {
+        }
+    
     public DbSet<Aula> Aulas { get; set; }
     public DbSet<Dificuldade> Dificuldades { get; set; }
     public DbSet<Instrutor> Instrutores { get; set; }
@@ -15,13 +21,13 @@ public class VitaFitDbContext: DbContext, IVitaFitDbContext
     public DbSet<AulaSocios> AulaSocios { get; set; }
     public DbSet<Sala> Salas { get; set; }
     
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder )
-    {
-        base.OnConfiguring(optionsBuilder);
-        
-       
-        optionsBuilder.UseSqlServer("Data Source=SQL8012.site4now.net;Initial Catalog=db_acb35f_ginasiovitafit;User Id=db_acb35f_ginasiovitafit_admin;Password=2026Brazil;Encrypt=True;TrustServerCertificate=True;");
-    }
+    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder )
+    // {
+    //     base.OnConfiguring(optionsBuilder);
+    //     
+    //    
+    //     optionsBuilder.UseSqlServer("");
+    // }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
