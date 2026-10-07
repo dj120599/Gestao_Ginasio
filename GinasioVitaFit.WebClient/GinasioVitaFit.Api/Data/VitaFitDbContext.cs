@@ -21,13 +21,13 @@ public class VitaFitDbContext: DbContext, IVitaFitDbContext
     public DbSet<AulaSocios> AulaSocios { get; set; }
     public DbSet<Sala> Salas { get; set; }
     
-    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder )
-    // {
-    //     base.OnConfiguring(optionsBuilder);
-    //     
-    //    
-    //     optionsBuilder.UseSqlServer("");
-    // }
+     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder )
+     {
+        base.OnConfiguring(optionsBuilder);
+        
+        optionsBuilder.UseSqlite("Data Source= App.db");
+     }
+     
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,6 +40,7 @@ public class VitaFitDbContext: DbContext, IVitaFitDbContext
         // Resolve o provável erro do InstrutorModDto (ajuste os nomes das propriedades se forem diferentes)
         modelBuilder.Entity<InstrutorMod>()
             .HasKey(imod => new { imod.InstrutorId, imod.ModalidadeId });
+        
     }
     
     
