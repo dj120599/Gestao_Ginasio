@@ -247,6 +247,7 @@
     // REGRA DO TRELLO: Disparada reativamente ao mudar a modalidadeDto no ecrã
     private void OnModalidadeChanged(int novaModalidadeId)
     {
+        listaInstrutoresFiltrados.Clear();
         _novaAulaDto.ModalidadeId = novaModalidadeId;
         _novaAulaDto.InstrutorId = 0;
 
@@ -256,7 +257,15 @@
         }
         else
         {
-            listaInstrutoresFiltrados = listaInstrutores.ToList();
+            foreach (var instrutor in listaInstrutores)
+            {
+                foreach (var modalidade in instrutor.Modalidades)
+                {
+                    if(modalidade.Id == novaModalidadeId)
+                        listaInstrutoresFiltrados.Add(instrutor);
+                }
+            }
+            //listaInstrutoresFiltrados = listaInstrutores.ToList();
         }
 
         StateHasChanged();
