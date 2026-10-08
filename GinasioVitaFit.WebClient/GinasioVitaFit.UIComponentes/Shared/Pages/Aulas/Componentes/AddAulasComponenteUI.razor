@@ -163,6 +163,7 @@
     private List<ModalidadeDto> listaModalidades = new();
     private List<InstrutorDto> listaInstrutores = new();
     private List<SalaDto> listaSalas = new();
+    private List<AulaDto> listaAulas = new();
     private List<InstrutorDto> listaInstrutoresFiltrados = new();
 
     [Parameter] public EventCallback OnSubmetido { get; set; }
@@ -237,6 +238,13 @@
                 List<SalaDto> salas = resSala.Content ?? resSala;
                 listaSalas = salas.ToList();
             }
+
+            dynamic resAulas= await GinasioService.GetAulas();
+            if (resAulas != null)
+            {
+                List<AulaDto> aulas = resAulas.Content ?? resAulas;
+                listaAulas = aulas.ToList();
+            }
         }
         catch (Exception ex)
         {
@@ -265,7 +273,6 @@
                         listaInstrutoresFiltrados.Add(instrutor);
                 }
             }
-            //listaInstrutoresFiltrados = listaInstrutores.ToList();
         }
 
         StateHasChanged();
@@ -290,6 +297,43 @@
 
         _isLoading = true;
         StateHasChanged();
+
+        foreach (var aulas in listaAulas)
+        {
+            if (aulas.Id != _novaAulaDto.Id)
+            {
+                if (aulas.Inicio.ToShortDateString() == _novaAulaDto.Inicio.ToShortDateString())
+                {
+                    bool trepass = ((aulas.Inicio.TimeOfDay >= _novaAulaDto.Inicio.TimeOfDay) &&
+                                    (aulas.Inicio.TimeOfDay >= _novaAulaDto.Fim.TimeOfDay) ||
+                                    (aulas.Fim.TimeOfDay <= _novaAulaDto.Inicio.TimeOfDay) &&
+                                    (aulas.Fim.TimeOfDay <= _novaAulaDto.Fim.TimeOfDay));
+                
+                    if (trepass == false)
+                    {
+                        if (aulas.InstrutorId == _novaAulaDto.InstrutorId)
+                        {
+                            if (aulas.SalaId == _novaAulaDto.SalaId)
+                            {
+                                Snackbar.Add("Instrutor e Sala ocupados durante esse periodo!", Severity.Warning);
+                                _isLoading = false;
+                                return;
+                            }
+                        
+                            Snackbar.Add("Instrutor ocupado durante esse periodo!", Severity.Warning);
+                            _isLoading = false;
+                            return;
+                        }
+                        else if (aulas.SalaId == _novaAulaDto.SalaId)
+                        {
+                            Snackbar.Add("Sala ocupado durante esse periodo!", Severity.Warning);
+                            _isLoading = false;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
 
         try
         {
@@ -319,6 +363,7 @@
             _isLoading = false;
         }
 
+        _isLoading = false;
         StateHasChanged();
     }
 
