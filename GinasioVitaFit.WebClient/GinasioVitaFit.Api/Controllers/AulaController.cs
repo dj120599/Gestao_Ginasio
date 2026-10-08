@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using GinasioVitaFit.Api.Data;
 using GinasioVitaFit.Api.Entities;
 using GinasioVitaFit.Shared.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace GinasioVitaFit.Api.Controllers;
 
